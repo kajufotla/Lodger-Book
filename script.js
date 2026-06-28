@@ -1,5 +1,5 @@
 // ---------------------------------------------------------
-// LAYER 2 & 4: STATE & UI (ETA UPGRADE)
+// LAYER 2 & 4: STATE & UI (COMPLETE FILE)
 // ---------------------------------------------------------
 
 class OperationState {
@@ -33,7 +33,39 @@ class OperationState {
 }
 
 class AppUI {
-    // ... (Keep existing UI methods) ...
+    
+    // यह फंक्शन index.html के लिए जरूरी है
+    static renderComplexInput(tool, isImage = false, acceptType = "application/pdf") {
+        return `
+            <div class="mt-4">
+                <label class="block text-xs font-semibold text-slate-600 mb-2">Upload Files for ${tool.name}</label>
+                <input type="file" multiple accept="${acceptType}" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs outline-none bg-white">
+            </div>
+        `;
+    }
+
+    // यह फंक्शन टूल्स पर क्लिक करने के लिए जरूरी है
+    static activateWorkspace(key, tool) {
+        console.log(`Activated tool: ${tool.name}`);
+        
+        // अगर आपके पास workspace के नाम से कोई div है तो यह वहां टूल दिखाएगा
+        const workspace = document.getElementById('workspace');
+        if (workspace) {
+            workspace.innerHTML = `<h2 class="text-xl font-bold mb-4">${tool.name}</h2>` + tool.render(tool);
+            workspace.style.display = 'block';
+        } else {
+            console.log(`Tool ${tool.name} activated!`);
+        }
+    }
+
+    static showToast(msg, type) {
+        console.log(type.toUpperCase() + ": " + msg);
+        // अगर आपके पास टोस्ट का डिज़ाइन है तो यहां लॉजिक डाल सकते हैं
+    }
+
+    static resetProgress() {
+        this.updateProgress(0);
+    }
 
     static updateProgress(percent) {
         const bar = document.getElementById('engine-progress-bar');
