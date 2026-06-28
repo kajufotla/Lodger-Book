@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My PDF Tools</title>
+    <title>Pro Tool Hub | Advanced PDF & Image Utilities</title>
+    <meta name="description" content="Professional suite of PDF and Image tools. Merge, split, resize, and edit files securely in your browser.">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,102 +13,29 @@
     
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 p-8">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <div id="toast" class="opacity-0"></div>
+    <div id="toast" class="opacity-0 pointer-events-none transition-all duration-300 fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-sm font-semibold shadow-2xl flex items-center space-x-2 z-50"></div>
 
-    <div class="max-w-5xl mx-auto space-y-8">
-        
-        <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-
-        <div id="tool-workspace-box" style="opacity: 0;" class="transition-opacity duration-300 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-8">
-            <div id="canvas-content"></div>
+    <header class="bg-white shadow-sm py-4 border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Pro<span class="text-blue-600">Tool</span>Hub</h1>
         </div>
+    </header>
 
-    </div>
+    <main class="flex-grow max-w-6xl mx-auto px-6 py-10 w-full space-y-10">
+        <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+
+        <div id="tool-workspace-box" class="hidden transition-all duration-500 bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
+            <div id="canvas-content" class="max-w-3xl mx-auto"></div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm">
+        <p>&copy; 2026 Pro Tool Hub. All processing is done locally on your device for maximum privacy.</p>
+    </footer>
 
     <script src="config.js"></script>
     <script src="script.js"></script>
-
-    <script>
-        const { PDFDocument, rgb, degrees } = PDFLib;
-
-        // Global state
-        window.ActiveFiles = [];
-
-        // Note: PDFEngine and OperationState logic should remain in script.js
-        
-        const ToolsConfig = {
-            merge: { name: "Merge PDF", desc: "Combine multiple PDFs.", icon: "fa-copy", color: "blue-600", border: "border-b-[3px] border-b-blue-600", render: (t) => AppUI.renderComplexInput(t, true) },
-            split: { name: "Split PDF", desc: "Extract or split pages.", icon: "fa-scissors", color: "emerald-600", border: "border-b-[3px] border-b-emerald-600", render: (t) => AppUI.renderComplexInput(t) + `
-                <select id="split-mode" class="w-full mt-3 px-4 py-3 rounded-xl border border-slate-200 text-xs outline-none bg-white" aria-label="Split Mode">
-                    <option value="all">Split Every Page</option><option value="range">Extract Selected Range</option>
-                </select>
-                <input type="text" id="pg-range" placeholder="Pages (e.g. 1-5, 8)" class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Page Range">` },
-            rotate: { name: "Rotate Pages", desc: "Rotate specified pages.", icon: "fa-rotate-right", color: "purple-600", border: "border-b-[3px] border-b-purple-600", render: (t) => AppUI.renderComplexInput(t) + `
-                <div class="mt-3 space-y-2">
-                    <input type="text" id="pg-range" placeholder="Pages (e.g. 1-5, 8)" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Page Range">
-                    <div class="flex gap-2">
-                        <button type="button" id="btn-rot-90" class="flex-1 py-2 bg-slate-100 rounded-lg text-xs hover:bg-slate-200" aria-label="Rotate 90 degrees">90&deg;</button>
-                        <button type="button" id="btn-rot-180" class="flex-1 py-2 bg-slate-100 rounded-lg text-xs hover:bg-slate-200" aria-label="Rotate 180 degrees">180&deg;</button>
-                        <button type="button" id="btn-rot-270" class="flex-1 py-2 bg-slate-100 rounded-lg text-xs hover:bg-slate-200" aria-label="Rotate 270 degrees">270&deg;</button>
-                    </div>
-                    <input type="number" id="rot-angle" value="90" placeholder="Custom Angle" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Rotation Angle">
-                </div>` },
-            numbers: { name: "Page Numbers", desc: "Advanced numbering.", icon: "fa-list-ol", color: "teal-500", border: "border-b-[3px] border-b-teal-500", render: (t) => AppUI.renderComplexInput(t) + `
-                <div class="grid grid-cols-2 gap-2 mt-3">
-                    <input type="text" id="pg-range" placeholder="Pages (e.g. 1-5, 8)" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Page Range">
-                    <input type="number" id="start-num" placeholder="Start At (1)" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Starting Number">
-                    <select id="pos" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none bg-white" aria-label="Position">
-                        <option value="bottom-right">Bottom Right</option><option value="bottom-center">Bottom Center</option>
-                        <option value="bottom-left">Bottom Left</option><option value="top-right">Top Right</option><option value="top-left">Top Left</option>
-                    </select>
-                    <input type="number" id="num-size" placeholder="Size (12)" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Font Size">
-                    <div class="flex items-center space-x-2">
-                        <input type="color" id="num-color" value="#000000" class="h-8 w-1/2 rounded cursor-pointer" aria-label="Font Color">
-                        <input type="number" id="num-opacity" placeholder="Opacity %" value="100" class="w-1/2 px-2 py-1 rounded border text-xs" aria-label="Opacity Percentage">
-                    </div>
-                </div>` },
-            watermark: { name: "Watermark", desc: "Custom styling.", icon: "fa-stamp", color: "cyan-500", border: "border-b-[3px] border-b-cyan-500", render: (t) => AppUI.renderComplexInput(t) + `
-                <div class="grid grid-cols-2 gap-2 mt-3">
-                    <input type="text" id="txt-input" placeholder="Watermark Text" class="col-span-2 px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Watermark Text">
-                    <input type="text" id="pg-range" placeholder="Pages (1-5)" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Page Range">
-                    <select id="wm-pos" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none bg-white" aria-label="Watermark Position">
-                        <option value="center">Center</option><option value="top-left">Top Left</option><option value="top-right">Top Right</option>
-                        <option value="bottom-left">Bottom Left</option><option value="bottom-right">Bottom Right</option>
-                    </select>
-                    <input type="number" id="wm-rot" placeholder="Angle (45)" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Rotation Angle">
-                    <input type="number" id="wm-size" placeholder="Size (48)" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Font Size">
-                    <div class="flex items-center space-x-2">
-                        <input type="color" id="wm-color" value="#cccccc" class="h-8 w-1/2 rounded cursor-pointer" aria-label="Color">
-                        <input type="number" id="wm-opacity" placeholder="Opacity %" value="30" class="w-1/2 px-2 py-1 rounded border text-xs" aria-label="Opacity Percentage">
-                    </div>
-                </div>` },
-            imgToPdf: { name: "Image to PDF", desc: "Unlimited with options.", icon: "fa-images", color: "blue-700", border: "border-b-[3px] border-b-blue-700", render: (t) => AppUI.renderComplexInput(t, true, "image/*") + `
-                <div class="grid grid-cols-2 gap-2 mt-3">
-                    <select id="pg-size" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none bg-white" aria-label="Page Size"><option value="A4">A4</option><option value="Letter">Letter</option></select>
-                    <select id="layout" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none bg-white" aria-label="Orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
-                    <select id="img-mode" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none bg-white" aria-label="Image Mode"><option value="fit">Fit (Keep Aspect Ratio)</option><option value="fill">Fill (Stretch to Page)</option></select>
-                    <input type="number" id="img-margin" placeholder="Margin (px)" value="0" class="px-3 py-2 rounded-xl border border-slate-200 text-xs outline-none" aria-label="Page Margin">
-                </div>` }
-        };
-
-        const grid = document.getElementById('tools-grid');
-        Object.keys(ToolsConfig).forEach(key => {
-            const tool = ToolsConfig[key];
-            const card = document.createElement('a'); 
-            card.href = `#tool-${key}`; 
-            card.className = `glass-panel ${tool.border} p-5 rounded-2xl flex items-center space-x-4 hover:shadow-md transition-all duration-300 group cursor-pointer`;
-            card.setAttribute("aria-label", `Open ${tool.name} tool`);
-            
-            card.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                AppUI.activateWorkspace(key, tool); 
-            });
-            
-            card.innerHTML = `<div class="w-14 h-12 bg-${tool.color} text-white rounded-xl flex items-center justify-center text-lg flex-shrink-0 transition-transform group-hover:scale-105" aria-hidden="true"><i class="fa-solid ${tool.icon}"></i></div><div class="text-left"><h3 class="font-bold text-sm">${tool.name}</h3><p class="text-slate-400 text-xs">${tool.desc}</p></div>`;
-            grid.appendChild(card);
-        });
-    </script>
 </body>
 </html>
