@@ -1,57 +1,538 @@
-/* Base Styles */
-body { 
-    font-family: 'Inter', sans-serif; 
-    background-color: #f8fafc; 
-    scroll-behavior: smooth; 
+// ---------------------------------------------------------
+// LAYER 2 & 4: STATE & UI (ENHANCED LOGIC)
+// ---------------------------------------------------------
+
+class OperationState {
+    static currentController = null;
+    static startTime = 0;
+
+    static start() {
+        if (this.currentController) this.currentController.abort();
+        this.currentController = new AbortController();
+        this.startTime = Date.now();
+        return this.currentController.signal;
+    }
+
+    static getETA(percent) {
+        if (percent <= 0 || percent >= 100) return null;
+        const elapsed = Date.now() - this.startTime;
+        const totalEstimated = elapsed / (percent / 100);
+        const remaining = totalEstimated - elapsed;
+        return Math.max(0, Math.ceil(remaining / 1000));
+    }
+
+    static cancel() {
+        if (this.currentController) {
+            this.currentController.abort();
+            this.currentController = null;
+            AppUI.showToast("Operation cancelled safely.", 'warning');
+            AppUI.updateProgress(0);
+            document.getElementById('prog-container').style.display = 'none';
+            document.getElementById('execute-btn').disabled = false;
+            document.getElementById('execute-btn').innerHTML = 'Execute Module';
+        }
+    }
 }
 
-.glass-panel { 
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(12px); 
-    -webkit-backdrop-filter: blur(12px); 
-    border: 1px solid rgba(226, 232, 240, 0.8); 
+class AppUI {
+    static showToast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        const isError = type === 'error';
+        const isWarn = type === 'warning';
+        let icon = 'fa-circle-check'; let bg = 'bg-emerald-600';
+        if(isError) { icon = 'fa-circle-exclamation'; bg = 'bg-red-500'; }
+        if(isWarn) { icon = 'fa-triangle-exclamation'; bg = 'bg-amber-500'; }
+        
+        t.innerHTML = `<i class="fa-solid ${icon} text-sm" aria-hidden="true"></i> <span>${msg}</span>`;
+        t.className = `fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl flex items-center space-x-2 z-50 transition-all duration-300 transform translate-y-0 opacity-100 ${bg}`;
+        t.setAttribute("role", "alert");
+        setTimeout(() => { t.classList.remove('translate-y-0', 'opacity-100'); t.classList.add('translate-y-20', 'opacity-0'); }, 5000);
+    }
+
+    static updateProgress(percent) {
+        const bar = document.getElementById('engine-progress-bar');
+        const txt = document.getElementById('engine-progress-text');
+        if (bar) {
+            bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            bar.setAttribute('aria-valuenow', Math.round(percent));
+        }
+        if (txt) {
+            let text = `${Math.round(percent)}%`;
+            const eta = OperationState.getETA(percent);
+            if (eta !== null && percent < 100) {
+                const mins = Math.floor(eta / 60); const secs = eta % 60;
+                text += ` - ETA: ${mins > 0 ? mins + 'm ' : ''}${secs}s`;
+            }
+            txt.textContent = text;
+        }
+    }
+
+    static renderComplexInput(tool, multiple = false, accept = ".pdf") {
+        // Removed inline onchange. Added dataset attributes for event listeners.
+        return `
+            <div class="space-y-3">
+                <input type="file" id="active-file-input" ${multiple ? 'multiple' : ''} accept="${accept}" class="hidden" aria-hidden="true" data-multiple="${multiple}">
+                <label for="active-file-input" id="dropzone-area" class="block w-full text-center border-2 border-dashed border-${tool.color.split('-')[0]}-300 rounded-2xl p-6 bg-${tool.color.split('-')[0]}-50/30 hover:bg-${tool.color.split('-')[0]}-50 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-${tool.color.split('-')[0]}-500" tabindex="0" role="button" aria-label="Upload files by clicking or dragging and dropping">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-${tool.color} mb-2" aria-hidden="true"></i>
+                    <p class="text-xs font-semibold text-slate-600">Click to upload or Drag & Drop</p>
+                </label>
+                <ul id="file-list-ui" class="space-y-2 max-h-40 overflow-y-auto pr-1" role="list"></ul>
+            </div>`;
+    }
+
+    static handleFiles(fileList, multiple) {
+        const MAX_SIZE = 100 * 1024 * 1024; // 100MB validation limit
+        if (!multiple) window.ActiveFiles = [];
+        
+        for (let f of fileList) {
+            // Validate File Type (Basic)
+            const isPDF = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+            const isImage = f.type.startsWith('image/');
+            if (!isPDF && !isImage) {
+                this.showToast(`Unsupported file type: ${f.name}`, 'error');
+                continue;
+            }
+
+            // Validate File Size
+            if (f.size > MAX_SIZE) {
+                this.showToast(`${f.name} exceeds the maximum 100MB limit.`, 'error');
+                continue;
+            }
+
+            // Prevent Duplicates
+            const isDuplicate = window.ActiveFiles.some(existing => existing.name === f.name && existing.size === f.size);
+            if (!isDuplicate) {
+                window.ActiveFiles.push(f);
+            } else {
+                this.showToast(`File already added: ${f.name}`, 'warning');
+            }
+        }
+        this.renderFileList();
+    }
+
+    static removeFile(index) {
+        window.ActiveFiles.splice(index, 1);
+        this.renderFileList();
+    }
+
+    static moveFile(from, to) {
+        const f = window.ActiveFiles.splice(from, 1)[0];
+        window.ActiveFiles.splice(to, 0, f);
+        this.renderFileList();
+    }
+
+    static renderFileList() {
+        const ui = document.getElementById('file-list-ui');
+        if (!ui) return;
+        
+        ui.innerHTML = ''; // Clear existing
+        window.ActiveFiles.forEach((f, i) => {
+            const li = document.createElement('li');
+            li.className = "file-list-item flex justify-between items-center bg-white border border-slate-200 p-2 rounded-lg text-xs";
+            li.setAttribute("draggable", "true");
+            li.setAttribute("role", "listitem");
+            
+            // Drag logic for reordering
+            li.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', i));
+            li.addEventListener('dragover', (e) => e.preventDefault());
+            li.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const fromIdx = e.dataTransfer.getData('text/plain');
+                if(fromIdx !== "") AppUI.moveFile(parseInt(fromIdx), i);
+            });
+
+            // Container for name and optional thumbnail
+            const infoDiv = document.createElement('div');
+            infoDiv.className = "flex items-center space-x-3 w-3/4 overflow-hidden";
+            infoDiv.innerHTML = `<i class="fa-solid fa-grip-vertical text-slate-300 cursor-grab" aria-hidden="true"></i>`;
+
+            // Thumbnail logic
+            if (f.type.startsWith('image/')) {
+                const imgThumb = document.createElement('img');
+                imgThumb.className = "w-8 h-8 object-cover rounded shadow-sm border border-slate-100";
+                imgThumb.alt = "Thumbnail";
+                
+                const reader = new FileReader();
+                reader.onload = (e) => imgThumb.src = e.target.result;
+                reader.readAsDataURL(f);
+                
+                infoDiv.appendChild(imgThumb);
+            }
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = "truncate font-medium text-slate-700";
+            nameSpan.textContent = f.name;
+            infoDiv.appendChild(nameSpan);
+
+            // Remove button
+            const btnDiv = document.createElement('div');
+            const removeBtn = document.createElement('button');
+            removeBtn.className = "text-red-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 rounded px-1";
+            removeBtn.setAttribute("aria-label", `Remove ${f.name}`);
+            removeBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            removeBtn.addEventListener('click', () => AppUI.removeFile(i));
+            btnDiv.appendChild(removeBtn);
+
+            li.appendChild(infoDiv);
+            li.appendChild(btnDiv);
+            ui.appendChild(li);
+        });
+    }
+
+    static attachWorkspaceEvents(id) {
+        // Handle Cancel Button
+        const cancelBtn = document.getElementById('cancel-btn');
+        if (cancelBtn) cancelBtn.addEventListener('click', () => OperationState.cancel());
+
+        // Handle Execute/Preview Buttons
+        const executeBtn = document.getElementById('execute-btn');
+        if (executeBtn) executeBtn.addEventListener('click', () => PDFEngine.execute(id));
+        
+        const previewBtn = document.getElementById('preview-btn');
+        if (previewBtn) previewBtn.addEventListener('click', () => PDFEngine.execute(id, true));
+
+        // File Input Change
+        const fileInput = document.getElementById('active-file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                const isMultiple = fileInput.dataset.multiple === "true";
+                AppUI.handleFiles(e.target.files, isMultiple);
+                fileInput.value = ""; // Reset to allow re-uploading same file if deleted
+            });
+        }
+
+        // Real Drag and Drop Area Logic
+        const dropzone = document.getElementById('dropzone-area');
+        if (dropzone && fileInput) {
+            // Keyboard accessibility for dropzone
+            dropzone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('border-blue-500', 'bg-blue-50');
+            });
+            dropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const isMultiple = fileInput.dataset.multiple === "true";
+                    AppUI.handleFiles(e.dataTransfer.files, isMultiple);
+                }
+            });
+        }
+
+        // Rotate Tool Quick Buttons
+        ['90', '180', '270'].forEach(angle => {
+            const btn = document.getElementById(`btn-rot-${angle}`);
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    document.getElementById('rot-angle').value = angle;
+                });
+            }
+        });
+    }
+
+    static activateWorkspace(id, tool) {
+        const box = document.getElementById('tool-workspace-box');
+        const canvas = document.getElementById('canvas-content');
+        window.ActiveFiles = []; // Reset files
+        
+        box.style.opacity = '0';
+        setTimeout(() => {
+            canvas.className = "text-left space-y-4";
+            canvas.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-${tool.color} text-white rounded-xl flex items-center justify-center text-lg" aria-hidden="true"><i class="fa-solid ${tool.icon}"></i></div>
+                    <div><h2 class="text-lg font-extrabold text-slate-900">${tool.name}</h2><p class="text-xs text-slate-500">${tool.desc}</p></div>
+                </div>
+                <hr class="border-slate-200/60">
+                ${tool.render(tool)}
+                <div id="prog-container" class="progress-container p-2 border border-slate-200" aria-live="polite">
+                    <div class="flex justify-between text-[10px] font-bold mb-1 text-slate-600">
+                        <span id="engine-progress-text">0%</span>
+                        <button id="cancel-btn" class="text-red-500 hover:underline focus:outline-none">Cancel</button>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-1.5" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                        <div id="engine-progress-bar" class="progress-bar rounded-full h-1.5 bg-${tool.color}"></div>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    ${id !== 'merge' && id !== 'split' ? `<button id="preview-btn" class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-slate-400">Preview</button>` : ''}
+                    <button id="execute-btn" class="flex-1 bg-${tool.color} hover:opacity-90 text-white text-xs font-bold py-3 rounded-xl shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${tool.color.split('-')[0]}-600">Execute Module</button>
+                </div>
+            `;
+            // Attach all necessary non-inline event listeners
+            this.attachWorkspaceEvents(id);
+            box.style.opacity = '1';
+        }, 200);
+    }
 }
 
-.pt-safe { 
-    padding-top: env(safe-area-inset-top); 
-}
+class PDFEngine {
+    static async downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    static parseRange(str, maxPages) {
+        if (!str || !str.trim()) return Array.from({length: maxPages}, (_, i) => i);
+        const pages = new Set();
+        str.split(',').forEach(part => {
+            const bounds = part.split('-').map(n => parseInt(n.trim()));
+            if (bounds.length === 1 && !isNaN(bounds[0])) pages.add(bounds[0] - 1);
+            else if (bounds.length === 2 && !isNaN(bounds[0]) && !isNaN(bounds[1])) {
+                for (let i = bounds[0]; i <= bounds[1]; i++) pages.add(i - 1);
+            }
+        });
+        const result = Array.from(pages).filter(p => p >= 0 && p < maxPages).sort((a, b) => a - b);
+        if (result.length === 0) throw new Error("Empty or invalid page range selected.");
+        return result;
+    }
 
-/* ---------------------------------------------------
-   NEW UTILITIES FOR DRAG & DROP AND PROGRESS BAR
-   (No changes to your existing colors or UI design)
---------------------------------------------------- */
+    static async execute(id, isPreview = false) {
+        const signal = isPreview ? null : OperationState.start();
+        const files = window.ActiveFiles;
+        if (!files || files.length === 0) { AppUI.showToast("Please upload required file(s).", "error"); return; }
+        
+        const btn = document.getElementById('execute-btn');
+        const pContainer = document.getElementById('prog-container');
+        if(!isPreview) {
+            btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2" aria-hidden="true"></i> Processing...`; 
+            if(pContainer) pContainer.style.display = 'block';
+        }
 
-/* File List Item Drag States */
-.file-list-item { 
-    transition: all 0.2s ease-in-out; 
-    cursor: grab; 
-}
+        try {
+            let finalBlob = null; let filename = `Output_${id}.pdf`;
+            
+            if (id === 'resizer') { 
+                finalBlob = await this.processResizer(files[0]); filename = `Resized.${document.getElementById('img-format').value.split('/')[1]}`; 
+            } else if (id === 'imgToPdf') { 
+                finalBlob = await this.processImagesToPdf(files, signal); 
+            } else if (id === 'merge') { 
+                finalBlob = await this.processMerge(files, signal); 
+            } else {
+                const fileBytes = await files[0].arrayBuffer();
+                let pdfDoc;
+                try {
+                    // Try to load. If encrypted without password, it throws an error in modern PDF-lib
+                    pdfDoc = await PDFDocument.load(fileBytes);
+                    if (pdfDoc.isEncrypted) throw new Error("Encrypted");
+                } catch (e) {
+                    if (e.message.includes("Encrypted") || e.message.includes("password")) {
+                        throw new Error("Password-protected PDFs are currently not supported.");
+                    }
+                    throw new Error("The PDF file appears to be corrupted or invalid.");
+                }
 
-.file-list-item:active { 
-    cursor: grabbing; 
-    transform: scale(0.98); 
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+                finalBlob = await this.processSinglePDF(id, pdfDoc, isPreview, signal);
+                if (id === 'split' && !isPreview) filename = `Split_Pages.zip`;
+            }
+            
+            if (signal?.aborted) throw new Error("Operation Cancelled");
+            
+            if (isPreview && finalBlob) {
+                const url = URL.createObjectURL(finalBlob);
+                window.open(url, '_blank');
+                AppUI.showToast("Preview generated successfully!");
+            } else if (finalBlob) {
+                await this.downloadBlob(finalBlob, filename);
+                AppUI.showToast("Operation completed successfully!");
+            }
+        } catch (error) { 
+            if(error.message !== "Operation Cancelled") {
+                AppUI.showToast(error.message, 'error'); 
+            }
+        } finally { 
+            if(!isPreview) {
+                btn.disabled = false; btn.innerHTML = `Execute Module`; 
+                if(pContainer) pContainer.style.display = 'none';
+                OperationState.currentController = null;
+                AppUI.updateProgress(0);
+            }
+        }
+    }
 
-/* Progress Bar Container */
-.progress-container { 
-    display: none; /* Shown via JS during execution */
-    width: 100%; 
-    background: #e2e8f0; 
-    border-radius: 8px; 
-    overflow: hidden; 
-    margin-top: 15px; 
-}
+    static async processImagesToPdf(files, signal) {
+        const doc = await PDFDocument.create(); 
+        const sizeType = document.getElementById('pg-size')?.value || 'A4';
+        const layout = document.getElementById('layout')?.value || 'portrait';
+        const imgMode = document.getElementById('img-mode')?.value || 'fit';
+        const margin = parseInt(document.getElementById('img-margin')?.value) || 0;
+        
+        let PAGE_W = sizeType === 'A4' ? 595.28 : 612;
+        let PAGE_H = sizeType === 'A4' ? 841.89 : 792;
+        if(layout === 'landscape') { const temp = PAGE_W; PAGE_W = PAGE_H; PAGE_H = temp; }
 
-/* Animated Progress Bar */
-.progress-bar { 
-    height: 8px; 
-    width: 0%; 
-    transition: width 0.3s ease; 
+        for (let i = 0; i < files.length; i++) {
+            if (signal?.aborted) throw new Error("Operation Cancelled");
+            AppUI.updateProgress((i / files.length) * 90);
+            await new Promise(r => setTimeout(r, 10));
+
+            const f = files[i];
+            const bytes = await f.arrayBuffer(); let img;
+            
+            try {
+                if (f.type === 'image/png') img = await doc.embedPng(bytes); 
+                else if (f.type === 'image/jpeg' || f.type === 'image/jpg') img = await doc.embedJpg(bytes); 
+                else continue;
+            } catch (e) {
+                throw new Error(`Failed to process image: ${f.name}. It may be corrupted.`);
+            }
+
+            const page = doc.addPage([PAGE_W, PAGE_H]);
+            
+            const availW = PAGE_W - (margin * 2);
+            const availH = PAGE_H - (margin * 2);
+
+            let finalW, finalH, x, y;
+
+            if (imgMode === 'fill') {
+                finalW = availW; finalH = availH;
+                x = margin; y = margin;
+            } else {
+                // Fit maintaining aspect ratio
+                const scale = Math.min(availW / img.width, availH / img.height);
+                finalW = img.width * scale; 
+                finalH = img.height * scale;
+                x = (PAGE_W / 2) - (finalW / 2);
+                y = (PAGE_H / 2) - (finalH / 2);
+            }
+
+            page.drawImage(img, { x, y, width: finalW, height: finalH });
+        }
+        const pdfBytes = await doc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
+    }
+
+    static async processMerge(files, signal) {
+        const doc = await PDFDocument.create();
+        for (let i = 0; i < files.length; i++) {
+            if (signal?.aborted) throw new Error("Operation Cancelled");
+            AppUI.updateProgress((i / files.length) * 90);
+            await new Promise(r => setTimeout(r, 10));
+
+            const bytes = await files[i].arrayBuffer(); 
+            let src;
+            try {
+                src = await PDFDocument.load(bytes);
+                if (src.isEncrypted) throw new Error("Encrypted");
+            } catch (e) {
+                throw new Error(`File ${files[i].name} is corrupted or password-protected.`);
+            }
+
+            const pages = await doc.copyPages(src, src.getPageIndices()); 
+            pages.forEach(p => doc.addPage(p));
+        }
+        const pdfBytes = await doc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
+    }
+
+    static hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1], 16)/255, g: parseInt(result[2], 16)/255, b: parseInt(result[3], 16)/255 } : null;
+    }
+
+    static async processSinglePDF(id, sourceDoc, isPreview, signal) {
+        const totalPages = sourceDoc.getPageCount();
+        
+        if (id === 'split') {
+            const mode = document.getElementById('split-mode').value;
+            const zip = new JSZip();
+            if(mode === 'range') {
+                const targetPages = this.parseRange(document.getElementById('pg-range').value, totalPages);
+                const newDoc = await PDFDocument.create();
+                const copied = await newDoc.copyPages(sourceDoc, targetPages);
+                copied.forEach(p => newDoc.addPage(p));
+                if(isPreview) return new Blob([await newDoc.save()], { type: 'application/pdf' });
+                zip.file(`Extracted.pdf`, await newDoc.save());
+            } else {
+                if(isPreview) return new Blob([await sourceDoc.save()], { type: 'application/pdf' });
+                for (let i = 0; i < totalPages; i++) {
+                    if (signal?.aborted) throw new Error("Operation Cancelled");
+                    AppUI.updateProgress((i / totalPages) * 90);
+                    const subDoc = await PDFDocument.create(); const [p] = await subDoc.copyPages(sourceDoc, [i]); subDoc.addPage(p);
+                    zip.file(`Page_${i + 1}.pdf`, await subDoc.save());
+                }
+            }
+            return await zip.generateAsync({type: "blob"});
+        } 
+
+        const targetPages = id !== 'reorder' && id !== 'del' && id !== 'extract' 
+            ? this.parseRange(document.getElementById('pg-range')?.value, totalPages) 
+            : Array.from({length: totalPages}, (_, i) => i);
+
+        // Previews should show the actually modified pages, not just the raw first page.
+        const pagesToProcess = isPreview ? targetPages : targetPages;
+
+        if (id === 'rotate') { 
+            const angle = parseInt(document.getElementById('rot-angle').value) || 90;
+            pagesToProcess.forEach(idx => {
+                const p = sourceDoc.getPage(idx);
+                p.setRotation(degrees((p.getRotation().angle + angle) % 360));
+            });
+        } 
+        else if (id === 'watermark') { 
+            const text = document.getElementById('txt-input').value || "CONFIDENTIAL"; 
+            const size = parseInt(document.getElementById('wm-size').value) || 48;
+            const opacity = parseInt(document.getElementById('wm-opacity').value)/100 || 0.3;
+            const angle = parseInt(document.getElementById('wm-rot').value) || 45;
+            const colorHex = document.getElementById('wm-color').value || "#cccccc";
+            const pos = document.getElementById('wm-pos').value || "center";
+            const rgbColor = this.hexToRgb(colorHex);
+
+            pagesToProcess.forEach(idx => { 
+                const p = sourceDoc.getPage(idx);
+                const { width, height } = p.getSize(); 
+                
+                let x = width / 2; let y = height / 2;
+                if(pos === 'top-left') { x = 50; y = height - 50; }
+                else if(pos === 'top-right') { x = width - 150; y = height - 50; }
+                else if(pos === 'bottom-left') { x = 50; y = 50; }
+                else if(pos === 'bottom-right') { x = width - 150; y = 50; }
+                else if(pos === 'center') { x = width / 4; y = height / 2; } // Approximate visual center offset
+
+                p.drawText(text, { x, y, size, color: rgb(rgbColor.r, rgbColor.g, rgbColor.b), opacity, rotate: degrees(angle) }); 
+            }); 
+        } 
+        else if (id === 'numbers') { 
+            const startNum = parseInt(document.getElementById('start-num').value) || 1;
+            const pos = document.getElementById('pos').value;
+            const size = parseInt(document.getElementById('num-size').value) || 12;
+            const colorHex = document.getElementById('num-color').value || "#000000";
+            const opacity = parseInt(document.getElementById('num-opacity').value)/100 || 1.0;
+            const rgbColor = this.hexToRgb(colorHex);
+
+            pagesToProcess.forEach((idx, i) => { 
+                const p = sourceDoc.getPage(idx);
+                const { width, height } = p.getSize(); 
+                let x = width - 70, y = 30; // default bottom-right
+                if(pos === 'bottom-center') { x = width/2 - 10; y = 30; }
+                else if(pos === 'bottom-left') { x = 30; y = 30; }
+                else if(pos === 'top-right') { x = width - 70; y = height - 30; }
+                else if(pos === 'top-left') { x = 30; y = height - 30; }
+
+                p.drawText(`${startNum + i}`, { x, y, size, color: rgb(rgbColor.r, rgbColor.g, rgbColor.b), opacity }); 
+            }); 
+        }
+        
+        if(isPreview) {
+            const previewDoc = await PDFDocument.create();
+            // Preview actual selected pages to show accurate output
+            const copied = await previewDoc.copyPages(sourceDoc, targetPages.slice(0, 5)); // cap preview to first 5 modified pages
+            copied.forEach(p => previewDoc.addPage(p));
+            return new Blob([await previewDoc.save()], { type: 'application/pdf' });
+        }
+
+        AppUI.updateProgress(95);
+        const pdfBytes = await sourceDoc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
+    }
 }
