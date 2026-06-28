@@ -2,50 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com"> 
+    
+    <title>Free Online PDF Tools: Merge, Split, and Convert Securely</title> 
+    <meta name="description" content="Manage documents effortlessly with our modern, client-side PDF tools. Instantly merge, split, and convert PDFs locally in your browser. 100% secure, offline, and free." /> 
+    <meta name="keywords" content="free online pdf tools, merge pdf offline, split pdf free, convert image to pdf, secure pdf editor, client-side document tools, compress pdf without losing quality" /> 
+    
+    <link rel="canonical" href="https://pdfexpert.xyz/" /> 
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" /> 
+    
+    <meta property="og:type" content="website" /> 
+    <meta property="og:site_name" content="Pdfexpert" /> 
+    <meta property="og:url" content="https://pdfexpert.xyz/" /> 
+    <meta property="og:title" content="Free Online PDF Tools: Merge, Split, and Convert Securely" /> 
+    <meta property="og:description" content="Manage documents effortlessly with a clean, high-level interface. 100% secure, browser-based PDF tools with zero file uploads required." /> 
+    <meta property="og:image" content="https://pdfexpert.xyz/assets/og-banner-1200x630.jpg" /> 
+    <meta property="og:locale" content="en_US" /> 
+    
+    <script type="application/ld+json"> { 
+        "@context": "https://schema.org", 
+        "@graph": [ 
+            { "@type": "Organization", "@id": "https://pdfexpert.xyz/#organization", "name": "Pdfexpert", "url": "https://pdfexpert.xyz/" }, 
+            { "@type": "WebPage", "@id": "https://pdfexpert.xyz/#webpage", "url": "https://pdfexpert.xyz/", "name": "Free Online PDF Tools", "isPartOf": { "@id": "https://pdfexpert.xyz/#organization" } }, 
+            { "@type": "WebApplication", "@id": "https://pdfexpert.xyz/#software", "name": "Pdfexpert Suite", "url": "https://pdfexpert.xyz/", "description": "A high-level, strictly client-side suite of free online PDF tools.", "applicationCategory": "BusinessApplication, BrowserApplication", "operatingSystem": "All", "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" } },
+            { "@type": "FAQPage", "@id": "https://pdfexpert.xyz/#faq", "mainEntity": [ 
+                { "@type": "Question", "name": "Are my financial or personal PDF files completely secure?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. All file processing happens entirely locally within your browser. Your files are never uploaded to any external cloud servers." } }, 
+                { "@type": "Question", "name": "Is there a limit to how many PDFs I can process?", "acceptedAnswer": { "@type": "Answer", "text": "No. Our tool is designed for unrestricted use, allowing you to manage unlimited documents instantly for free." } } 
+            ] } 
+        ] 
+    } </script>
 
-    <title>PDF Expert Tools</title>
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- CSS FILE -->
-    <link rel="stylesheet" href="style.css">
-
-    <!-- PDF LIBRARIES -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
 </head>
-
-<body>
-
-    <!-- HERO -->
-    <header>
-        <h1>PDF Expert Tools</h1>
-    </header>
-
-    <!-- TOOL AREA -->
-    <main>
-
-        <div id="tools-grid"></div>
-
-        <div id="tool-workspace-box">
-            <div id="canvas-content">Select Tool</div>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+    <nav class="pt-safe sticky top-0 z-40 w-full glass-panel shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-2xl font-extrabold text-blue-600 tracking-tight">
+                <i class="fa-solid fa-layer-group text-xl text-indigo-500"></i>
+                <span>PDF<span class="text-indigo-600">Expert</span></span>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-8 font-medium text-slate-600 text-sm">
+                <a href="#" class="text-blue-600 border-b-2 border-blue-600 pb-1">Home</a>
+                <a href="#about" class="hover:text-blue-600 transition">About Tools</a>
+                <a href="#faq-section" class="hover:text-blue-600 transition">FAQs</a>
+                <a href="#" class="hover:text-blue-600 transition">Privacy</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-1 border border-slate-200/60 rounded-full px-3 py-1 text-xs font-medium bg-white/50 shadow-sm">
+                    <span>🇺🇸 EN</span>
+                </div>
+            </div>
         </div>
+    </nav>
 
+    <main class="flex-grow">
+        <header class="max-w-7xl mx-auto px-6 pt-16 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-6 space-y-6" id="hero-workspace">
+                <div class="space-y-4">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Free Online PDF Tools: <span class="text-blue-600">Merge, Split & Convert</span>
+                    </h1>
+                    <p class="text-lg text-slate-600 leading-relaxed max-w-lg">
+                        Manage your documents effortlessly with our suite of high-performance utilities. Your files never leave your device, ensuring complete privacy.
+                    </p>
+                </div>
+                
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <div class="flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-emerald-100">
+                        <i class="fa-solid fa-shield-halved"></i> <span>100% Secure & Offline</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-blue-100">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> <span>No Cloud Uploads</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-indigo-100">
+                        <i class="fa-solid fa-bolt"></i> <span>Lightning Fast</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 flex justify-center relative">
+                <div class="w-full max-w-lg glass-panel shadow-xl rounded-3xl p-8 transition-all duration-300 transform" id="tool-workspace-box">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-400"></span>
+                    </div>
+                    
+                    <div id="canvas-content" class="text-center py-8 space-y-4">
+                        <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner animate-pulse">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-800">Select a Module</h2>
+                        <p class="text-sm text-slate-500 max-w-xs mx-auto">Choose a professional utility below to activate the workspace.</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section id="our-tools" class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50">
+            <div class="text-center space-y-2 mb-12">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Our Premium Utility Modules</h2>
+                <p class="text-sm text-slate-500">Select a tool to start processing your files securely.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="tools-grid">
+                </div>
+        </section>
+
+        <section id="about" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200/50 bg-white rounded-3xl my-8 shadow-sm">
+            <div class="max-w-4xl mx-auto text-center space-y-6">
+                <h2 class="text-3xl font-extrabold text-slate-900">Why Choose Our Client-Side PDF Editor?</h2>
+                <p class="text-slate-600 leading-relaxed text-left md:text-center">
+                    In an era where digital privacy is paramount, uploading sensitive legal, financial, or personal documents to cloud servers poses a significant risk. 
+                    <strong>PDFExpert</strong> revolutionizes document management by utilizing advanced <em>client-side processing</em>. 
+                    This means when you use our tools to <strong>merge PDF files</strong>, <strong>split PDF pages</strong>, or <strong>convert images to PDF</strong>, your data never leaves your computer. 
+                    Your web browser handles all the heavy lifting using cutting-edge web technologies, ensuring a completely offline, zero-upload environment.
+                </p>
+                <div class="grid md:grid-cols-3 gap-8 text-left mt-8 pt-8 border-t border-slate-100">
+                    <div>
+                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-lock text-blue-500 mr-2"></i> Absolute Privacy</h3>
+                        <p class="text-sm text-slate-500">Zero data retention. Your files are processed in your browser's memory and are instantly destroyed once you close the tab.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-rocket text-indigo-500 mr-2"></i> Unmatched Speed</h3>
+                        <p class="text-sm text-slate-500">By eliminating upload and download wait times, our browser-based PDF editor works instantly, saving you valuable time.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-laptop-code text-emerald-500 mr-2"></i> No Installation</h3>
+                        <p class="text-sm text-slate-500">Access enterprise-grade document tools directly from any modern web browser without downloading bulky software.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq-section" class="max-w-7xl mx-auto px-6 py-16 mb-8">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">Are my financial or personal PDF files completely secure?</h3>
+                        <p class="text-sm text-slate-600">Yes. All file processing happens entirely locally within your browser using JavaScript. We offer a high-level secure environment where your files are never uploaded to any external cloud servers.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">Is there a limit to how many PDFs I can process?</h3>
+                        <p class="text-sm text-slate-600">No. Our tool is designed for unrestricted use. You can merge, split, and edit unlimited documents instantly without any premium paywalls or hidden limits.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">Will the quality of my PDF decrease after merging or splitting?</h3>
+                        <p class="text-sm text-slate-600">Not at all. We use lossless processing algorithms. Your output files retain the exact same DPI, resolution, and text clarity as your original documents.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <!-- TOAST -->
-    <div id="toast"></div>
+    <footer class="glass-panel border-t border-slate-200/60 pt-16 pb-8 text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div class="col-span-2 space-y-4">
+                <div class="flex items-center space-x-2 text-xl font-extrabold text-blue-600 tracking-tight">
+                    <i class="fa-solid fa-layer-group text-base text-indigo-500"></i>
+                    <span>PDF<span class="text-indigo-600">Expert</span></span>
+                </div>
+                <p class="text-slate-400 leading-relaxed max-w-sm">
+                    The ultimate suite of professional web utilities designed for speed, uncompromised privacy, and flawless offline document manipulation.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 mb-3 text-sm">Legal</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-blue-600 transition">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition">Terms of Use</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition">Disclaimer</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 mb-3 text-sm">Connect</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-blue-600 transition">Contact Support</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition">Provide Feedback</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 border-t border-slate-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400">
+            <p>© 2026 Pdfexpert Suite. All rights reserved.</p>
+            <p>Engineered for High Performance & Privacy.</p>
+        </div>
+    </footer>
 
-    <!-- SCRIPT FILE -->
+    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl space-x-2 z-50 items-center transform transition-all duration-300 translate-y-20 opacity-0 flex"></div>
+
+    <script src="config.js"></script>
     <script src="script.js"></script>
-
 </body>
 </html>
