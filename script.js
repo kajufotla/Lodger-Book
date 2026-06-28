@@ -1,5 +1,18 @@
 window.ActiveFiles = [];
 
+// DOM Element Cache to minimize repetitive document queries and improve performance
+const DOM = {
+    get toast() { return document.getElementById('toast'); },
+    get progContainer() { return document.getElementById('prog-container'); },
+    get execBtn() { return document.getElementById('execute-btn'); },
+    get progBar() { return document.getElementById('engine-progress-bar'); },
+    get progText() { return document.getElementById('engine-progress-text'); },
+    get fileListUi() { return document.getElementById('file-list-ui'); },
+    get workspaceBox() { return document.getElementById('tool-workspace-box'); },
+    get canvas() { return document.getElementById('canvas-content'); },
+    get dropzone() { return document.getElementById('global-dropzone'); }
+};
+
 class OperationState {
     static currentController = null;
     static start() {
@@ -17,9 +30,18 @@ class OperationState {
     }
 }
 
+class Utility {
+    static formatBytes(bytes, decimals = 2) {
+        if (!+bytes) return '0 Bytes';
+        const k = 1024, dm = decimals < 0 ? 0 : decimals, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    }
+}
+
 class AppUI {
     static showToast(msg, type = 'success') {
-        const t = document.getElementById('toast');
+        const t = DOM.toast;
         if(!t) return;
         let icon = 'fa-circle-check'; let bg = 'bg-emerald-600';
         if(type === 'error') { icon = 'fa-circle-exclamation'; bg = 'bg-red-500'; }
@@ -27,42 +49,85 @@ class AppUI {
         
         t.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${msg}</span>`;
         t.className = `fixed bottom-6 right-6 px-6 py-4 rounded-xl text-white text-sm font-bold shadow-2xl flex items-center space-x-3 z-50 transition-all duration-300 transform translate-y-0 opacity-100 ${bg}`;
-        setTimeout(() => { t.classList.remove('translate-y-0', 'opacity-100'); t.classList.add('translate-y-20', 'opacity-0'); }, 4000);
+        
+        if (this.toastTimeout) clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => { 
+            t.classList.remove('translate-y-0', 'opacity-100'); 
+            t.classList.add('translate-y-20', 'opacity-0'); 
+        }, 4000);
     }
 
     static resetProgress() {
-        const pContainer = document.getElementById('prog-container');
+        const pContainer = DOM.progContainer;
         if(pContainer) pContainer.style.display = 'none';
-        const btn = document.getElementById('execute-btn');
-        if(btn) { btn.disabled = false; btn.innerHTML = 'Execute Module'; }
+        const btn = DOM.execBtn;
+        if(btn) { btn.disabled = false; btn.innerHTML = btn.dataset.originalText || 'Execute Module'; }
     }
 
     static updateProgress(percent) {
-        const bar = document.getElementById('engine-progress-bar');
-        const txt = document.getElementById('engine-progress-text');
-        if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
-        if (txt) txt.textContent = `${Math.round(percent)}% Processing...`;
+        // Batch DOM updates via requestAnimationFrame for smooth UI
+        requestAnimationFrame(() => {
+            const bar = DOM.progBar;
+            const txt = DOM.progText;
+            if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            if (txt) txt.textContent = `${Math.round(percent)}% Processing...`;
+        });
     }
 
     static renderComplexInput(tool, multiple = false, accept = ".pdf") {
         return `
-            <div class="space-y-4">
+            <div class="space-y-4 relative">
                 <input type="file" id="active-file-input" ${multiple ? 'multiple' : ''} accept="${accept}" class="hidden" data-multiple="${multiple}">
-                <label for="active-file-input" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-${tool.color.split('-')[0]}-300 rounded-2xl bg-${tool.color.split('-')[0]}-50/30 hover:bg-${tool.color.split('-')[0]}-50 cursor-pointer transition">
-                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-${tool.color} mb-2"></i>
+                <label for="active-file-input" id="file-drop-area" class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-${tool.color.split('-')[0]}-300 rounded-2xl bg-${tool.color.split('-')[0]}-50/30 hover:bg-${tool.color.split('-')[0]}-50 cursor-pointer transition relative overflow-hidden group">
+                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-${tool.color} mb-3 group-hover:scale-110 transition-transform"></i>
                     <p class="text-sm font-semibold text-slate-600">Click to upload or Drag & Drop</p>
+                    <p class="text-xs text-slate-400 mt-1 font-medium tracking-wide">Accepts: ${accept.replace(/, /g, ', ')}</p>
                 </label>
                 <ul id="file-list-ui" class="space-y-2 max-h-48 overflow-y-auto pr-2"></ul>
             </div>`;
     }
 
-    static handleFiles(fileList, multiple) {
-        if (!multiple) window.ActiveFiles = [];
+    static validateFile(file, acceptStr) {
+        if (!acceptStr || acceptStr === '*') return true;
+        const acceptedTypes = acceptStr.split(',').map(s => s.trim().toLowerCase());
+        const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+        
+        for (let type of acceptedTypes) {
+            if (type.endsWith('/*')) {
+                const baseType = type.split('/')[0];
+                if (file.type.startsWith(baseType + '/')) return true;
+            } else if (type === fileExt || type === file.type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static handleFiles(fileList, multiple, accept = ".pdf") {
+        if (!fileList || fileList.length === 0) return;
+        
+        if (!multiple) {
+            window.ActiveFiles = [];
+            fileList = [fileList[0]]; // restrict to single file natively
+        }
+        
+        let invalidCount = 0;
+        
         for (let f of fileList) {
+            if (!this.validateFile(f, accept)) {
+                invalidCount++;
+                continue;
+            }
+            // Prevent exact duplicates to save memory
             if (!window.ActiveFiles.some(existing => existing.name === f.name && existing.size === f.size)) {
                 window.ActiveFiles.push(f);
             }
         }
+        
+        if (invalidCount > 0) {
+            this.showToast(`${invalidCount} file(s) ignored (invalid format).`, 'warning');
+        }
+        
         this.renderFileList();
     }
 
@@ -72,71 +137,150 @@ class AppUI {
     }
 
     static renderFileList() {
-        const ui = document.getElementById('file-list-ui');
+        const ui = DOM.fileListUi;
         if (!ui) return;
-        ui.innerHTML = '';
+        
+        // Use DocumentFragment to optimize DOM repaints
+        const fragment = document.createDocumentFragment();
+        
         window.ActiveFiles.forEach((f, i) => {
             const li = document.createElement('li');
-            li.className = "flex justify-between items-center bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm";
-            li.innerHTML = `<span class="truncate font-medium text-slate-700 w-4/5"><i class="fa-solid fa-file-lines text-slate-400 mr-2"></i>${f.name}</span>`;
+            li.className = "flex justify-between items-center bg-white border border-slate-200 p-3 rounded-xl text-sm transition-all hover:border-slate-300 shadow-sm";
+            
+            const info = document.createElement('span');
+            info.className = "truncate font-medium text-slate-700 flex-grow pr-4 flex items-center";
+            
+            let iconClass = f.type.startsWith('image/') ? 'fa-image text-blue-500' : 'fa-file-pdf text-red-500';
+            
+            info.innerHTML = `
+                <i class="fa-solid ${iconClass} mr-3 text-lg"></i>
+                <span class="truncate max-w-[180px] sm:max-w-[300px]">${f.name}</span>
+                <span class="ml-auto pl-2 text-xs text-slate-400 font-normal whitespace-nowrap">${Utility.formatBytes(f.size)}</span>
+            `;
             
             const btn = document.createElement('button');
-            btn.className = "text-slate-400 hover:text-red-500 transition";
-            btn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+            btn.className = "text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 ml-2";
+            btn.setAttribute('aria-label', `Remove ${f.name}`);
+            btn.innerHTML = `<i class="fa-solid fa-trash-can text-base"></i>`;
             btn.onclick = () => AppUI.removeFile(i);
             
+            li.appendChild(info);
             li.appendChild(btn);
-            ui.appendChild(li);
+            fragment.appendChild(li);
+        });
+        
+        ui.innerHTML = '';
+        ui.appendChild(fragment);
+    }
+
+    static setupDragAndDrop(multiple, accept) {
+        const dropArea = document.getElementById('file-drop-area');
+        const globalDropzone = DOM.dropzone;
+        const workspace = DOM.workspaceBox;
+        
+        if(!dropArea || !globalDropzone || !workspace) return;
+
+        const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            workspace.addEventListener(evt, preventDefaults, false);
+            document.body.addEventListener(evt, preventDefaults, false);
+        });
+
+        let dragCounter = 0;
+
+        document.body.addEventListener('dragenter', (e) => {
+            dragCounter++;
+            if (!workspace.classList.contains('hidden')) {
+                globalDropzone.classList.remove('hidden');
+                globalDropzone.classList.add('flex');
+            }
+        });
+
+        document.body.addEventListener('dragleave', (e) => {
+            dragCounter--;
+            if (dragCounter === 0) {
+                globalDropzone.classList.add('hidden');
+                globalDropzone.classList.remove('flex');
+            }
+        });
+
+        document.body.addEventListener('drop', (e) => {
+            dragCounter = 0;
+            globalDropzone.classList.add('hidden');
+            globalDropzone.classList.remove('flex');
+            
+            if (!workspace.classList.contains('hidden') && e.dataTransfer.files) {
+                AppUI.handleFiles(e.dataTransfer.files, multiple, accept);
+            }
         });
     }
 
     static activateWorkspace(id, tool) {
-        const box = document.getElementById('tool-workspace-box');
-        const canvas = document.getElementById('canvas-content');
-        window.ActiveFiles = [];
+        const box = DOM.workspaceBox;
+        const canvas = DOM.canvas;
+        window.ActiveFiles = []; 
         
         box.classList.remove('hidden');
-        setTimeout(() => {
-            canvas.className = "text-left space-y-6";
+        
+        requestAnimationFrame(() => {
+            canvas.className = "text-left space-y-6 opacity-0 translate-y-4 transition-all duration-300";
+            
             canvas.innerHTML = `
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-4">
                         <div class="w-12 h-12 bg-${tool.color} text-white rounded-xl flex items-center justify-center text-xl shadow-md"><i class="fa-solid ${tool.icon}"></i></div>
                         <div><h2 class="text-xl font-extrabold text-slate-900">${tool.name}</h2><p class="text-sm text-slate-500">${tool.desc}</p></div>
                     </div>
-                    <button onclick="document.getElementById('tool-workspace-box').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <button onclick="document.getElementById('tool-workspace-box').classList.add('hidden'); window.ActiveFiles = [];" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition" aria-label="Close workspace"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <hr class="border-slate-200">
                 ${tool.render(tool)}
                 
-                <div id="prog-container" class="p-4 bg-slate-50 rounded-xl border border-slate-200" style="display: none;">
-                    <div class="flex justify-between text-xs font-bold mb-2 text-slate-600">
-                        <span id="engine-progress-text">0%</span>
-                        <button id="cancel-btn" class="text-red-500 hover:underline">Cancel Operation</button>
+                <div id="prog-container" class="p-5 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner" style="display: none;">
+                    <div class="flex justify-between text-sm font-bold mb-3 text-slate-700">
+                        <span id="engine-progress-text">0% Processing...</span>
+                        <button id="cancel-btn" class="text-red-500 hover:text-red-700 hover:underline transition font-semibold">Cancel Operation</button>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2">
-                        <div id="engine-progress-bar" class="rounded-full h-2 bg-${tool.color} transition-all duration-300" style="width:0%"></div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="engine-progress-bar" class="rounded-full h-full bg-${tool.color} transition-all duration-300 ease-out" style="width:0%"></div>
                     </div>
                 </div>
 
-                <button id="execute-btn" class="w-full bg-${tool.color} hover:opacity-90 text-white text-sm font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">Execute ${tool.name}</button>
+                <button id="execute-btn" data-original-text="Execute ${tool.name}" class="w-full bg-${tool.color} hover:opacity-90 text-white text-base font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none active:scale-95">Execute ${tool.name}</button>
             `;
             
+            // Fade-in effect
+            requestAnimationFrame(() => {
+                canvas.classList.remove('opacity-0', 'translate-y-4');
+            });
+            
+            // Event Listeners mapping
             document.getElementById('cancel-btn')?.addEventListener('click', () => OperationState.cancel());
             document.getElementById('execute-btn')?.addEventListener('click', () => PDFEngine.execute(id));
-            document.getElementById('active-file-input')?.addEventListener('change', (e) => {
-                AppUI.handleFiles(e.target.files, e.target.dataset.multiple === "true");
-                e.target.value = "";
+            
+            const fileInput = document.getElementById('active-file-input');
+            const isMultiple = fileInput?.dataset.multiple === "true";
+            const acceptType = fileInput?.getAttribute('accept') || '*';
+            
+            fileInput?.addEventListener('change', (e) => {
+                AppUI.handleFiles(e.target.files, isMultiple, acceptType);
+                e.target.value = ""; 
             });
+            
+            // Apply native Drag & Drop
+            AppUI.setupDragAndDrop(isMultiple, acceptType);
 
+            // Bind quick rotate buttons if present
             ['90', '180', '270'].forEach(angle => {
                 document.getElementById(`btn-rot-${angle}`)?.addEventListener('click', () => {
-                    document.getElementById('rot-angle').value = angle;
+                    const el = document.getElementById('rot-angle');
+                    if (el) el.value = angle;
                 });
             });
 
             box.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
+        });
     }
 }
 
@@ -144,208 +288,374 @@ class PDFEngine {
     static async downloadBlob(blob, filename) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = filename;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        a.style.display = 'none';
+        a.href = url; 
+        a.download = filename;
+        document.body.appendChild(a); 
+        a.click(); 
+        
+        // Prevent memory leaks by revoking object URL
+        setTimeout(() => {
+            document.body.removeChild(a); 
+            URL.revokeObjectURL(url);
+        }, 150);
     }
 
     static parseRange(str, maxPages) {
         if (!str || !str.trim()) return Array.from({length: maxPages}, (_, i) => i);
         const pages = new Set();
-        str.split(',').forEach(part => {
-            const bounds = part.split('-').map(n => parseInt(n.trim()));
-            if (bounds.length === 1 && !isNaN(bounds[0])) pages.add(bounds[0] - 1);
-            else if (bounds.length === 2 && !isNaN(bounds[0]) && !isNaN(bounds[1])) {
-                for (let i = bounds[0]; i <= bounds[1]; i++) pages.add(i - 1);
+        const parts = str.split(',').map(s => s.trim());
+        
+        for (const part of parts) {
+            const bounds = part.split('-').map(n => parseInt(n.trim(), 10));
+            if (bounds.length === 1 && !isNaN(bounds[0])) {
+                pages.add(bounds[0] - 1);
+            } else if (bounds.length === 2 && !isNaN(bounds[0]) && !isNaN(bounds[1])) {
+                const start = Math.min(bounds[0], bounds[1]);
+                const end = Math.max(bounds[0], bounds[1]);
+                for (let i = start; i <= end; i++) {
+                    pages.add(i - 1);
+                }
             }
-        });
+        }
         return Array.from(pages).filter(p => p >= 0 && p < maxPages).sort((a, b) => a - b);
     }
 
     static async processResizer(file) {
-        const imgW = parseInt(document.getElementById('img-w')?.value);
-        const imgH = parseInt(document.getElementById('img-h')?.value);
+        const wInput = document.getElementById('img-w')?.value;
+        const hInput = document.getElementById('img-h')?.value;
+        const imgW = wInput ? parseInt(wInput, 10) : null;
+        const imgH = hInput ? parseInt(hInput, 10) : null;
         const format = document.getElementById('img-format')?.value || 'image/jpeg';
         
         return new Promise((resolve, reject) => {
             const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            
             img.onload = () => {
+                URL.revokeObjectURL(objectUrl); 
                 const canvas = document.createElement('canvas');
-                canvas.width = imgW || img.width;
-                canvas.height = imgH || img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob(blob => resolve(blob), format, 0.9);
+                
+                // Keep aspect ratio smart logic
+                let finalW = img.width;
+                let finalH = img.height;
+
+                if (imgW && imgH) {
+                    finalW = imgW;
+                    finalH = imgH;
+                } else if (imgW && !imgH) {
+                    finalW = imgW;
+                    finalH = Math.round(img.height * (imgW / img.width));
+                } else if (!imgW && imgH) {
+                    finalH = imgH;
+                    finalW = Math.round(img.width * (imgH / img.height));
+                }
+
+                canvas.width = finalW;
+                canvas.height = finalH;
+                
+                const ctx = canvas.getContext('2d', { alpha: format !== 'image/jpeg' });
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                ctx.drawImage(img, 0, 0, finalW, finalH);
+                canvas.toBlob(blob => {
+                    if (blob) resolve(blob);
+                    else reject(new Error("Failed to process image."));
+                }, format, 0.92); // Optimal balance between size and quality
             };
-            img.onerror = () => reject(new Error("Image processing failed."));
-            img.src = URL.createObjectURL(file);
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error("Invalid or corrupted image file."));
+            };
+            img.src = objectUrl;
         });
+    }
+
+    static async loadPdfSafe(buffer) {
+        try {
+            // Allows modifying PDFs that aren't strictly encrypted but have permission flags
+            return await PDFLib.PDFDocument.load(buffer, { ignoreEncryption: true });
+        } catch (e) {
+            if (e.message && e.message.toLowerCase().includes("encrypted")) {
+                throw new Error("Cannot process password-protected or heavily encrypted PDFs.");
+            }
+            throw e;
+        }
     }
 
     static async execute(id) {
         const signal = OperationState.start();
         const files = window.ActiveFiles;
-        if (!files || files.length === 0) { AppUI.showToast("Please upload file(s) first.", "error"); return; }
         
-        const btn = document.getElementById('execute-btn');
-        btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...`; 
-        document.getElementById('prog-container').style.display = 'block';
+        if (!files || files.length === 0) { 
+            AppUI.showToast("Please upload file(s) first.", "error"); 
+            return; 
+        }
+        
+        const btn = DOM.execBtn;
+        if(btn) {
+            btn.disabled = true; 
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...`; 
+        }
+        const progContainer = DOM.progContainer;
+        if(progContainer) progContainer.style.display = 'block';
 
         try {
-            let finalBlob = null; let filename = `Output_${id}.pdf`;
-            AppUI.updateProgress(10);
+            let finalBlob = null; 
+            let filename = `Output_${id}.pdf`;
+            AppUI.updateProgress(5);
 
             if (id === 'resizer') {
                 finalBlob = await this.processResizer(files[0]);
-                filename = `Resized_Image.${document.getElementById('img-format').value.split('/')[1]}`;
+                const ext = document.getElementById('img-format').value.split('/')[1];
+                const originalName = files[0].name.split('.').slice(0, -1).join('.');
+                filename = `Resized_${originalName || 'Image'}.${ext}`;
             } 
             else if (id === 'merge') {
                 const doc = await PDFLib.PDFDocument.create();
                 for (let i = 0; i < files.length; i++) {
                     if(signal.aborted) throw new Error("Cancelled");
-                    const src = await PDFLib.PDFDocument.load(await files[i].arrayBuffer());
+                    
+                    const buffer = await files[i].arrayBuffer();
+                    const src = await this.loadPdfSafe(buffer);
                     const pages = await doc.copyPages(src, src.getPageIndices()); 
-                    pages.forEach(p => doc.addPage(p));
-                    AppUI.updateProgress(10 + ((i+1)/files.length)*40);
+                    
+                    for (const p of pages) {
+                        doc.addPage(p);
+                    }
+                    AppUI.updateProgress(5 + ((i+1)/files.length)*50);
                 }
+                AppUI.updateProgress(70);
                 finalBlob = new Blob([await doc.save()], { type: 'application/pdf' });
+                filename = `Merged_Document.pdf`;
             }
             else if (id === 'imgToPdf') {
                 const doc = await PDFLib.PDFDocument.create();
-                const sizeType = document.getElementById('pg-size').value;
-                const mode = document.getElementById('img-mode').value;
-                let W = sizeType === 'A4' ? 595.28 : 612; let H = sizeType === 'A4' ? 841.89 : 792;
-                if(document.getElementById('layout').value === 'landscape') { const t=W; W=H; H=t; }
+                const sizeType = document.getElementById('pg-size')?.value || 'A4';
+                const mode = document.getElementById('img-mode')?.value || 'fit';
+                const isLandscape = document.getElementById('layout')?.value === 'landscape';
+                
+                // Standard dimensions at 72 PPI
+                let W = sizeType === 'A4' ? 595.28 : 612; 
+                let H = sizeType === 'A4' ? 841.89 : 792;
+                if(isLandscape) { [W, H] = [H, W]; }
 
                 for (let i = 0; i < files.length; i++) {
                     if(signal.aborted) throw new Error("Cancelled");
                     const bytes = await files[i].arrayBuffer();
                     const fType = files[i].type;
-                    let img = fType === 'image/png' ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+                    
+                    let img;
+                    if (fType === 'image/png') img = await doc.embedPng(bytes);
+                    else if (fType === 'image/jpeg' || fType === 'image/jpg') img = await doc.embedJpg(bytes);
+                    else throw new Error(`Unsupported image type: ${fType}`);
+                    
                     const page = doc.addPage([W, H]);
                     
                     if (mode === 'fill') {
                         page.drawImage(img, { x: 0, y: 0, width: W, height: H });
                     } else {
                         const scale = Math.min(W / img.width, H / img.height);
-                        const fW = img.width * scale; const fH = img.height * scale;
+                        const fW = img.width * scale; 
+                        const fH = img.height * scale;
                         page.drawImage(img, { x: (W - fW)/2, y: (H - fH)/2, width: fW, height: fH });
                     }
-                    AppUI.updateProgress(10 + ((i+1)/files.length)*40);
+                    AppUI.updateProgress(5 + ((i+1)/files.length)*60);
                 }
+                AppUI.updateProgress(80);
                 finalBlob = new Blob([await doc.save()], { type: 'application/pdf' });
+                filename = `Images_to_PDF.pdf`;
             }
             else {
-                // Single PDF Operations (Split, Rotate, Del, Extract, Reorder, Watermark, Numbers)
-                const sourceDoc = await PDFLib.PDFDocument.load(await files[0].arrayBuffer());
+                // All other single PDF operations
+                const buffer = await files[0].arrayBuffer();
+                const sourceDoc = await this.loadPdfSafe(buffer);
                 const totalPages = sourceDoc.getPageCount();
-                AppUI.updateProgress(30);
+                const baseName = files[0].name.split('.').slice(0, -1).join('.') || 'Document';
+                AppUI.updateProgress(20);
 
                 if (id === 'split') {
-                    const mode = document.getElementById('split-mode').value;
+                    const mode = document.getElementById('split-mode')?.value;
                     const zip = new JSZip();
+                    
                     if(mode === 'range') {
-                        const targetPages = this.parseRange(document.getElementById('pg-range').value, totalPages);
+                        const targetStr = document.getElementById('pg-range')?.value;
+                        const targetPages = this.parseRange(targetStr, totalPages);
+                        if(targetPages.length === 0) throw new Error("No valid pages selected.");
+                        
                         const newDoc = await PDFLib.PDFDocument.create();
                         const copied = await newDoc.copyPages(sourceDoc, targetPages);
                         copied.forEach(p => newDoc.addPage(p));
-                        zip.file(`Extracted.pdf`, await newDoc.save());
+                        zip.file(`Extracted_Pages.pdf`, await newDoc.save());
+                        AppUI.updateProgress(70);
                     } else {
                         for (let i = 0; i < totalPages; i++) {
+                            if(signal.aborted) throw new Error("Cancelled");
                             const subDoc = await PDFLib.PDFDocument.create(); 
-                            const [p] = await subDoc.copyPages(sourceDoc, [i]); subDoc.addPage(p);
+                            const [p] = await subDoc.copyPages(sourceDoc, [i]); 
+                            subDoc.addPage(p);
                             zip.file(`Page_${i + 1}.pdf`, await subDoc.save());
-                            AppUI.updateProgress(30 + ((i+1)/totalPages)*40);
+                            AppUI.updateProgress(20 + ((i+1)/totalPages)*60);
                         }
                     }
-                    finalBlob = await zip.generateAsync({type: "blob"});
-                    filename = `Split_Result.zip`;
+                    finalBlob = await zip.generateAsync({type: "blob", compression: "STORE"});
+                    filename = `Split_${baseName}.zip`;
                 } 
                 else if (id === 'extract') {
-                    const pgNum = parseInt(document.getElementById('pg-input').value) - 1;
-                    if(pgNum >= 0 && pgNum < totalPages) {
-                        const newDoc = await PDFLib.PDFDocument.create();
-                        const [p] = await newDoc.copyPages(sourceDoc, [pgNum]); newDoc.addPage(p);
-                        finalBlob = new Blob([await newDoc.save()], { type: 'application/pdf' });
-                    } else throw new Error("Invalid page number");
+                    const inputVal = document.getElementById('pg-input')?.value;
+                    const pgNum = parseInt(inputVal, 10) - 1;
+                    if(isNaN(pgNum) || pgNum < 0 || pgNum >= totalPages) {
+                        throw new Error(`Invalid page number. Please select between 1 and ${totalPages}.`);
+                    }
+                    
+                    const newDoc = await PDFLib.PDFDocument.create();
+                    const [p] = await newDoc.copyPages(sourceDoc, [pgNum]); 
+                    newDoc.addPage(p);
+                    finalBlob = new Blob([await newDoc.save()], { type: 'application/pdf' });
+                    filename = `Page_${pgNum + 1}_${files[0].name}`;
                 }
                 else {
-                    // In-place modifications (Rotate, Delete, Reorder, Watermark, Numbers)
+                    // In-place modifications
                     if (id === 'del') {
-                        const targets = this.parseRange(document.getElementById('pg-input').value, totalPages).reverse();
+                        const targets = this.parseRange(document.getElementById('pg-input')?.value, totalPages).reverse();
+                        if(targets.length === 0) throw new Error("No valid pages to delete.");
+                        if(targets.length === totalPages) throw new Error("Cannot delete all pages.");
                         targets.forEach(idx => sourceDoc.removePage(idx));
+                        filename = `Edited_${files[0].name}`;
                     }
                     else if (id === 'reorder') {
                         const newDoc = await PDFLib.PDFDocument.create();
                         const allIndices = Array.from({length: totalPages}, (_, i) => totalPages - 1 - i);
-                        const copied = await newDoc.copyPages(sourceDoc, allIndices);
-                        copied.forEach(p => newDoc.addPage(p));
+                        
+                        // Chunking for performance on massive files
+                        const batchSize = 50;
+                        for(let i = 0; i < allIndices.length; i += batchSize) {
+                            if(signal.aborted) throw new Error("Cancelled");
+                            const batch = allIndices.slice(i, i + batchSize);
+                            const copied = await newDoc.copyPages(sourceDoc, batch);
+                            copied.forEach(p => newDoc.addPage(p));
+                            AppUI.updateProgress(20 + (i/allIndices.length)*60);
+                        }
+                        
                         finalBlob = new Blob([await newDoc.save()], { type: 'application/pdf' });
+                        filename = `Reversed_${files[0].name}`;
                     }
                     else {
                         const targetPages = this.parseRange(document.getElementById('pg-range')?.value, totalPages);
                         
                         if (id === 'rotate') {
-                            const angle = parseInt(document.getElementById('rot-angle').value) || 90;
+                            const angleStr = document.getElementById('rot-angle')?.value;
+                            const angle = parseInt(angleStr, 10) || 90;
                             targetPages.forEach(idx => {
                                 const p = sourceDoc.getPage(idx);
-                                p.setRotation(PDFLib.degrees((p.getRotation().angle + angle) % 360));
+                                const currentRot = p.getRotation().angle;
+                                p.setRotation(PDFLib.degrees((currentRot + angle) % 360));
                             });
+                            filename = `Rotated_${files[0].name}`;
                         }
                         else if (id === 'watermark') {
-                            const text = document.getElementById('txt-input').value || "CONFIDENTIAL";
-                            const pos = document.getElementById('wm-pos').value;
-                            const size = parseInt(document.getElementById('wm-size').value) || 48;
-                            const op = parseInt(document.getElementById('wm-opacity').value)/100 || 0.3;
-                            const ang = parseInt(document.getElementById('wm-rot').value) || 45;
+                            const text = document.getElementById('txt-input')?.value || "CONFIDENTIAL";
+                            const pos = document.getElementById('wm-pos')?.value || 'center';
+                            const size = parseInt(document.getElementById('wm-size')?.value, 10) || 48;
+                            const opacityVal = parseInt(document.getElementById('wm-opacity')?.value, 10);
+                            const op = isNaN(opacityVal) ? 0.3 : opacityVal / 100;
+                            const ang = parseInt(document.getElementById('wm-rot')?.value, 10) || 45;
                             
+                            const hexColor = document.getElementById('wm-color')?.value || '#cccccc';
+                            const r = parseInt(hexColor.slice(1, 3), 16) / 255;
+                            const g = parseInt(hexColor.slice(3, 5), 16) / 255;
+                            const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+                            const color = PDFLib.rgb(r, g, b);
+                            
+                            const font = await sourceDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+                            const textWidth = font.widthOfTextAtSize(text, size);
+                            const textHeight = font.heightAtSize(size);
+
                             targetPages.forEach(idx => {
                                 const p = sourceDoc.getPage(idx);
                                 const { width, height } = p.getSize();
-                                let x = width/4, y = height/2; // Center
-                                if(pos === 'top-left') { x = 50; y = height - 50; }
-                                if(pos === 'bottom-right') { x = width - 150; y = 50; }
-                                p.drawText(text, { x, y, size, opacity: op, rotate: PDFLib.degrees(ang) });
+                                
+                                let x, y;
+                                if(pos === 'center') {
+                                    x = (width / 2) - (textWidth / 2);
+                                    y = (height / 2) - (textHeight / 2);
+                                } else if(pos === 'top-left') { 
+                                    x = 50; 
+                                    y = height - 50 - textHeight; 
+                                } else if(pos === 'bottom-right') { 
+                                    x = width - 50 - textWidth; 
+                                    y = 50; 
+                                }
+                                
+                                p.drawText(text, { 
+                                    x, y, size, font, color, opacity: op, rotate: PDFLib.degrees(ang) 
+                                });
                             });
+                            filename = `Watermarked_${files[0].name}`;
                         }
                         else if (id === 'numbers') {
-                            const sNum = parseInt(document.getElementById('start-num').value) || 1;
-                            const pos = document.getElementById('pos').value;
+                            const sNum = parseInt(document.getElementById('start-num')?.value, 10) || 1;
+                            const pos = document.getElementById('pos')?.value || 'bottom-right';
+                            const font = await sourceDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
                             targetPages.forEach((idx, i) => {
                                 const p = sourceDoc.getPage(idx);
                                 const { width, height } = p.getSize();
-                                let x = width - 70, y = 30; // bottom-right
-                                if(pos === 'bottom-center') { x = width/2; }
+                                const text = `${sNum + i}`;
+                                const textWidth = font.widthOfTextAtSize(text, 12);
+                                
+                                let x = width - 50 - textWidth, y = 30; // bottom-right defaults
+                                if(pos === 'bottom-center') { x = (width / 2) - (textWidth / 2); }
                                 if(pos === 'top-right') { y = height - 30; }
-                                p.drawText(`${sNum + i}`, { x, y, size: 12 });
+                                
+                                p.drawText(text, { x, y, size: 12, font, color: PDFLib.rgb(0, 0, 0) });
                             });
+                            filename = `Numbered_${files[0].name}`;
                         }
                     }
                     
-                    if(!finalBlob) finalBlob = new Blob([await sourceDoc.save()], { type: 'application/pdf' });
+                    if(!finalBlob) {
+                        AppUI.updateProgress(85);
+                        finalBlob = new Blob([await sourceDoc.save()], { type: 'application/pdf' });
+                    }
                 }
             }
             
             AppUI.updateProgress(100);
-            await this.downloadBlob(finalBlob, filename);
-            AppUI.showToast("Processing Successful!", "success");
+            
+            // Allow progress animation to complete visually before triggering download
+            setTimeout(async () => {
+                await this.downloadBlob(finalBlob, filename);
+                AppUI.showToast("Processing Successful!", "success");
+                AppUI.resetProgress();
+            }, 300);
             
         } catch (error) { 
-            if(error.message !== "Cancelled") AppUI.showToast(error.message || "An error occurred.", 'error'); 
-        } finally { 
+            if(error.message !== "Cancelled") {
+                console.error("Engine Error:", error);
+                AppUI.showToast(error.message || "An error occurred during processing.", 'error'); 
+            }
             AppUI.resetProgress();
         }
     }
 }
 
-// Initializing UI
+// Ensure DOM is ready, using efficient fragment insertion
 window.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('tools-grid');
     if(grid && typeof ToolsConfig !== 'undefined') {
+        const fragment = document.createDocumentFragment();
+        
         Object.keys(ToolsConfig).forEach(key => {
             const tool = ToolsConfig[key];
             const card = document.createElement('a'); 
             card.href = `#tool-${key}`; 
-            card.className = `glass-panel ${tool.border} p-6 rounded-2xl flex flex-col items-start space-y-4 cursor-pointer`;
+            
+            // Clean dynamic class construction for Tailwind
+            const baseColor = tool.color.split('-')[0];
+            card.className = `glass-panel ${tool.border} p-6 rounded-2xl flex flex-col items-start space-y-4 cursor-pointer focus-visible:ring-4 focus-visible:ring-${baseColor}-300 outline-none group`;
+            card.setAttribute('aria-label', `Open ${tool.name} tool`);
             
             card.addEventListener('click', (e) => { 
                 e.preventDefault(); 
@@ -353,10 +663,17 @@ window.addEventListener('DOMContentLoaded', () => {
             });
             
             card.innerHTML = `
-                <div class="w-12 h-12 bg-${tool.color}/10 text-${tool.color} rounded-xl flex items-center justify-center text-xl"><i class="fa-solid ${tool.icon}"></i></div>
-                <div class="text-left w-full"><h3 class="font-bold text-slate-800 text-lg mb-1">${tool.name}</h3><p class="text-slate-500 text-sm line-clamp-2">${tool.desc}</p></div>
+                <div class="w-12 h-12 bg-${baseColor}-100 text-${tool.color} rounded-xl flex items-center justify-center text-xl shadow-sm transition-transform group-hover:scale-110">
+                    <i class="fa-solid ${tool.icon}"></i>
+                </div>
+                <div class="text-left w-full">
+                    <h3 class="font-bold text-slate-800 text-lg mb-1 group-hover:text-${tool.color} transition-colors">${tool.name}</h3>
+                    <p class="text-slate-500 text-sm line-clamp-2 leading-relaxed">${tool.desc}</p>
+                </div>
             `;
-            grid.appendChild(card);
+            fragment.appendChild(card);
         });
+        
+        grid.appendChild(fragment);
     }
 });
