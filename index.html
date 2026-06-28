@@ -1,19 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com"> 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PDFExpert">
     
     <title>Free Online PDF Tools: Merge, Split, and Convert Securely</title> 
     <meta name="description" content="Manage documents effortlessly with our modern, client-side PDF tools. Instantly merge, split, and convert PDFs locally in your browser. 100% secure, offline, and free." /> 
-    <meta name="keywords" content="free online pdf tools, merge pdf offline, split pdf free, convert image to pdf, secure pdf editor, client-side document tools, compress pdf without losing quality" /> 
+    <meta name="keywords" content="free online pdf tools, merge pdf offline, split pdf free, convert image to pdf, secure pdf editor, client-side document tools, compress pdf without losing quality, pdf expert" /> 
+    <meta name="author" content="Pdfexpert Suite">
+    <meta name="creator" content="Pdfexpert Suite">
+    <meta name="publisher" content="Pdfexpert Suite">
     
     <link rel="canonical" href="https://pdfexpert.xyz/" /> 
+    <link rel="alternate" hreflang="en" href="https://pdfexpert.xyz/" />
+    <link rel="alternate" hreflang="x-default" href="https://pdfexpert.xyz/" />
+    
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" /> 
+    <meta name="googlebot" content="index, follow" />
     
     <meta property="og:type" content="website" /> 
     <meta property="og:site_name" content="Pdfexpert" /> 
@@ -21,57 +33,161 @@
     <meta property="og:title" content="Free Online PDF Tools: Merge, Split, and Convert Securely" /> 
     <meta property="og:description" content="Manage documents effortlessly with a clean, high-level interface. 100% secure, browser-based PDF tools with zero file uploads required." /> 
     <meta property="og:image" content="https://pdfexpert.xyz/assets/og-banner-1200x630.jpg" /> 
+    <meta property="og:image:secure_url" content="https://pdfexpert.xyz/assets/og-banner-1200x630.jpg" /> 
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pdfexpert Suite Free Online PDF Tools" />
     <meta property="og:locale" content="en_US" /> 
     
-    <script type="application/ld+json"> { 
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Pdfexpert" />
+    <meta name="twitter:creator" content="@Pdfexpert" />
+    <meta name="twitter:title" content="Free Online PDF Tools: Merge, Split, and Convert Securely" />
+    <meta name="twitter:description" content="Manage documents effortlessly with our modern, client-side PDF tools. Instantly merge, split, and convert PDFs locally in your browser. 100% secure, offline, and free." />
+    <meta name="twitter:image" content="https://pdfexpert.xyz/assets/og-banner-1200x630.jpg" />
+    <meta name="twitter:image:alt" content="Pdfexpert Suite Free Online PDF Tools" />
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.manifest" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com"> 
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style">
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" as="script">
+    
+    <script type="application/ld+json"> 
+    { 
         "@context": "https://schema.org", 
         "@graph": [ 
-            { "@type": "Organization", "@id": "https://pdfexpert.xyz/#organization", "name": "Pdfexpert", "url": "https://pdfexpert.xyz/" }, 
-            { "@type": "WebPage", "@id": "https://pdfexpert.xyz/#webpage", "url": "https://pdfexpert.xyz/", "name": "Free Online PDF Tools", "isPartOf": { "@id": "https://pdfexpert.xyz/#organization" } }, 
-            { "@type": "WebApplication", "@id": "https://pdfexpert.xyz/#software", "name": "Pdfexpert Suite", "url": "https://pdfexpert.xyz/", "description": "A high-level, strictly client-side suite of free online PDF tools.", "applicationCategory": "BusinessApplication, BrowserApplication", "operatingSystem": "All", "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" } },
-            { "@type": "FAQPage", "@id": "https://pdfexpert.xyz/#faq", "mainEntity": [ 
-                { "@type": "Question", "name": "Are my financial or personal PDF files completely secure?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. All file processing happens entirely locally within your browser. Your files are never uploaded to any external cloud servers." } }, 
-                { "@type": "Question", "name": "Is there a limit to how many PDFs I can process?", "acceptedAnswer": { "@type": "Answer", "text": "No. Our tool is designed for unrestricted use, allowing you to manage unlimited documents instantly for free." } } 
-            ] } 
+            { 
+                "@type": "Organization", 
+                "@id": "https://pdfexpert.xyz/#organization", 
+                "name": "Pdfexpert", 
+                "url": "https://pdfexpert.xyz/",
+                "logo": "https://pdfexpert.xyz/assets/logo.png",
+                "sameAs": [
+                    "https://twitter.com/Pdfexpert",
+                    "https://www.facebook.com/Pdfexpert"
+                ]
+            }, 
+            { 
+                "@type": "WebSite", 
+                "@id": "https://pdfexpert.xyz/#website", 
+                "url": "https://pdfexpert.xyz/", 
+                "name": "Pdfexpert Suite", 
+                "publisher": { "@id": "https://pdfexpert.xyz/#organization" },
+                "inLanguage": "en-US"
+            },
+            { 
+                "@type": "WebPage", 
+                "@id": "https://pdfexpert.xyz/#webpage", 
+                "url": "https://pdfexpert.xyz/", 
+                "name": "Free Online PDF Tools: Merge, Split, and Convert Securely", 
+                "isPartOf": { "@id": "https://pdfexpert.xyz/#website" }, 
+                "about": { "@id": "https://pdfexpert.xyz/#organization" },
+                "description": "Manage documents effortlessly with our modern, client-side PDF tools. Instantly merge, split, and convert PDFs locally in your browser."
+            }, 
+            { 
+                "@type": "WebApplication", 
+                "@id": "https://pdfexpert.xyz/#software", 
+                "name": "Pdfexpert Suite", 
+                "url": "https://pdfexpert.xyz/", 
+                "description": "A high-level, strictly client-side suite of free online PDF tools.", 
+                "applicationCategory": "BusinessApplication, BrowserApplication, UtilitiesApplication", 
+                "operatingSystem": "All", 
+                "offers": { 
+                    "@type": "Offer", 
+                    "price": "0.00", 
+                    "priceCurrency": "USD",
+                    "availability": "https://schema.org/InStock"
+                },
+                "featureList": "Merge PDF, Split PDF, PDF to Image, Rotate PDF, Secure Document Processing"
+            },
+            { 
+                "@type": "FAQPage", 
+                "@id": "https://pdfexpert.xyz/#faq", 
+                "mainEntity": [ 
+                    { 
+                        "@type": "Question", 
+                        "name": "Are my financial or personal PDF files completely secure?", 
+                        "acceptedAnswer": { 
+                            "@type": "Answer", 
+                            "text": "Yes. All file processing happens entirely locally within your browser. Your files are never uploaded to any external cloud servers." 
+                        } 
+                    }, 
+                    { 
+                        "@type": "Question", 
+                        "name": "Is there a limit to how many PDFs I can process?", 
+                        "acceptedAnswer": { 
+                            "@type": "Answer", 
+                            "text": "No. Our tool is designed for unrestricted use, allowing you to manage unlimited documents instantly for free." 
+                        } 
+                    },
+                    { 
+                        "@type": "Question", 
+                        "name": "Will the quality of my PDF decrease after merging or splitting?", 
+                        "acceptedAnswer": { 
+                            "@type": "Answer", 
+                            "text": "Not at all. We use lossless processing algorithms. Your output files retain the exact same DPI, resolution, and text clarity as your original documents." 
+                        } 
+                    }
+                ] 
+            } 
         ] 
-    } </script>
+    } 
+    </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
-    <nav class="pt-safe sticky top-0 z-40 w-full glass-panel shadow-sm">
+    <noscript>
+        <div class="bg-red-600 text-white p-3 text-center text-sm font-semibold w-full z-50 relative">
+            JavaScript is required to run our secure client-side tools. Please enable JavaScript in your browser settings to proceed.
+        </div>
+    </noscript>
+
+    <nav class="pt-safe sticky top-0 z-40 w-full glass-panel shadow-sm" aria-label="Main Navigation">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-2 text-2xl font-extrabold text-blue-600 tracking-tight">
-                <i class="fa-solid fa-layer-group text-xl text-indigo-500"></i>
+            <a href="/" class="flex items-center space-x-2 text-2xl font-extrabold text-blue-600 tracking-tight" aria-label="PDFExpert Homepage">
+                <i class="fa-solid fa-layer-group text-xl text-indigo-500" aria-hidden="true"></i>
                 <span>PDF<span class="text-indigo-600">Expert</span></span>
-            </div>
+            </a>
             
-            <div class="hidden md:flex items-center space-x-8 font-medium text-slate-600 text-sm">
-                <a href="#" class="text-blue-600 border-b-2 border-blue-600 pb-1">Home</a>
-                <a href="#about" class="hover:text-blue-600 transition">About Tools</a>
-                <a href="#faq-section" class="hover:text-blue-600 transition">FAQs</a>
-                <a href="#" class="hover:text-blue-600 transition">Privacy</a>
+            <div class="hidden md:flex items-center space-x-8 font-medium text-slate-600 text-sm" role="menubar">
+                <a href="#" class="text-blue-600 border-b-2 border-blue-600 pb-1" role="menuitem" aria-current="page">Home</a>
+                <a href="#about" class="hover:text-blue-600 transition" role="menuitem">About Tools</a>
+                <a href="#faq-section" class="hover:text-blue-600 transition" role="menuitem">FAQs</a>
+                <a href="#" class="hover:text-blue-600 transition" role="menuitem">Privacy</a>
             </div>
             
             <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-1 border border-slate-200/60 rounded-full px-3 py-1 text-xs font-medium bg-white/50 shadow-sm">
-                    <span>🇺🇸 EN</span>
+                <div role="button" tabindex="0" aria-label="Select Language" class="flex items-center space-x-1 border border-slate-200/60 rounded-full px-3 py-1 text-xs font-medium bg-white/50 shadow-sm cursor-pointer hover:bg-slate-50 transition">
+                    <span aria-hidden="true">🇺🇸</span> <span>EN</span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow">
-        <header class="max-w-7xl mx-auto px-6 pt-16 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <main id="main-content" class="flex-grow">
+        <header class="max-w-7xl mx-auto px-6 pt-16 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center" aria-labelledby="hero-title">
             <div class="lg:col-span-6 space-y-6" id="hero-workspace">
                 <div class="space-y-4">
-                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    <h1 id="hero-title" class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
                         Free Online PDF Tools: <span class="text-blue-600">Merge, Split & Convert</span>
                     </h1>
                     <p class="text-lg text-slate-600 leading-relaxed max-w-lg">
@@ -79,29 +195,29 @@
                     </p>
                 </div>
                 
-                <div class="flex flex-wrap gap-4 pt-2">
+                <div class="flex flex-wrap gap-4 pt-2" aria-label="Platform Highlights">
                     <div class="flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-emerald-100">
-                        <i class="fa-solid fa-shield-halved"></i> <span>100% Secure & Offline</span>
+                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> <span>100% Secure & Offline</span>
                     </div>
                     <div class="flex items-center space-x-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-blue-100">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> <span>No Cloud Uploads</span>
+                        <i class="fa-solid fa-cloud-arrow-down" aria-hidden="true"></i> <span>No Cloud Uploads</span>
                     </div>
                     <div class="flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-indigo-100">
-                        <i class="fa-solid fa-bolt"></i> <span>Lightning Fast</span>
+                        <i class="fa-solid fa-bolt" aria-hidden="true"></i> <span>Lightning Fast</span>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-6 flex justify-center relative">
-                <div class="w-full max-w-lg glass-panel shadow-xl rounded-3xl p-8 transition-all duration-300 transform" id="tool-workspace-box">
-                    <div class="flex items-center space-x-2 mb-6">
+                <div class="w-full max-w-lg glass-panel shadow-xl rounded-3xl p-8 transition-all duration-300 transform" id="tool-workspace-box" aria-live="polite">
+                    <div class="flex items-center space-x-2 mb-6" aria-hidden="true">
                         <span class="w-3 h-3 rounded-full bg-red-400"></span>
                         <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
                         <span class="w-3 h-3 rounded-full bg-green-400"></span>
                     </div>
                     
                     <div id="canvas-content" class="text-center py-8 space-y-4">
-                        <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner animate-pulse">
+                        <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner animate-pulse" aria-hidden="true">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
                         <h2 class="text-xl font-bold text-slate-800">Select a Module</h2>
@@ -111,18 +227,18 @@
             </div>
         </header>
 
-        <section id="our-tools" class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50">
+        <section id="our-tools" class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50" aria-labelledby="tools-heading">
             <div class="text-center space-y-2 mb-12">
-                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Our Premium Utility Modules</h2>
+                <h2 id="tools-heading" class="text-3xl font-extrabold text-slate-900 tracking-tight">Our Premium Utility Modules</h2>
                 <p class="text-sm text-slate-500">Select a tool to start processing your files securely.</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="tools-grid">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="tools-grid" role="list">
                 </div>
         </section>
 
-        <section id="about" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200/50 bg-white rounded-3xl my-8 shadow-sm">
+        <section id="about" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200/50 bg-white rounded-3xl my-8 shadow-sm" aria-labelledby="about-heading">
             <div class="max-w-4xl mx-auto text-center space-y-6">
-                <h2 class="text-3xl font-extrabold text-slate-900">Why Choose Our Client-Side PDF Editor?</h2>
+                <h2 id="about-heading" class="text-3xl font-extrabold text-slate-900">Why Choose Our Client-Side PDF Editor?</h2>
                 <p class="text-slate-600 leading-relaxed text-left md:text-center">
                     In an era where digital privacy is paramount, uploading sensitive legal, financial, or personal documents to cloud servers poses a significant risk. 
                     <strong>PDFExpert</strong> revolutionizes document management by utilizing advanced <em>client-side processing</em>. 
@@ -131,47 +247,54 @@
                 </p>
                 <div class="grid md:grid-cols-3 gap-8 text-left mt-8 pt-8 border-t border-slate-100">
                     <div>
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-lock text-blue-500 mr-2"></i> Absolute Privacy</h3>
+                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-lock text-blue-500 mr-2" aria-hidden="true"></i> Absolute Privacy</h3>
                         <p class="text-sm text-slate-500">Zero data retention. Your files are processed in your browser's memory and are instantly destroyed once you close the tab.</p>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-rocket text-indigo-500 mr-2"></i> Unmatched Speed</h3>
+                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-rocket text-indigo-500 mr-2" aria-hidden="true"></i> Unmatched Speed</h3>
                         <p class="text-sm text-slate-500">By eliminating upload and download wait times, our browser-based PDF editor works instantly, saving you valuable time.</p>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-laptop-code text-emerald-500 mr-2"></i> No Installation</h3>
+                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-laptop-code text-emerald-500 mr-2" aria-hidden="true"></i> No Installation</h3>
                         <p class="text-sm text-slate-500">Access enterprise-grade document tools directly from any modern web browser without downloading bulky software.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="faq-section" class="max-w-7xl mx-auto px-6 py-16 mb-8">
+        <section id="faq-section" class="max-w-7xl mx-auto px-6 py-16 mb-8" aria-labelledby="faq-heading">
             <div class="max-w-3xl mx-auto">
-                <h2 class="text-3xl font-extrabold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
-                <div class="space-y-4">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-slate-800 mb-2">Are my financial or personal PDF files completely secure?</h3>
-                        <p class="text-sm text-slate-600">Yes. All file processing happens entirely locally within your browser using JavaScript. We offer a high-level secure environment where your files are never uploaded to any external cloud servers.</p>
+                <h2 id="faq-heading" class="text-3xl font-extrabold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
+                <div class="space-y-4" itemscope itemtype="https://schema.org/FAQPage">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100" itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
+                        <h3 class="font-bold text-slate-800 mb-2" itemprop="name">Are my financial or personal PDF files completely secure?</h3>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p class="text-sm text-slate-600" itemprop="text">Yes. All file processing happens entirely locally within your browser using JavaScript. We offer a high-level secure environment where your files are never uploaded to any external cloud servers.</p>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-slate-800 mb-2">Is there a limit to how many PDFs I can process?</h3>
-                        <p class="text-sm text-slate-600">No. Our tool is designed for unrestricted use. You can merge, split, and edit unlimited documents instantly without any premium paywalls or hidden limits.</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100" itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
+                        <h3 class="font-bold text-slate-800 mb-2" itemprop="name">Is there a limit to how many PDFs I can process?</h3>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p class="text-sm text-slate-600" itemprop="text">No. Our tool is designed for unrestricted use. You can merge, split, and edit unlimited documents instantly without any premium paywalls or hidden limits.</p>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-slate-800 mb-2">Will the quality of my PDF decrease after merging or splitting?</h3>
-                        <p class="text-sm text-slate-600">Not at all. We use lossless processing algorithms. Your output files retain the exact same DPI, resolution, and text clarity as your original documents.</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100" itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
+                        <h3 class="font-bold text-slate-800 mb-2" itemprop="name">Will the quality of my PDF decrease after merging or splitting?</h3>
+                        <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p class="text-sm text-slate-600" itemprop="text">Not at all. We use lossless processing algorithms. Your output files retain the exact same DPI, resolution, and text clarity as your original documents.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="glass-panel border-t border-slate-200/60 pt-16 pb-8 text-xs text-slate-500 mt-auto">
+    <footer class="glass-panel border-t border-slate-200/60 pt-16 pb-8 text-xs text-slate-500 mt-auto" aria-labelledby="footer-heading">
+        <h2 id="footer-heading" class="sr-only">Site Footer</h2>
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div class="col-span-2 space-y-4">
                 <div class="flex items-center space-x-2 text-xl font-extrabold text-blue-600 tracking-tight">
-                    <i class="fa-solid fa-layer-group text-base text-indigo-500"></i>
+                    <i class="fa-solid fa-layer-group text-base text-indigo-500" aria-hidden="true"></i>
                     <span>PDF<span class="text-indigo-600">Expert</span></span>
                 </div>
                 <p class="text-slate-400 leading-relaxed max-w-sm">
@@ -181,16 +304,16 @@
             <div>
                 <h3 class="font-bold text-slate-800 mb-3 text-sm">Legal</h3>
                 <ul class="space-y-2">
-                    <li><a href="#" class="hover:text-blue-600 transition">Privacy Policy</a></li>
-                    <li><a href="#" class="hover:text-blue-600 transition">Terms of Use</a></li>
-                    <li><a href="#" class="hover:text-blue-600 transition">Disclaimer</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition" aria-label="Read our Privacy Policy">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition" aria-label="Read our Terms of Use">Terms of Use</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition" aria-label="Read our Disclaimer">Disclaimer</a></li>
                 </ul>
             </div>
             <div>
                 <h3 class="font-bold text-slate-800 mb-3 text-sm">Connect</h3>
                 <ul class="space-y-2">
-                    <li><a href="#" class="hover:text-blue-600 transition">Contact Support</a></li>
-                    <li><a href="#" class="hover:text-blue-600 transition">Provide Feedback</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition" aria-label="Contact Support">Contact Support</a></li>
+                    <li><a href="#" class="hover:text-blue-600 transition" aria-label="Provide Feedback">Provide Feedback</a></li>
                 </ul>
             </div>
         </div>
@@ -200,9 +323,207 @@
         </div>
     </footer>
 
-    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl space-x-2 z-50 items-center transform transition-all duration-300 translate-y-20 opacity-0 flex"></div>
+    <div id="toast" role="alert" aria-live="assertive" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl space-x-2 z-50 items-center transform transition-all duration-300 translate-y-20 opacity-0 flex"></div>
 
-    <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script src="config.js" defer></script>
+    <script src="script.js" defer></script>
+
+    <script>
+        const { PDFDocument, rgb, degrees } = PDFLib;
+
+        class AppUI {
+            static showToast(msg, type = 'success') {
+                const t = document.getElementById('toast');
+                const isError = type === 'error';
+                t.innerHTML = isError 
+                    ? `<i class="fa-solid fa-circle-exclamation text-sm" aria-hidden="true"></i> <span>${msg}</span>` 
+                    : `<i class="fa-solid fa-circle-check text-sm" aria-hidden="true"></i> <span>${msg}</span>`;
+                t.className = `fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl flex items-center space-x-2 z-50 transition-all duration-300 transform translate-y-0 opacity-100 ${isError ? 'bg-red-500 shadow-red-200/50' : 'bg-emerald-600 shadow-emerald-200/50'}`;
+                setTimeout(() => { t.classList.remove('translate-y-0', 'opacity-100'); t.classList.add('translate-y-20', 'opacity-0'); }, 4000);
+            }
+
+            static renderFileInput(tool, multiple = false, accept = ".pdf") {
+                return `
+                    <div class="space-y-3">
+                        <label for="active-file-input" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Source File(s)</label>
+                        <input type="file" id="active-file-input" ${multiple ? 'multiple' : ''} accept="${accept}" 
+                            class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-${tool.color}-50 file:text-${tool.color}-700 hover:file:bg-${tool.color}-100 cursor-pointer border border-dashed border-${tool.border.split('-')[2]}-200 rounded-2xl p-4 bg-${tool.color}-50/10 transition-colors">
+                    </div>
+                `;
+            }
+
+            static loadImgDims(input) {
+                if(!input.files || input.files.length === 0) return;
+                const file = input.files[0];
+                if(!file.type.startsWith('image/')) { this.showToast("Please select a valid image.", 'error'); return; }
+                const img = new Image();
+                img.onload = () => { document.getElementById('img-w').value = img.width; document.getElementById('img-h').value = img.height; }
+                img.src = URL.createObjectURL(file);
+            }
+        }
+
+        class PDFEngine {
+            static async downloadBlob(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            }
+
+            static async execute(id, toolDef) {
+                const input = document.getElementById('active-file-input');
+                const btn = document.getElementById('execute-btn');
+                if(!input || !input.files || input.files.length === 0) throw new Error("Please upload a required file to begin.");
+                
+                const originalBtnText = btn.innerHTML;
+                btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2" aria-hidden="true"></i> Processing...`; btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+                try {
+                    let finalBlob = null; let filename = `Output_${id}.pdf`;
+                    if (id === 'resizer') { finalBlob = await this.processResizer(input.files[0]); filename = `Resized_Image.${document.getElementById('img-format').value.split('/')[1]}`; } 
+                    else if (id === 'imgToPdf') { finalBlob = await this.processImagesToPdf(input.files); } 
+                    else if (id === 'merge') { finalBlob = await this.processMerge(input.files); } 
+                    else {
+                        const fileBytes = await input.files[0].arrayBuffer();
+                        const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+                        finalBlob = await this.processSinglePDF(id, pdfDoc);
+                        if(id === 'split') filename = `Split_Pages.zip`;
+                    }
+                    if (finalBlob) { await this.downloadBlob(finalBlob, filename); AppUI.showToast("Operation completed successfully!"); }
+                } catch (error) { AppUI.showToast(error.message, 'error'); } 
+                finally { btn.disabled = false; btn.innerHTML = originalBtnText; btn.classList.remove('opacity-70', 'cursor-not-allowed'); }
+            }
+
+            static async processResizer(file) {
+                const w = parseInt(document.getElementById('img-w').value), h = parseInt(document.getElementById('img-h').value), format = document.getElementById('img-format').value;
+                if (!w || !h || w <= 0 || h <= 0) throw new Error("Invalid dimensions specified.");
+                const img = await new Promise((resolve, reject) => { const imgEl = new Image(); imgEl.onload = () => resolve(imgEl); imgEl.onerror = () => reject(new Error("Failed to decode image.")); imgEl.src = URL.createObjectURL(file); });
+                const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d', { alpha: format !== 'image/jpeg' });
+                if(format === 'image/jpeg') { ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, w, h); }
+                ctx.drawImage(img, 0, 0, w, h);
+                return await new Promise(resolve => canvas.toBlob(resolve, format, 0.92));
+            }
+
+            static async processImagesToPdf(files) {
+                const doc = await PDFDocument.create(); const A4_WIDTH = 595.28, A4_HEIGHT = 841.89;
+                for (let f of files) {
+                    const bytes = await f.arrayBuffer(); let img;
+                    if (f.type === 'image/png') img = await doc.embedPng(bytes); else if (f.type === 'image/jpeg' || f.type === 'image/jpg') img = await doc.embedJpg(bytes); else continue;
+                    const scale = Math.min(A4_WIDTH / img.width, A4_HEIGHT / img.height);
+                    const scaledWidth = img.width * scale, scaledHeight = img.height * scale;
+                    const page = doc.addPage([A4_WIDTH, A4_HEIGHT]);
+                    page.drawImage(img, { x: (A4_WIDTH / 2) - (scaledWidth / 2), y: (A4_HEIGHT / 2) - (scaledHeight / 2), width: scaledWidth, height: scaledHeight });
+                }
+                const pdfBytes = await doc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
+            }
+
+            static async processMerge(files) {
+                const doc = await PDFDocument.create();
+                for (let f of files) {
+                    const bytes = await f.arrayBuffer(); const src = await PDFDocument.load(bytes);
+                    const pages = await doc.copyPages(src, src.getPageIndices()); pages.forEach(p => doc.addPage(p));
+                }
+                const pdfBytes = await doc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
+            }
+
+            static async processSinglePDF(id, sourceDoc) {
+                const totalPages = sourceDoc.getPageCount();
+                if (id === 'split') {
+                    const zip = new JSZip();
+                    for (let i = 0; i < totalPages; i++) {
+                        const subDoc = await PDFDocument.create(); const [p] = await subDoc.copyPages(sourceDoc, [i]); subDoc.addPage(p);
+                        const subBytes = await subDoc.save(); zip.file(`Page_${i + 1}.pdf`, subBytes);
+                    }
+                    return await zip.generateAsync({type: "blob"});
+                } 
+                if (id === 'rotate') { sourceDoc.getPages().forEach(p => p.setRotation(degrees((p.getRotation().angle + 90) % 360))); } 
+                else if (id === 'del') { const idx = parseInt(document.getElementById('pg-input').value) - 1; if (isNaN(idx) || idx < 0 || idx >= totalPages) throw new Error("Invalid page index."); if (totalPages <= 1) throw new Error("Cannot delete the last remaining page."); sourceDoc.removePage(idx); } 
+                else if (id === 'extract') { const idx = parseInt(document.getElementById('pg-input').value) - 1; if (isNaN(idx) || idx < 0 || idx >= totalPages) throw new Error("Invalid page index."); const newDoc = await PDFDocument.create(); const [extracted] = await newDoc.copyPages(sourceDoc, [idx]); newDoc.addPage(extracted); sourceDoc = newDoc; } 
+                else if (id === 'reorder') { const newDoc = await PDFDocument.create(); for (let i = totalPages - 1; i >= 0; i--) { const [p] = await newDoc.copyPages(sourceDoc, [i]); newDoc.addPage(p); } sourceDoc = newDoc; } 
+                else if (id === 'watermark') { const text = document.getElementById('txt-input').value || "CONFIDENTIAL"; sourceDoc.getPages().forEach(p => { const { width, height } = p.getSize(); p.drawText(text, { x: width / 4, y: height / 2, size: 48, color: rgb(0.8, 0.8, 0.8), opacity: 0.3, rotate: degrees(45) }); }); } 
+                else if (id === 'numbers') { sourceDoc.getPages().forEach((p, i) => { const { width } = p.getSize(); p.drawText(`${i + 1} / ${totalPages}`, { x: width - 70, y: 30, size: 12, color: rgb(0, 0, 0) }); }); }
+                const pdfBytes = await sourceDoc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
+            }
+        }
+
+        const ToolsConfig = {
+            resizer: { name: "Image Resizer", desc: "Resize dimensions offline.", icon: "fa-compress", color: "red-500", border: "border-b-[3px] border-b-red-500 hover:border-red-500/40", render: (t) => `
+                <div class="space-y-3">
+                    <label for="active-file-input" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Select Image</label>
+                    <input type="file" id="active-file-input" accept="image/jpeg, image/png, image/webp" onchange="AppUI.loadImgDims(this)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer border border-dashed border-red-200 rounded-2xl p-4 bg-red-50/10">
+                    <div class="flex gap-2">
+                        <input type="number" id="img-w" aria-label="Image Width" placeholder="Width" class="w-1/2 px-4 py-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-red-500 outline-none transition">
+                        <input type="number" id="img-h" aria-label="Image Height" placeholder="Height" class="w-1/2 px-4 py-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-red-500 outline-none transition">
+                    </div>
+                    <select id="img-format" aria-label="Export Format Selection" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-red-500 outline-none bg-white">
+                        <option value="image/jpeg">Export as JPG</option>
+                        <option value="image/png">Export as PNG</option>
+                        <option value="image/webp">Export as WebP</option>
+                    </select>
+                </div>` },
+            merge: { name: "Merge PDF", desc: "Combine multiple PDFs.", icon: "fa-copy", color: "blue-600", border: "border-b-[3px] border-b-blue-600 hover:border-blue-600/40", render: (t) => AppUI.renderFileInput(t, true) },
+            split: { name: "Split to ZIP", desc: "Extract pages into a ZIP.", icon: "fa-scissors", color: "emerald-600", border: "border-b-[3px] border-b-emerald-600 hover:border-emerald-600/40", render: (t) => AppUI.renderFileInput(t) },
+            rotate: { name: "Rotate Pages", desc: "Rotate all pages by 90°.", icon: "fa-rotate-right", color: "purple-600", border: "border-b-[3px] border-b-purple-600 hover:border-purple-600/40", render: (t) => AppUI.renderFileInput(t) },
+            del: { name: "Delete Page", desc: "Remove a specific page.", icon: "fa-trash", color: "amber-500", border: "border-b-[3px] border-b-amber-500 hover:border-amber-500/40", render: (t) => AppUI.renderFileInput(t) + `<label for="pg-input" class="sr-only">Page Number</label><input type="number" id="pg-input" placeholder="Page number (e.g. 1)" class="w-full mt-3 px-4 py-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none">` },
+            extract: { name: "Extract Page", desc: "Isolate a single page.", icon: "fa-file-export", color: "orange-500", border: "border-b-[3px] border-b-orange-500 hover:border-orange-500/40", render: (t) => AppUI.renderFileInput(t) + `<label for="pg-input" class="sr-only">Page number to extract</label><input type="number" id="pg-input" placeholder="Page number to extract" class="w-full mt-3 px-4 py-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-orange-500 outline-none">` },
+            reorder: { name: "Reverse PDF", desc: "Flip layout order backwards.", icon: "fa-arrow-down-up-across-line", color: "pink-600", border: "border-b-[3px] border-b-pink-600 hover:border-pink-600/40", render: (t) => AppUI.renderFileInput(t) },
+            watermark: { name: "Watermark", desc: "Stamp custom text.", icon: "fa-stamp", color: "cyan-500", border: "border-b-[3px] border-b-cyan-500 hover:border-cyan-500/40", render: (t) => AppUI.renderFileInput(t) + `<label for="txt-input" class="sr-only">Watermark Text</label><input type="text" id="txt-input" placeholder="Text (e.g., CONFIDENTIAL)" class="w-full mt-3 px-4 py-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-cyan-500 outline-none">` },
+            numbers: { name: "Page Numbers", desc: "Inject sequence digits.", icon: "fa-list-ol", color: "teal-500", border: "border-b-[3px] border-b-teal-500 hover:border-teal-500/40", render: (t) => AppUI.renderFileInput(t) },
+            imgToPdf: { name: "Image to PDF", desc: "Convert photos to A4 PDF.", icon: "fa-images", color: "blue-700", border: "border-b-[3px] border-b-blue-700 hover:border-blue-700/40", render: (t) => AppUI.renderFileInput(t, true, "image/*") }
+        };
+
+        const grid = document.getElementById('tools-grid');
+        Object.keys(ToolsConfig).forEach(key => {
+            const tool = ToolsConfig[key];
+            const card = document.createElement('a');
+            card.href = `#tool-${key}`;
+            card.setAttribute('role', 'listitem');
+            card.setAttribute('aria-label', `Select ${tool.name} module`);
+            card.className = `glass-panel ${tool.border} p-5 rounded-2xl flex items-center space-x-4 hover:shadow-md transition-all duration-300 group cursor-pointer border border-slate-100`;
+            card.onclick = (e) => { e.preventDefault(); activateWorkspace(key); history.pushState(null, null, `#tool-${key}`); };
+            card.innerHTML = `
+                <div class="w-14 h-12 bg-${tool.color} text-white rounded-xl flex items-center justify-center text-lg flex-shrink-0 transition-transform group-hover:scale-105 shadow-sm" aria-hidden="true">
+                    <i class="fa-solid ${tool.icon}"></i>
+                </div>
+                <div class="text-left space-y-0.5">
+                    <h3 class="font-bold text-slate-900 text-sm tracking-tight">${tool.name}</h3>
+                    <p class="text-slate-400 text-xs leading-tight">${tool.desc}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        window.activateWorkspace = function(id) {
+            const box = document.getElementById('tool-workspace-box');
+            const canvas = document.getElementById('canvas-content');
+            const tool = ToolsConfig[id];
+            
+            box.style.opacity = '0';
+            box.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                canvas.className = "text-left space-y-5";
+                canvas.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-${tool.color} text-white rounded-xl flex items-center justify-center text-lg shadow-sm" aria-hidden="true">
+                            <i class="fa-solid ${tool.icon}"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold text-slate-900 leading-tight">${tool.name}</h2>
+                            <p class="text-xs text-slate-500">${tool.desc}</p>
+                        </div>
+                    </div>
+                    <hr class="border-slate-200/60" aria-hidden="true">
+                    ${tool.render(tool)}
+                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" aria-label="Execute ${tool.name}" class="w-full mt-4 bg-${tool.color} hover:opacity-90 text-white text-xs font-bold py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center">
+                        Execute ${tool.name}
+                    </button>
+                `;
+                box.style.opacity = '1'; box.style.transform = 'scale(1)';
+                box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 200);
+        }
+    </script>
 </body>
 </html>
