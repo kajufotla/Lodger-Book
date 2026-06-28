@@ -1,21 +1,178 @@
-body { background-color: #0b0e14; color: #ffffff; font-family: sans-serif; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 10%; background: #0b0e14; }
-.logo { font-size: 24px; font-weight: bold; color: #ff3e3e; }
-nav a { color: #fff; margin-left: 20px; text-decoration: none; }
+/* =========================
+   BASE RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-main { text-align: center; padding: 50px 20px; }
-h1 { font-size: 40px; margin-bottom: 10px; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    scroll-behavior: smooth;
+}
 
-.upload-section { margin: 30px auto; max-width: 600px; }
-.drop-zone { border: 2px dashed #444; padding: 40px; border-radius: 20px; }
-button { background: #e74c3c; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 20px 0; }
-.max-size { font-size: 12px; color: #666; }
+/* =========================
+   GLASS EFFECT (MAIN UI STYLE)
+========================= */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
 
-.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: 50px auto; padding: 0 20px; }
-.tool-card { background: #151a21; padding: 30px; border-radius: 15px; border: 1px solid #222; transition: 0.3s; }
-.tool-card:hover { border-color: #e74c3c; }
+/* =========================
+   SAFE AREA SUPPORT (Mobile)
+========================= */
+.pt-safe {
+    padding-top: env(safe-area-inset-top);
+}
 
+/* =========================
+   SCROLLBAR CUSTOMIZATION
+========================= */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* =========================
+   TEXT SELECTION
+========================= */
+::selection {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+/* =========================
+   LINKS
+========================= */
+a {
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+a:hover {
+    opacity: 0.8;
+}
+
+/* =========================
+   BUTTON BASIC EFFECTS
+========================= */
+button {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+/* =========================
+   INPUT STYLES (fallback)
+========================= */
+input, select {
+    outline: none;
+    transition: 0.2s ease;
+}
+
+/* =========================
+   TOOL PANEL ANIMATION
+========================= */
+#tool-workspace-box {
+    transition: all 0.25s ease;
+}
+
+/* =========================
+   TOOL CARDS (GRID ITEMS)
+========================= */
+.tool-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   ICON BOX STYLE
+========================= */
+.icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    width: 56px;
+    height: 48px;
+    color: white;
+}
+
+/* =========================
+   TOAST NOTIFICATION
+========================= */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 16px;
+    background: #111827;
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+/* =========================
+   HERO ANIMATION
+========================= */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-up {
+    animation: fadeUp 0.6s ease-out;
+}
+
+/* =========================
+   RESPONSIVE FIXES
+========================= */
 @media (max-width: 768px) {
-    .tools-grid { grid-template-columns: 1fr 1fr; }
+    body {
+        font-size: 14px;
+    }
+
+    .glass-panel {
+        border-radius: 12px;
+    }
 }
