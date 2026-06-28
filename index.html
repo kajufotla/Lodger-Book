@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Expert Clone</title>
+    <title>PDF Expert</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <header>
         <div class="logo">PDF EXPERT</div>
         <nav>
-            <a href="#">Home</a> <a href="#">All Tools</a> <a href="#">Compress</a>
-            <a href="#">Convert</a> <a href="#">Merge</a> <a href="#">Edit</a>
+            <a href="#">Home</a> <a href="#">All Tools</a> <a href="#">Merge</a>
         </nav>
     </header>
 
     <main>
         <h1>PDF EXPERT</h1>
         <p>All-in-One PDF Solution – 100% Free, Secure & Easy to Use</p>
-        
-        <div class="upload-box">
+
+        <div class="upload-container">
             <div class="drop-zone">
                 <p>Drop your PDF files here</p>
-                <button>Choose Files</button>
+                <button class="choose-btn">Choose Files</button>
+                <p class="max-size">Maximum file size: 100MB</p>
             </div>
         </div>
 
         <section class="tools-grid">
-            <div class="tool-card">
-                <div class="icon">📄</div>
-                <h3>Merge PDF</h3>
-                <p>Combine multiple PDF files</p>
-            </div>
-            </section>
+            <div class="card"><h3>Merge PDF</h3><p>Combine multiple PDF files</p></div>
+            <div class="card"><h3>Split PDF</h3><p>Split PDF into separate files</p></div>
+            <div class="card"><h3>Compress PDF</h3><p>Reduce file size</p></div>
+            <div class="card"><h3>PDF to Word</h3><p>Convert to editable Word</p></div>
+            <div class="card"><h3>Word to PDF</h3><p>Convert Word to PDF</p></div>
+            <div class="card"><h3>PDF to JPG</h3><p>Convert PDF pages to JPG</p></div>
+            <div class="card"><h3>JPG to PDF</h3><p>Convert JPG to PDF</p></div>
+        </section>
     </main>
+
 </body>
 </html>
