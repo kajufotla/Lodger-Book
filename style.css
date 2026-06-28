@@ -1,7 +1,57 @@
-body { font-family: 'Inter', sans-serif; background-color: #f8fafc; scroll-behavior: smooth; }
-.glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); }
-.pt-safe { padding-top: env(safe-area-inset-top); }
+/* Base Styles */
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #f8fafc; 
+    scroll-behavior: smooth; 
+}
+
+.glass-panel { 
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); 
+    border: 1px solid rgba(226, 232, 240, 0.8); 
+}
+
+.pt-safe { 
+    padding-top: env(safe-area-inset-top); 
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ---------------------------------------------------
+   NEW UTILITIES FOR DRAG & DROP AND PROGRESS BAR
+   (No changes to your existing colors or UI design)
+--------------------------------------------------- */
+
+/* File List Item Drag States */
+.file-list-item { 
+    transition: all 0.2s ease-in-out; 
+    cursor: grab; 
+}
+
+.file-list-item:active { 
+    cursor: grabbing; 
+    transform: scale(0.98); 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress Bar Container */
+.progress-container { 
+    display: none; /* Shown via JS during execution */
+    width: 100%; 
+    background: #e2e8f0; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    margin-top: 15px; 
+}
+
+/* Animated Progress Bar */
+.progress-bar { 
+    height: 8px; 
+    width: 0%; 
+    transition: width 0.3s ease; 
+}
