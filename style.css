@@ -1,39 +1,43 @@
-body {
-    background-color: #0b0e14;
-    color: white;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    text-align: center;
+/* جنرل سیٹنگز */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+body { background-color: #0b0e14; color: #ffffff; line-height: 1.6; }
+
+/* ہیڈر */
+header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; border-bottom: 1px solid #1f252e; }
+.logo { font-size: 24px; font-weight: bold; color: #ff3e3e; }
+nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; }
+
+/* مین سیکشن */
+main { text-align: center; padding: 50px 20px; }
+h1 { font-size: 48px; margin-bottom: 10px; }
+
+/* اپلوڈ باکس */
+.upload-box { 
+    background: #151a21; border: 2px dashed #333; padding: 40px; 
+    border-radius: 20px; width: 90%; max-width: 600px; margin: 30px auto; 
+}
+button { 
+    background: #e74c3c; color: white; border: none; padding: 15px 30px; 
+    border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; 
 }
 
-header { padding: 20px; display: flex; justify-content: space-between; }
-
-.upload-box {
-    border: 2px dashed #444;
-    padding: 40px;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 15px;
+/* ٹول کارڈز گرڈ */
+.tools-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 20px; padding: 40px 10%; 
 }
 
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    padding: 20px;
+.tool-card { 
+    background: #151a21; padding: 30px; border-radius: 15px; 
+    border: 1px solid #222; transition: 0.3s; cursor: pointer;
 }
+.tool-card:hover { border-color: #e74c3c; transform: translateY(-10px); }
+.tool-card h3 { margin: 15px 0; font-size: 18px; }
+.tool-card p { font-size: 13px; color: #888; }
 
-.tool-card {
-    background: linear-gradient(145deg, #1a1f26, #0e1117);
-    padding: 20px;
-    border-radius: 10px;
-    transition: 0.3s;
-}
-
-.tool-card:hover { transform: translateY(-5px); border: 1px solid #3498db; }
-
-/* موبائل کے لیے سیٹنگز */
-@media (max-width: 600px) {
-    .tools-grid { grid-template-columns: 1fr 1fr; }
+/* موبائل رسپانسِو */
+@media (max-width: 768px) {
+    h1 { font-size: 32px; }
+    .tools-grid { grid-template-columns: 1fr 1fr; padding: 20px; }
 }
