@@ -65,7 +65,6 @@ class AppUI {
     }
 
     static updateProgress(percent) {
-        // Batch DOM updates via requestAnimationFrame for smooth UI
         requestAnimationFrame(() => {
             const bar = DOM.progBar;
             const txt = DOM.progText;
@@ -108,7 +107,7 @@ class AppUI {
         
         if (!multiple) {
             window.ActiveFiles = [];
-            fileList = [fileList[0]]; // restrict to single file natively
+            fileList = [fileList[0]]; 
         }
         
         let invalidCount = 0;
@@ -118,7 +117,6 @@ class AppUI {
                 invalidCount++;
                 continue;
             }
-            // Prevent exact duplicates to save memory
             if (!window.ActiveFiles.some(existing => existing.name === f.name && existing.size === f.size)) {
                 window.ActiveFiles.push(f);
             }
@@ -140,7 +138,6 @@ class AppUI {
         const ui = DOM.fileListUi;
         if (!ui) return;
         
-        // Use DocumentFragment to optimize DOM repaints
         const fragment = document.createDocumentFragment();
         
         window.ActiveFiles.forEach((f, i) => {
@@ -250,12 +247,10 @@ class AppUI {
                 <button id="execute-btn" data-original-text="Execute ${tool.name}" class="w-full bg-${tool.color} hover:opacity-90 text-white text-base font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none active:scale-95">Execute ${tool.name}</button>
             `;
             
-            // Fade-in effect
             requestAnimationFrame(() => {
                 canvas.classList.remove('opacity-0', 'translate-y-4');
             });
             
-            // Event Listeners mapping
             document.getElementById('cancel-btn')?.addEventListener('click', () => OperationState.cancel());
             document.getElementById('execute-btn')?.addEventListener('click', () => PDFEngine.execute(id));
             
@@ -268,10 +263,8 @@ class AppUI {
                 e.target.value = ""; 
             });
             
-            // Apply native Drag & Drop
             AppUI.setupDragAndDrop(isMultiple, acceptType);
 
-            // Bind quick rotate buttons if present
             ['90', '180', '270'].forEach(angle => {
                 document.getElementById(`btn-rot-${angle}`)?.addEventListener('click', () => {
                     const el = document.getElementById('rot-angle');
@@ -294,7 +287,6 @@ class PDFEngine {
         document.body.appendChild(a); 
         a.click(); 
         
-        // Prevent memory leaks by revoking object URL
         setTimeout(() => {
             document.body.removeChild(a); 
             URL.revokeObjectURL(url);
@@ -328,6 +320,9 @@ class PDFEngine {
         const imgH = hInput ? parseInt(hInput, 10) : null;
         const format = document.getElementById('img-format')?.value || 'image/jpeg';
         
+        const qualityInput = document.getElementById('img-quality')?.value;
+        const qualityNum = qualityInput ? parseInt(qualityInput, 10) / 100 : 0.92;
+        
         return new Promise((resolve, reject) => {
             const img = new Image();
             const objectUrl = URL.createObjectURL(file);
@@ -336,7 +331,6 @@ class PDFEngine {
                 URL.revokeObjectURL(objectUrl); 
                 const canvas = document.createElement('canvas');
                 
-                // Keep aspect ratio smart logic
                 let finalW = img.width;
                 let finalH = img.height;
 
@@ -362,7 +356,7 @@ class PDFEngine {
                 canvas.toBlob(blob => {
                     if (blob) resolve(blob);
                     else reject(new Error("Failed to process image."));
-                }, format, 0.92); // Optimal balance between size and quality
+                }, format, qualityNum);
             };
             img.onerror = () => {
                 URL.revokeObjectURL(objectUrl);
@@ -374,7 +368,6 @@ class PDFEngine {
 
     static async loadPdfSafe(buffer) {
         try {
-            // Allows modifying PDFs that aren't strictly encrypted but have permission flags
             return await PDFLib.PDFDocument.load(buffer, { ignoreEncryption: true });
         } catch (e) {
             if (e.message && e.message.toLowerCase().includes("encrypted")) {
@@ -436,7 +429,6 @@ class PDFEngine {
                 const mode = document.getElementById('img-mode')?.value || 'fit';
                 const isLandscape = document.getElementById('layout')?.value === 'landscape';
                 
-                // Standard dimensions at 72 PPI
                 let W = sizeType === 'A4' ? 595.28 : 612; 
                 let H = sizeType === 'A4' ? 841.89 : 792;
                 if(isLandscape) { [W, H] = [H, W]; }
@@ -451,9 +443,16 @@ class PDFEngine {
                     else if (fType === 'image/jpeg' || fType === 'image/jpg') img = await doc.embedJpg(bytes);
                     else throw new Error(`Unsupported image type: ${fType}`);
                     
-                    const page = doc.addPage([W, H]);
+                    let pgW = W, pgH = H;
+                    if (sizeType === 'Fit') { 
+                        pgW = img.width; 
+                        pgH = img.height; 
+                    }
+                    const page = doc.addPage([pgW, pgH]);
                     
-                    if (mode === 'fill') {
+                    if (sizeType === 'Fit') {
+                        page.drawImage(img, { x: 0, y: 0, width: pgW, height: pgH });
+                    } else if (mode === 'fill') {
                         page.drawImage(img, { x: 0, y: 0, width: W, height: H });
                     } else {
                         const scale = Math.min(W / img.width, H / img.height);
@@ -468,7 +467,6 @@ class PDFEngine {
                 filename = `Images_to_PDF.pdf`;
             }
             else {
-                // All other single PDF operations
                 const buffer = await files[0].arrayBuffer();
                 const sourceDoc = await this.loadPdfSafe(buffer);
                 const totalPages = sourceDoc.getPageCount();
@@ -480,7 +478,7 @@ class PDFEngine {
                     const zip = new JSZip();
                     
                     if(mode === 'range') {
-                        const targetStr = document.getElementById('pg-range')?.value;
+                        const targetStr = document.getElementById('pg-range-split')?.value;
                         const targetPages = this.parseRange(targetStr, totalPages);
                         if(targetPages.length === 0) throw new Error("No valid pages selected.");
                         
@@ -503,7 +501,7 @@ class PDFEngine {
                     filename = `Split_${baseName}.zip`;
                 } 
                 else if (id === 'extract') {
-                    const inputVal = document.getElementById('pg-input')?.value;
+                    const inputVal = document.getElementById('pg-input-extract')?.value;
                     const pgNum = parseInt(inputVal, 10) - 1;
                     if(isNaN(pgNum) || pgNum < 0 || pgNum >= totalPages) {
                         throw new Error(`Invalid page number. Please select between 1 and ${totalPages}.`);
@@ -516,9 +514,8 @@ class PDFEngine {
                     filename = `Page_${pgNum + 1}_${files[0].name}`;
                 }
                 else {
-                    // In-place modifications
                     if (id === 'del') {
-                        const targets = this.parseRange(document.getElementById('pg-input')?.value, totalPages).reverse();
+                        const targets = this.parseRange(document.getElementById('pg-input-del')?.value, totalPages).reverse();
                         if(targets.length === 0) throw new Error("No valid pages to delete.");
                         if(targets.length === totalPages) throw new Error("Cannot delete all pages.");
                         targets.forEach(idx => sourceDoc.removePage(idx));
@@ -528,7 +525,6 @@ class PDFEngine {
                         const newDoc = await PDFLib.PDFDocument.create();
                         const allIndices = Array.from({length: totalPages}, (_, i) => totalPages - 1 - i);
                         
-                        // Chunking for performance on massive files
                         const batchSize = 50;
                         for(let i = 0; i < allIndices.length; i += batchSize) {
                             if(signal.aborted) throw new Error("Cancelled");
@@ -542,7 +538,11 @@ class PDFEngine {
                         filename = `Reversed_${files[0].name}`;
                     }
                     else {
-                        const targetPages = this.parseRange(document.getElementById('pg-range')?.value, totalPages);
+                        let rangeId = null;
+                        if (id === 'rotate') rangeId = 'pg-range-rotate';
+                        if (id === 'numbers') rangeId = 'pg-range-numbers';
+                        
+                        const targetPages = this.parseRange(document.getElementById(rangeId)?.value, totalPages);
                         
                         if (id === 'rotate') {
                             const angleStr = document.getElementById('rot-angle')?.value;
@@ -597,17 +597,27 @@ class PDFEngine {
                         else if (id === 'numbers') {
                             const sNum = parseInt(document.getElementById('start-num')?.value, 10) || 1;
                             const pos = document.getElementById('pos')?.value || 'bottom-right';
+                            const formatStr = document.getElementById('num-format')?.value || 'n';
                             const font = await sourceDoc.embedFont(PDFLib.StandardFonts.Helvetica);
 
                             targetPages.forEach((idx, i) => {
                                 const p = sourceDoc.getPage(idx);
                                 const { width, height } = p.getSize();
-                                const text = `${sNum + i}`;
+                                
+                                const currentNum = sNum + i;
+                                let text = `${currentNum}`;
+                                if (formatStr === 'Page n') text = `Page ${currentNum}`;
+                                else if (formatStr === 'n of t') text = `${currentNum} of ${totalPages}`;
+                                else if (formatStr === 'Page n of t') text = `Page ${currentNum} of ${totalPages}`;
+                                
                                 const textWidth = font.widthOfTextAtSize(text, 12);
                                 
-                                let x = width - 50 - textWidth, y = 30; // bottom-right defaults
+                                let x = width - 50 - textWidth, y = 30; 
                                 if(pos === 'bottom-center') { x = (width / 2) - (textWidth / 2); }
+                                if(pos === 'bottom-left') { x = 50; y = 30; }
                                 if(pos === 'top-right') { y = height - 30; }
+                                if(pos === 'top-center') { x = (width / 2) - (textWidth / 2); y = height - 30; }
+                                if(pos === 'top-left') { x = 50; y = height - 30; }
                                 
                                 p.drawText(text, { x, y, size: 12, font, color: PDFLib.rgb(0, 0, 0) });
                             });
@@ -624,7 +634,6 @@ class PDFEngine {
             
             AppUI.updateProgress(100);
             
-            // Allow progress animation to complete visually before triggering download
             setTimeout(async () => {
                 await this.downloadBlob(finalBlob, filename);
                 AppUI.showToast("Processing Successful!", "success");
@@ -641,7 +650,6 @@ class PDFEngine {
     }
 }
 
-// Ensure DOM is ready, using efficient fragment insertion
 window.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('tools-grid');
     if(grid && typeof ToolsConfig !== 'undefined') {
@@ -652,7 +660,6 @@ window.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('a'); 
             card.href = `#tool-${key}`; 
             
-            // Clean dynamic class construction for Tailwind
             const baseColor = tool.color.split('-')[0];
             card.className = `glass-panel ${tool.border} p-6 rounded-2xl flex flex-col items-start space-y-4 cursor-pointer focus-visible:ring-4 focus-visible:ring-${baseColor}-300 outline-none group`;
             card.setAttribute('aria-label', `Open ${tool.name} tool`);
