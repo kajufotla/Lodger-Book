@@ -3,40 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Expert Clone</title>
+
+    <title>PDF Expert Tools</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CSS FILE -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- PDF LIBRARIES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
+
 <body>
+
+    <!-- HERO -->
     <header>
-        <div class="logo">PDF EXPERT</div>
-        <nav>
-            <a href="#">Home</a> <a href="#">All Tools</a> <a href="#">Merge</a>
-        </nav>
+        <h1>PDF Expert Tools</h1>
     </header>
 
+    <!-- TOOL AREA -->
     <main>
-        <h1>PDF EXPERT</h1>
-        <p>All-in-One PDF Solution – 100% Free, Secure & Easy to Use</p>
-        
-        <div class="upload-section">
-            <div class="drop-zone">
-                <p>Drop your PDF files here</p>
-                <button>Choose Files</button>
-                <p class="max-size">Maximum file size: 100MB</p>
-            </div>
+
+        <div id="tools-grid"></div>
+
+        <div id="tool-workspace-box">
+            <div id="canvas-content">Select Tool</div>
         </div>
 
-        <section class="tools-grid">
-            <div class="tool-card"><h3>Merge PDF</h3></div>
-            <div class="tool-card"><h3>Split PDF</h3></div>
-            <div class="tool-card"><h3>Compress PDF</h3></div>
-            <div class="tool-card"><h3>PDF to Word</h3></div>
-            <div class="tool-card"><h3>Word to PDF</h3></div>
-            <div class="tool-card"><h3>PDF to JPG</h3></div>
-            <div class="tool-card"><h3>JPG to PDF</h3></div>
-            <div class="tool-card"><h3>Rotate PDF</h3></div>
-            <div class="tool-card"><h3>Delete Pages</h3></div>
-        </section>
     </main>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <!-- SCRIPT FILE -->
+    <script src="script.js"></script>
+
 </body>
 </html>
