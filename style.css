@@ -5,15 +5,46 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.18);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    /* Added transition for smooth hardware-accelerated hover effects */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Hint to browser for rendering optimization */
+    will-change: transform, box-shadow; 
 }
 
 .glass-panel:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+/* Custom Scrollbar for better UI consistency */
+::-webkit-scrollbar { 
+    width: 8px; 
+    height: 8px; /* Added for horizontal scrolling elements */
+}
+
+::-webkit-scrollbar-track { 
+    background: #f1f5f9; 
+    border-radius: 4px; 
+}
+
+::-webkit-scrollbar-thumb { 
+    background: #cbd5e1; 
+    border-radius: 4px; 
+    /* Creates a subtle padding effect within the track */
+    border: 2px solid #f1f5f9; 
+}
+
+::-webkit-scrollbar-thumb:hover { 
+    background: #94a3b8; 
+}
+
+/* Global Accessibility focus states */
+*:focus-visible {
+    outline: 2px solid #3b82f6; /* Tailwind blue-500 */
+    outline-offset: 2px;
+}
+
+/* Drag and drop overlay transition */
+#global-dropzone {
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
