@@ -1,12 +1,20 @@
+/* ==========================================================================
+   PDFExpert Custom Styles
+   Tailwind CSS handles the bulk of styling; these are specific overrides
+   and enhancements for hardware-accelerated UI and accessibility.
+   ========================================================================== */
+
 /* Premium Glass Panel Effect */
 .glass-panel {
     background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    /* Added transition for smooth hardware-accelerated hover effects */
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Smooth hardware-accelerated hover effects */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s ease;
     /* Hint to browser for rendering optimization */
     will-change: transform, box-shadow; 
 }
@@ -19,7 +27,7 @@
 /* Custom Scrollbar for better UI consistency */
 ::-webkit-scrollbar { 
     width: 8px; 
-    height: 8px; /* Added for horizontal scrolling elements */
+    height: 8px; 
 }
 
 ::-webkit-scrollbar-track { 
@@ -30,7 +38,6 @@
 ::-webkit-scrollbar-thumb { 
     background: #cbd5e1; 
     border-radius: 4px; 
-    /* Creates a subtle padding effect within the track */
     border: 2px solid #f1f5f9; 
 }
 
@@ -46,5 +53,31 @@
 
 /* Drag and drop overlay transition */
 #global-dropzone {
-    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+}
+
+/* Cookie Consent Animation */
+#cookie-consent.show {
+    transform: translateY(0);
+}
+
+/* Accessibility: Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Print Styles: Hide unnecessary UI elements when printing the page */
+@media print {
+    header, footer, #cookie-consent, #toast, .glass-panel {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
 }
