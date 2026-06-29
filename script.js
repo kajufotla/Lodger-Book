@@ -1,427 +1,228 @@
-const PDFEngine = {
-  async mergePDF(files, updateProgress) {
-    try {
-      updateProgress(0, "Starting merge process...");
-      const { PDFDocument } = window.PDFLib;
-      const mergedPdf = await PDFDocument.create();
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-      for (let i = 0; i < files.length; i++) {
-        updateProgress(Math.round((i / files.length) * 80), `Loading and processing file ${i + 1} of ${files.length}...`);
-        const arrayBuffer = await files[i].arrayBuffer();
-        const pdf = await PDFDocument.load(arrayBuffer);
-        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-        copiedPages.forEach((page) => mergedPdf.addPage(page));
-      }
+:root {
+    --bg-base: #f8fafc;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.04);
+    --primary-gradient: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+    --primary-glow: 0 10px 25px -5px rgba(0, 97, 255, 0.4);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 
-      updateProgress(90, "Finalizing merged document...");
-      const pdfBytes = await mergedPdf.save();
-      updateProgress(100, "Merge complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error merging PDFs");
-      throw new Error("Merge failed: " + error.message);
+/* Base & Typography */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+h1, h2, h3, h4, h5, h6, [class*="text-2xl"], [class*="text-3xl"], [class*="text-4xl"] {
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.2 !important;
+    color: var(--text-main) !important;
+}
+
+p, span, [class*="text-sm"], [class*="text-base"] {
+    line-height: 1.6 !important;
+    letter-spacing: 0.01em !important;
+}
+
+/* Animated Gradient Background */
+body::before, body::after {
+    content: '';
+    position: fixed;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.6;
+    animation: blobFloat 15s infinite alternate ease-in-out;
+}
+
+body::before {
+    top: -10%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+body::after {
+    bottom: -15%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, #8ec5fc 0%, #e0c3fc 100%);
+    animation-delay: -7s;
+}
+
+/* Glassmorphism Panels (Targeting main containers & specific classes) */
+main, section, .glass-panel, [class*="bg-white"] {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 24px !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+/* Tool Cards */
+.tool-card, [class*="grid"] > div, [class*="card"] {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+    transition: var(--transition-smooth) !important;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    position: relative;
+    z-index: 1;
+}
+
+/* Staggered entrance for cards */
+[class*="grid"] > div:nth-child(1) { animation-delay: 0.1s; }
+[class*="grid"] > div:nth-child(2) { animation-delay: 0.2s; }
+[class*="grid"] > div:nth-child(3) { animation-delay: 0.3s; }
+[class*="grid"] > div:nth-child(4) { animation-delay: 0.4s; }
+[class*="grid"] > div:nth-child(5) { animation-delay: 0.5s; }
+
+.tool-card:hover, [class*="grid"] > div:hover, [class*="card"]:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 20px 40px rgba(0, 97, 255, 0.08), 0 0 0 1px rgba(0, 97, 255, 0.1) inset !important;
+    background: #ffffff !important;
+    z-index: 10;
+}
+
+/* Buttons */
+button, a[class*="bg-blue"], .btn-primary {
+    background: var(--primary-gradient) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    transition: var(--transition-smooth) !important;
+    box-shadow: 0 4px 12px rgba(0, 97, 255, 0.2) !important;
+    text-transform: capitalize;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover, a[class*="bg-blue"]:hover, .btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--primary-glow) !important;
+}
+
+button:active, a[class*="bg-blue"]:active, .btn-primary:active {
+    transform: translateY(1px) !important;
+    box-shadow: 0 2px 5px rgba(0, 97, 255, 0.2) !important;
+}
+
+button[type="submit"], [class*="animate-pulse"], .cta-btn {
+    animation: pulseCTA 2.5s infinite cubic-bezier(0.66, 0, 0, 1) !important;
+}
+
+/* Active Tool Panel / Modal */
+.active-tool-panel, [class*="fixed"][class*="inset-0"] > div {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(0, 97, 255, 0.15) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
+    animation: modalEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Dropzone */
+.dropzone, #dropzone, [class*="border-dashed"] {
+    border: 2px dashed rgba(0, 97, 255, 0.3) !important;
+    border-radius: 20px !important;
+    background: rgba(248, 250, 252, 0.6) !important;
+    transition: var(--transition-smooth) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropzone:hover, #dropzone:hover, [class*="border-dashed"]:hover {
+    border-color: #0061ff !important;
+    background: rgba(0, 97, 255, 0.03) !important;
+    animation: borderDance 1.5s infinite alternate ease-in-out;
+}
+
+/* Footer & UI Polish */
+footer, [class*="mt-auto"] {
+    border-top: 1px solid rgba(226, 232, 240, 0.6) !important;
+    background: transparent !important;
+    padding-top: 2rem !important;
+    margin-top: 4rem !important;
+}
+
+hr, [class*="border-t"] {
+    border-color: rgba(226, 232, 240, 0.6) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modalEntrance {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pulseCTA {
+    0% { box-shadow: 0 0 0 0 rgba(0, 97, 255, 0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(0, 97, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 97, 255, 0); }
+}
+
+@keyframes borderDance {
+    0% { box-shadow: inset 0 0 0 rgba(0, 97, 255, 0); }
+    100% { box-shadow: inset 0 0 20px rgba(0, 97, 255, 0.08); border-color: rgba(0, 97, 255, 0.6) !important; }
+}
+
+@keyframes blobFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -60px) scale(1.1); }
+    66% { transform: translate(-30px, 30px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Mobile Enhancements */
+@media (max-width: 768px) {
+    body::before, body::after {
+        filter: blur(80px);
+        opacity: 0.4;
     }
-  },
-
-  async splitPDF(file, options, updateProgress) {
-    try {
-      updateProgress(0, "Starting split process...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const originalPdf = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(60, "Extracting page range...");
-      const splitPdf = await PDFDocument.create();
-      
-      const { start, end } = options; 
-      // Convert to 0-based index
-      const startIndex = Math.max(0, start - 1);
-      const endIndex = Math.min(originalPdf.getPageCount() - 1, end - 1);
-      
-      const indices = [];
-      for (let i = startIndex; i <= endIndex; i++) indices.push(i);
-
-      const copiedPages = await splitPdf.copyPages(originalPdf, indices);
-      copiedPages.forEach((page) => splitPdf.addPage(page));
-
-      updateProgress(90, "Finalizing split document...");
-      const pdfBytes = await splitPdf.save();
-      updateProgress(100, "Split complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error splitting PDF");
-      throw new Error("Split failed: " + error.message);
+    
+    main, section, .glass-panel, [class*="bg-white"] {
+        border-radius: 20px !important;
+        padding: 1.5rem !important;
     }
-  },
 
-  async imagesToPDF(files, updateProgress) {
-    try {
-      updateProgress(0, "Starting image conversion...");
-      const { PDFDocument } = window.PDFLib;
-      const pdfDoc = await PDFDocument.create();
-
-      for (let i = 0; i < files.length; i++) {
-        updateProgress(Math.round((i / files.length) * 80), `Processing image ${i + 1} of ${files.length}...`);
-        const arrayBuffer = await files[i].arrayBuffer();
-        let image;
-        
-        if (files[i].type === 'image/jpeg' || files[i].type === 'image/jpg') {
-          image = await pdfDoc.embedJpg(arrayBuffer);
-        } else if (files[i].type === 'image/png') {
-          image = await pdfDoc.embedPng(arrayBuffer);
-        } else {
-          continue; // Skip unsupported
-        }
-
-        const page = pdfDoc.addPage([image.width, image.height]);
-        page.drawImage(image, {
-          x: 0,
-          y: 0,
-          width: image.width,
-          height: image.height,
-        });
-      }
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Images converted to PDF!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error converting images");
-      throw new Error("Image to PDF failed: " + error.message);
+    .tool-card:hover, [class*="grid"] > div:hover, [class*="card"]:hover {
+        transform: translateY(-3px) scale(1.01) !important;
+        box-shadow: 0 10px 20px rgba(0, 97, 255, 0.05) !important;
     }
-  },
 
-  async pdfToImages(file, updateProgress) {
-    try {
-      updateProgress(0, "Starting PDF to Image extraction...");
-      updateProgress(100, "Operation requires pdf.js (Canvas Rendering)");
-      // Note: pdf-lib does not support rendering PDFs to images. 
-      // In a production app, this requires pdf.js to render pages to a canvas, then canvas.toBlob()
-      throw new Error("PDF to Images requires a rendering engine like pdf.js");
-    } catch (error) {
-      throw error;
+    button:hover, a[class*="bg-blue"]:hover {
+        transform: none !important;
     }
-  },
-
-  async compressPDF(file, updateProgress) {
-    try {
-      updateProgress(0, "Starting compression...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(40, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(80, "Optimizing and saving document...");
-      // pdf-lib does basic compression by removing unused objects 
-      // and natively supports object streams.
-      const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
-      
-      updateProgress(100, "Compression complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error compressing PDF");
-      throw new Error("Compression failed: " + error.message);
+    
+    [class*="p-8"], [class*="p-10"], [class*="p-12"] {
+        padding: 1.5rem !important;
     }
-  },
-
-  async rotatePDF(file, angle, updateProgress) {
-    try {
-      updateProgress(0, "Starting rotation process...");
-      const { PDFDocument, degrees } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(60, "Rotating pages...");
-      const pages = pdfDoc.getPages();
-      pages.forEach(page => {
-        const currentRotation = page.getRotation().angle;
-        page.setRotation(degrees(currentRotation + angle));
-      });
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Rotation complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error rotating PDF");
-      throw new Error("Rotation failed: " + error.message);
-    }
-  },
-
-  async deletePages(file, pagesToDelete, updateProgress) {
-    try {
-      updateProgress(0, "Starting page deletion...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(40, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(70, "Removing specified pages...");
-      // Sort descending to avoid index shifting issues during deletion
-      const sortedPages = [...pagesToDelete].sort((a, b) => b - a);
-      for (const pageNum of sortedPages) {
-        // Assume pagesToDelete is 1-based
-        if (pageNum > 0 && pageNum <= pdfDoc.getPageCount()) {
-          pdfDoc.removePage(pageNum - 1);
-        }
-      }
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Pages deleted!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error deleting pages");
-      throw new Error("Deletion failed: " + error.message);
-    }
-  },
-
-  async extractPages(file, pageArray, updateProgress) {
-    try {
-      updateProgress(0, "Starting page extraction...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const originalPdf = await PDFDocument.load(arrayBuffer);
-      const newPdf = await PDFDocument.create();
-      
-      updateProgress(60, "Copying selected pages...");
-      // Convert 1-based indices to 0-based
-      const zeroBasedIndices = pageArray.map(p => p - 1).filter(p => p >= 0 && p < originalPdf.getPageCount());
-      
-      const copiedPages = await newPdf.copyPages(originalPdf, zeroBasedIndices);
-      copiedPages.forEach(page => newPdf.addPage(page));
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await newPdf.save();
-      updateProgress(100, "Extraction complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error extracting pages");
-      throw new Error("Extraction failed: " + error.message);
-    }
-  },
-
-  async reorderPages(file, newOrderArray, updateProgress) {
-    try {
-      updateProgress(0, "Starting page reordering...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const originalPdf = await PDFDocument.load(arrayBuffer);
-      const newPdf = await PDFDocument.create();
-      
-      updateProgress(60, "Reordering pages...");
-      const zeroBasedIndices = newOrderArray.map(p => p - 1);
-      const copiedPages = await newPdf.copyPages(originalPdf, zeroBasedIndices);
-      copiedPages.forEach(page => newPdf.addPage(page));
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await newPdf.save();
-      updateProgress(100, "Reorder complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error reordering pages");
-      throw new Error("Reorder failed: " + error.message);
-    }
-  },
-
-  async cropPDF(file, cropBox, updateProgress) {
-    try {
-      updateProgress(0, "Starting cropping process...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(60, "Applying crop box to pages...");
-      const pages = pdfDoc.getPages();
-      const { x, y, width, height } = cropBox;
-      
-      pages.forEach(page => {
-        page.setCropBox(x, y, width, height);
-      });
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Cropping complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error cropping PDF");
-      throw new Error("Crop failed: " + error.message);
-    }
-  },
-
-  async addWatermark(file, textOrImage, updateProgress) {
-    try {
-      updateProgress(0, "Starting watermark process...");
-      const { PDFDocument, rgb, degrees } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(60, "Applying watermark...");
-      const pages = pdfDoc.getPages();
-      
-      pages.forEach(page => {
-        const { width, height } = page.getSize();
-        page.drawText(textOrImage, {
-          x: width / 2 - 100,
-          y: height / 2,
-          size: 50,
-          color: rgb(0.7, 0.7, 0.7),
-          rotate: degrees(45),
-          opacity: 0.3
-        });
-      });
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Watermark added!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error adding watermark");
-      throw new Error("Watermarking failed: " + error.message);
-    }
-  },
-
-  async addPageNumbers(file, updateProgress) {
-    try {
-      updateProgress(0, "Adding page numbers...");
-      const { PDFDocument, rgb } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(60, "Writing numbers to pages...");
-      const pages = pdfDoc.getPages();
-      
-      pages.forEach((page, index) => {
-        const { width } = page.getSize();
-        page.drawText(`${index + 1}`, {
-          x: width / 2,
-          y: 20,
-          size: 12,
-          color: rgb(0, 0, 0),
-        });
-      });
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Page numbers added!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error adding page numbers");
-      throw new Error("Page numbering failed: " + error.message);
-    }
-  },
-
-  async addHeaderFooter(file, headerText, footerText, updateProgress) {
-    try {
-      updateProgress(0, "Adding headers and footers...");
-      const { PDFDocument, rgb } = window.PDFLib;
-      
-      updateProgress(30, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(60, "Applying text to pages...");
-      const pages = pdfDoc.getPages();
-      
-      pages.forEach((page) => {
-        const { width, height } = page.getSize();
-        if (headerText) {
-          page.drawText(headerText, { x: 30, y: height - 30, size: 10, color: rgb(0, 0, 0) });
-        }
-        if (footerText) {
-          page.drawText(footerText, { x: 30, y: 20, size: 10, color: rgb(0, 0, 0) });
-        }
-      });
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Headers/Footers added!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error adding header/footer");
-      throw new Error("Header/Footer failed: " + error.message);
-    }
-  },
-
-  async flattenPDF(file, updateProgress) {
-    try {
-      updateProgress(0, "Starting PDF flattening...");
-      const { PDFDocument } = window.PDFLib;
-      
-      updateProgress(40, "Loading document...");
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      
-      updateProgress(70, "Flattening form fields...");
-      const form = pdfDoc.getForm();
-      form.flatten();
-
-      updateProgress(90, "Saving document...");
-      const pdfBytes = await pdfDoc.save();
-      updateProgress(100, "Flattening complete!");
-      return pdfBytes;
-    } catch (error) {
-      updateProgress(0, "Error flattening PDF");
-      throw new Error("Flattening failed: " + error.message);
-    }
-  },
-
-  async jpgToPDF(files, updateProgress) {
-    return await this.imagesToPDF(files, updateProgress);
-  },
-
-  async pngToPDF(files, updateProgress) {
-    return await this.imagesToPDF(files, updateProgress);
-  },
-
-  async extractText(file, updateProgress) {
-    try {
-      updateProgress(0, "Starting text extraction...");
-      updateProgress(100, "Operation requires pdf.js");
-      // Note: pdf-lib does not support extracting text from PDF streams.
-      // This requires pdf.js (e.g. pdf.js getTextContent() API)
-      throw new Error("Text extraction requires a parsing library like pdf.js");
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  async viewer(file) {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-      return URL.createObjectURL(blob);
-    } catch (error) {
-      throw new Error("Viewer initialization failed: " + error.message);
-    }
-  }
-};
-
-function downloadFile(uint8Array, filename, mimeType) {
-  const blob = new Blob([uint8Array], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
