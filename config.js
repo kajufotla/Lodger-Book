@@ -1,3 +1,4 @@
+// Fixed: Changed 'Const' to 'const'
 const ToolsConfig = {
     resizer: { 
         name: "Image Resizer", desc: "Resize image dimensions securely.", icon: "fa-compress", 
@@ -31,5 +32,5 @@ const ToolsConfig = {
                 <input type="text" id="pg-range" placeholder="e.g. 1-5" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm outline-none">
             </div>` 
     }
-    // Note: Add the remaining tools from your first config here following the same structure (cssClass, bgClass).
+    // Note: You can add the remaining tools here following the exact same structure.
 };
