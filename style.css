@@ -81,3 +81,96 @@
         color: #000000 !important;
     }
 }
+
+/* ==========================================================================
+   NEW TOOL CARDS UI (SCREENSHOT MATCH)
+   ========================================================================== */
+
+/* Main Card Structure */
+.tool-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
+    border-bottom-width: 3px;
+    border-bottom-style: solid;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    color: #1f2937;
+    gap: 16px;
+    cursor: pointer;
+}
+
+.tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Icon Container inside Card */
+.tool-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+/* Text Content Container */
+.tool-content {
+    flex-grow: 1;
+}
+
+.tool-title {
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0 0 4px 0;
+    color: #111827;
+}
+
+.tool-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Right Arrow */
+.tool-arrow {
+    color: #9ca3af;
+    font-size: 18px;
+}
+
+/* Specific Card Colors based on Screenshot */
+/* Red (Image Resizer, Reverse PDF) */
+.tool-card.card-red { border-bottom-color: #ef4444; }
+.tool-card.card-red .tool-icon-wrapper { background-color: #ef4444; }
+
+/* Blue (Merge PDF, Image to PDF) */
+.tool-card.card-blue { border-bottom-color: #3b82f6; }
+.tool-card.card-blue .tool-icon-wrapper { background-color: #3b82f6; }
+
+/* Green (Split to ZIP, Page Numbers) */
+.tool-card.card-green { border-bottom-color: #10b981; }
+.tool-card.card-green .tool-icon-wrapper { background-color: #10b981; }
+
+/* Purple (Rotate Pages) */
+.tool-card.card-purple { border-bottom-color: #8b5cf6; }
+.tool-card.card-purple .tool-icon-wrapper { background-color: #8b5cf6; }
+
+/* Yellow (Delete Page) */
+.tool-card.card-yellow { border-bottom-color: #f59e0b; }
+.tool-card.card-yellow .tool-icon-wrapper { background-color: #f59e0b; }
+
+/* Orange (Extract Page) */
+.tool-card.card-orange { border-bottom-color: #f97316; }
+.tool-card.card-orange .tool-icon-wrapper { background-color: #f97316; }
+
+/* Teal (Watermark) */
+.tool-card.card-teal { border-bottom-color: #14b8a6; }
+.tool-card.card-teal .tool-icon-wrapper { background-color: #14b8a6; }
