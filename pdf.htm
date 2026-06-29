@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Toolkit - UI Template</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Dashboard Grid */
+        #dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Tool Cards */
+        .tool-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Workspace Area */
+        #workspace {
+            display: none;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .workspace-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 1rem;
+        }
+
+        .back-btn:hover { color: var(--primary); }
+
+        /* Drag & Drop Zone */
+        .dropzone {
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            background: rgba(79, 70, 229, 0.05);
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .dropzone.dragover {
+            background: rgba(79, 70, 229, 0.15);
+            border-style: solid;
+        }
+
+        .file-list {
+            text-align: left;
+            margin-bottom: 1.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Controls & Buttons */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+        .btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+        /* Progress Bar */
+        .progress-container {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 onclick="app.showDashboard()">📄 PDF Toolkit UI</h1>
+        <div style="font-size: 0.875rem; color: var(--text-muted);">UI Template Only</div>
+    </header>
+
+    <main>
+        <div id="dashboard"></div>
+
+        <div id="workspace">
+            <div class="workspace-header">
+                <button class="back-btn" onclick="app.showDashboard()">← Back</button>
+                <h2 id="ws-title">Tool Name</h2>
+            </div>
+            
+            <p id="ws-desc" style="color: var(--text-muted); margin-bottom: 2rem;">Tool Description</p>
+
+            <input type="file" id="file-input" multiple style="display: none;">
+            
+            <div id="dropzone" class="dropzone">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                <h3>Drag & Drop files here</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">or click to select files</p>
+            </div>
+
+            <div id="file-list" class="file-list"></div>
+
+            <button id="action-btn" class="btn" style="display: none;" onclick="app.executeTool()">Process Files</button>
+
+            <div id="progress" class="progress-container">
+                <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+                <p id="progress-text" style="font-size: 0.875rem; color: var(--text-muted);">Processing...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- TOOL METADATA (No processing logic) ---
+        const TOOLS = [
+            { id: 'merge', title: 'Merge PDF', icon: '📑', desc: 'Combine multiple PDFs into a single file.', accept: 'application/pdf', multiple: true },
+            { id: 'split', title: 'Split PDF', icon: '✂️', desc: 'Extract pages from a PDF.', accept: 'application/pdf', multiple: false },
+            { id: 'img-to-pdf', title: 'Images to PDF', icon: '🖼️', desc: 'Convert JPG/PNG to PDF.', accept: 'image/jpeg, image/png', multiple: true },
+            { id: 'compress', title: 'Compress PDF', icon: '🗜️', desc: 'Reduce PDF file size.', accept: 'application/pdf', multiple: false },
+            { id: 'pdf-to-img', title: 'PDF to Images', icon: '🎞️', desc: 'Convert PDF pages to JPG/PNG.', accept: 'application/pdf', multiple: false },
+            { id: 'rotate', title: 'Rotate PDF', icon: '↻', desc: 'Rotate pages in your PDF.', accept: 'application/pdf', multiple: false },
+            { id: 'delete', title: 'Delete Pages', icon: '🗑️', desc: 'Remove unwanted pages.', accept: 'application/pdf', multiple: false },
+            { id: 'extract', title: 'Extract Pages', icon: '📤', desc: 'Extract specific pages as a new PDF.', accept: 'application/pdf', multiple: false },
+            { id: 'reorder', title: 'Reorder Pages', icon: '⇄', desc: 'Change the order of pages.', accept: 'application/pdf', multiple: false },
+            { id: 'crop', title: 'Crop PDF', icon: '📐', desc: 'Crop page margins.', accept: 'application/pdf', multiple: false },
+            { id: 'watermark', title: 'Add Watermark', icon: '©️', desc: 'Stamp text or image.', accept: 'application/pdf', multiple: false },
+            { id: 'page-numbers', title: 'Page Numbers', icon: '🔢', desc: 'Add numbers to pages.', accept: 'application/pdf', multiple: false },
+            { id: 'header-footer', title: 'Header & Footer', icon: '↕️', desc: 'Add persistent headers/footers.', accept: 'application/pdf', multiple: false },
+            { id: 'flatten', title: 'Flatten PDF', icon: '🔨', desc: 'Flatten form fields to static text.', accept: 'application/pdf', multiple: false },
+            { id: 'pdf-to-jpg', title: 'PDF to JPG', icon: '🖼️', desc: 'Convert PDF to JPG.', accept: 'application/pdf', multiple: false },
+            { id: 'jpg-to-pdf', title: 'JPG to PDF', icon: '📄', desc: 'Convert JPG to PDF.', accept: 'image/jpeg', multiple: true },
+            { id: 'pdf-to-png', title: 'PDF to PNG', icon: '🖼️', desc: 'Convert PDF to PNG.', accept: 'application/pdf', multiple: false },
+            { id: 'png-to-pdf', title: 'PNG to PDF', icon: '📄', desc: 'Convert PNG to PDF.', accept: 'image/png', multiple: true },
+            { id: 'extract-text', title: 'Extract Text', icon: '📝', desc: 'Extract raw text from PDF.', accept: 'application/pdf', multiple: false },
+            { id: 'viewer', title: 'PDF Viewer', icon: '👁️', desc: 'View PDF in browser securely.', accept: 'application/pdf', multiple: false }
+        ];
+
+        // --- UI ENGINE (No actual file manipulation) ---
+        const app = {
+            currentTool: null,
+            selectedFiles: [],
+
+            init() {
+                this.cacheDOM();
+                this.bindEvents();
+                this.renderDashboard();
+            },
+
+            cacheDOM() {
+                this.dashboard = document.getElementById('dashboard');
+                this.workspace = document.getElementById('workspace');
+                this.dropzone = document.getElementById('dropzone');
+                this.fileInput = document.getElementById('file-input');
+                this.fileList = document.getElementById('file-list');
+                this.actionBtn = document.getElementById('action-btn');
+                this.progress = document.getElementById('progress');
+            },
+
+            bindEvents() {
+                // Drag & Drop visual states
+                this.dropzone.addEventListener('dragover', (e) => { 
+                    e.preventDefault(); 
+                    this.dropzone.classList.add('dragover'); 
+                });
+                
+                this.dropzone.addEventListener('dragleave', () => {
+                    this.dropzone.classList.remove('dragover');
+                });
+                
+                this.dropzone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.dropzone.classList.remove('dragover');
+                    this.handleFileSelectionUI(e.dataTransfer.files);
+                });
+                
+                // Click to trigger file input
+                this.dropzone.addEventListener('click', () => this.fileInput.click());
+                this.fileInput.addEventListener('change', (e) => this.handleFileSelectionUI(e.target.files));
+            },
+
+            renderDashboard() {
+                this.workspace.style.display = 'none';
+                this.dashboard.style.display = 'grid';
+                this.dashboard.innerHTML = TOOLS.map(tool => `
+                    <div class="tool-card" onclick="app.openTool('${tool.id}')">
+                        <div class="tool-icon">${tool.icon}</div>
+                        <div class="tool-title">${tool.title}</div>
+                        <div class="tool-desc">${tool.desc}</div>
+                    </div>
+                `).join('');
+            },
+
+            showDashboard() {
+                this.workspace.style.display = 'none';
+                this.dashboard.style.display = 'grid';
+            },
+
+            openTool(id) {
+                this.currentTool = TOOLS.find(t => t.id === id);
+                this.selectedFiles = [];
+                this.updateFileListUI();
+                
+                // Configure Workspace
+                document.getElementById('ws-title').textContent = this.currentTool.title;
+                document.getElementById('ws-desc').textContent = this.currentTool.desc;
+                this.fileInput.accept = this.currentTool.accept || '*/*';
+                this.fileInput.multiple = this.currentTool.multiple !== false;
+                
+                // Reset UI states
+                this.progress.style.display = 'none';
+                this.actionBtn.textContent = this.currentTool.title;
+                
+                // Switch views
+                this.dashboard.style.display = 'none';
+                this.workspace.style.display = 'block';
+            },
+
+            handleFileSelectionUI(fileList) {
+                // Only maps files to the UI list, does zero processing
+                const files = Array.from(fileList);
+                
+                if (this.currentTool.multiple) {
+                    this.selectedFiles = [...this.selectedFiles, ...files];
+                } else {
+                    this.selectedFiles = [files[0]]; 
+                }
+                
+                this.updateFileListUI();
+            },
+
+            updateFileListUI() {
+                this.fileList.innerHTML = this.selectedFiles.map((file, index) => `
+                    <div class="file-item">
+                        <span>${file.name}</span>
+                        <button style="border:none; background:none; cursor:pointer; color:red;" onclick="app.removeFile(${index})">✕</button>
+                    </div>
+                `).join('');
+                
+                this.actionBtn.style.display = this.selectedFiles.length > 0 ? 'inline-block' : 'none';
+            },
+
+            removeFile(index) {
+                this.selectedFiles.splice(index, 1);
+                this.updateFileListUI();
+            },
+
+            executeTool() {
+                // Dummy placeholder replacement for backend/processing logic
+                console.log("Tool will be implemented in external script");
+                alert("Processing logic removed. Tool will be implemented in external script.");
+            }
+        };
+
+        // Initialize App UI
+        window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
