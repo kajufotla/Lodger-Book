@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <title>PDFExpert | Client-Side PDF & Image Tools by Hamid Hussain & Co.</title>
+    <title>PDFExpert | Client-Side PDF & Image Tools</title>
     <meta name="description" content="Merge, split, resize, and edit PDFs and images directly in your browser. Fast, client-side utilities developed by Hamid Hussain & Co.">
     <meta name="keywords" content="pdf tools, merge pdf, split pdf, image resizer, offline pdf editor, Hamid Hussain & Co., online pdf utilities">
     <meta name="author" content="Hamid Hussain & Co.">
     <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2563eb">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com/">
+    <meta property="og:title" content="PDFExpert | Client-Side PDF & Image Tools">
+    <meta property="og:description" content="Merge, split, resize, and edit PDFs and images directly in your browser securely.">
     
-    <!-- External Libraries for Real Functionality -->
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 
     <script type="application/ld+json">
     {
@@ -32,31 +38,31 @@
     </script>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-50 font-sans min-h-screen flex flex-col text-slate-800">
 
-    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-40 w-full">
+    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-40 w-full" role="banner">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <a href="#" onclick="AppUI.closeTool()" class="flex items-center gap-2 group cursor-pointer">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:bg-blue-700 transition">
+            <a href="#" onclick="AppUI.closeTool(); return false;" class="flex items-center gap-2 group cursor-pointer" aria-label="Go to Homepage">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:bg-blue-700 transition" aria-hidden="true">
                     <i class="fa-solid fa-file-pdf text-lg"></i>
                 </div>
                 <h1 class="text-2xl font-black tracking-tight text-slate-900">PDF<span class="text-blue-600">Expert</span></h1>
             </a>
             
-            <nav class="hidden md:flex items-center space-x-8 font-semibold text-sm text-slate-600">
-                <a href="#" onclick="AppUI.closeTool()" class="hover:text-blue-600 transition">Home</a>
-                <a href="#how-to-use" onclick="AppUI.closeTool()" class="hover:text-blue-600 transition">How to Use</a>
-                <a href="#faq" onclick="AppUI.closeTool()" class="hover:text-blue-600 transition">FAQs</a>
+            <nav class="hidden md:flex items-center space-x-8 font-semibold text-sm text-slate-600" role="navigation" aria-label="Main Navigation">
+                <a href="#" onclick="AppUI.closeTool(); return false;" class="hover:text-blue-600 transition">Home</a>
+                <a href="#how-to-use" onclick="AppUI.closeTool();" class="hover:text-blue-600 transition">How to Use</a>
+                <a href="#faq" onclick="AppUI.closeTool();" class="hover:text-blue-600 transition">FAQs</a>
                 <a href="#" class="hover:text-blue-600 transition">Privacy Policy</a>
             </nav>
         </div>
     </header>
 
-    <main class="flex-grow w-full relative">
-        <div id="dropzone" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex-col items-center justify-center text-white border-[8px] border-blue-500 border-dashed m-4 rounded-[2rem] transition-all">
+    <main class="flex-grow w-full relative" role="main">
+        <div id="dropzone" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex-col items-center justify-center text-white border-[8px] border-blue-500 border-dashed m-4 rounded-[2rem] transition-all" aria-hidden="true">
             <i class="fa-solid fa-cloud-arrow-up text-7xl mb-6 animate-bounce text-blue-400"></i>
             <h3 class="text-4xl font-black">Drop files here!</h3>
         </div>
@@ -66,19 +72,19 @@
             <div id="home-view" class="transition-opacity duration-500 space-y-20">
                 <div class="text-center max-w-3xl mx-auto">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-4 border border-blue-100">
-                        <i class="fa-solid fa-microchip"></i> Client-Side Processing
+                        <i class="fa-solid fa-microchip" aria-hidden="true"></i> Client-Side Processing
                     </div>
                     <h2 class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">Master Your Documents <br>Directly in Browser</h2>
                     <p class="mt-5 text-lg text-slate-500 font-medium leading-relaxed">Merge, split, edit, and convert your PDFs and images locally. Files are processed on your device for enhanced privacy.</p>
                 </div>
 
-                <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
+                <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" aria-label="Available Tools"></div>
             </div>
 
             <div id="active-tool-view" class="hidden animate-fade-in glass-panel p-6 sm:p-10 rounded-3xl min-h-[500px] flex-col mt-4 shadow-xl">
                 <div class="flex flex-wrap sm:flex-nowrap items-center justify-between mb-8 pb-6 border-b border-slate-200/60 gap-4">
                     <div class="flex items-center gap-5">
-                        <div id="tool-header-icon-container" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white shadow-lg text-2xl sm:text-3xl shrink-0">
+                        <div id="tool-header-icon-container" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white shadow-lg text-2xl sm:text-3xl shrink-0" aria-hidden="true">
                             <i id="tool-header-icon" class="fa-solid"></i>
                         </div>
                         <div>
@@ -86,26 +92,26 @@
                             <p id="tool-header-desc" class="text-slate-500 text-xs sm:text-sm font-medium mt-1"></p>
                         </div>
                     </div>
-                    <button onclick="AppUI.closeTool()" class="bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2 shrink-0">
-                        <i class="fa-solid fa-xmark text-lg"></i> Close Tool
+                    <button onclick="AppUI.closeTool()" aria-label="Close current tool" class="bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2 shrink-0">
+                        <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i> Close Tool
                     </button>
                 </div>
 
                 <div id="tool-dynamic-ui" class="flex-grow"></div>
 
                 <div class="mt-10 pt-6 border-t border-slate-200/60 flex justify-end">
-                    <button id="process-btn" onclick="ProcessorLogic.start()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 sm:px-12 rounded-xl shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1 flex items-center gap-3 w-full sm:w-auto justify-center">
+                    <button id="process-btn" onclick="ProcessorLogic.start()" aria-label="Process Files" class="bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 outline-none text-white font-bold py-4 px-8 sm:px-12 rounded-xl shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1 flex items-center gap-3 w-full sm:w-auto justify-center">
                         <span id="process-btn-text" class="text-lg">Process Now</span>
-                        <i class="fa-solid fa-bolt text-yellow-300"></i>
+                        <i class="fa-solid fa-bolt text-yellow-300" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-4 rounded-2xl text-white font-bold shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 z-50 flex items-center gap-3"></div>
+    <div id="toast" role="alert" aria-live="assertive" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-4 rounded-2xl text-white font-bold shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 z-50 flex items-center gap-3"></div>
 
-    <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script src="config.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
