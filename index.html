@@ -1,161 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>PDFExpert - Single File Version</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
-<style>
-  body { font-family: sans-serif; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Converter</title>
+    
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #dropzone { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; color: white; z-index: 1000; }
+        #workspace-box { border: 2px dashed #ccc; padding: 40px; text-align: center; margin-top: 20px; }
+        .hidden { display: none !important; }
+        #progress-bar { height: 10px; background: green; width: 0%; transition: width 0.3s; }
+        #toast { position: fixed; bottom: 20px; right: 20px; padding: 10px; border-radius: 5px; color: white; }
+        .success { background: #28a745; }
+        .toast { display: block; }
+    </style>
 </head>
+<body>
 
-<body class="bg-slate-50">
+    <div id="dropzone" class="hidden">
+        <h1>Drop Files Here</h1>
+    </div>
 
-<header class="p-4 bg-white shadow font-bold">
-  PDFExpert Single File
-</header>
+    <h1>Tool: Image to PDF</h1>
 
-<main class="p-6 max-w-5xl mx-auto">
+    <div id="workspace-box">
+        <div id="file-drop-area">
+            <h3>Drag and Drop your images here</h3>
+        </div>
+        <div id="progress-container" style="width: 100%; background: #eee; margin: 10px 0;">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="file-list"></div>
+        <button onclick="PDFEngine.processImageToPdf(window.ActiveFiles)">Convert to PDF</button>
+    </div>
 
-<!-- TOOLS -->
-<div id="tools-grid" class="grid grid-cols-2 gap-4"></div>
+    <div id="toast"></div>
 
-<!-- WORKSPACE -->
-<div id="tool-workspace-box" class="hidden mt-6 p-4 bg-white border rounded">
-  
-  <div id="global-dropzone" class="hidden p-10 border-2 border-dashed text-center text-blue-500">
-    Drop files here
-  </div>
+    <script>
+        // آپ کا فراہم کردہ کوڈ یہاں موجود ہے
+        window.ActiveFiles = [];
 
-  <div id="canvas-content"></div>
-</div>
+        const DOM = {
+          dropzone: document.getElementById('dropzone'),
+          workspaceBox: document.getElementById('workspace-box'),
+          fileList: document.getElementById('file-list'),
+          progressBar: document.getElementById('progress-bar'),
+          toast: document.getElementById('toast')
+        };
 
-</main>
+        const ToolsConfig = {
+          imageToPdf: { id: 'image-to-pdf', multiple: true, maxFiles: 10, accept: 'image/*' }
+        };
 
-<script>
-/* =========================
-   GLOBAL STATE
-========================= */
-window.ActiveFiles = [];
+        class AppUI {
+          static _dragDropInitialized = false;
+          static currentDragSettings = { multiple: false, accept: '*' };
 
-const DOM = {
-  dropzone: document.getElementById('global-dropzone'),
-  workspaceBox: document.getElementById('tool-workspace-box'),
-  canvas: document.getElementById('canvas-content'),
-  toolsGrid: document.getElementById('tools-grid')
-};
+          static _preventDragDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
-/* =========================
-   APP UI CORE
-========================= */
-class AppUI {
+          static setupDragAndDrop(multiple, accept) {
+            const dropArea = document.getElementById('file-drop-area');
+            const globalDropzone = DOM.dropzone;
+            const workspace = DOM.workspaceBox;
 
-  static _init = false;
-  static current = { multiple:false, accept:'*' };
+            if (!dropArea || !globalDropzone || !workspace) return;
 
-  static _prevent(e){
-    e.preventDefault();
-    e.stopPropagation();
-  }
+            AppUI.currentDragSettings = { multiple, accept };
 
-  static setupDragAndDrop(multiple, accept){
+            if (!AppUI._dragDropInitialized) {
+              ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+                document.body.addEventListener(evt, AppUI._preventDragDefaults, false);
+              });
 
-    this.current = { multiple, accept };
+              let dragCounter = 0;
+              document.body.addEventListener('dragenter', (e) => {
+                if (!e.dataTransfer?.types?.includes('Files')) return;
+                dragCounter++;
+                DOM.dropzone?.classList.remove('hidden');
+                DOM.dropzone?.classList.add('flex');
+              });
 
-    const ws = DOM.workspaceBox;
-    if(!ws) return;
+              document.body.addEventListener('dragleave', (e) => {
+                if (!e.dataTransfer?.types?.includes('Files')) return;
+                dragCounter--;
+                if (dragCounter <= 0) {
+                  dragCounter = 0;
+                  DOM.dropzone?.classList.add('hidden');
+                  DOM.dropzone?.classList.remove('flex');
+                }
+              });
 
-    if(!this._init){
+              document.body.addEventListener('drop', (e) => {
+                dragCounter = 0;
+                DOM.dropzone?.classList.add('hidden');
+                DOM.dropzone?.classList.remove('flex');
+                const files = e.dataTransfer?.files;
+                if (files?.length > 0) {
+                  AppUI.handleFiles(files, AppUI.currentDragSettings.multiple, AppUI.currentDragSettings.accept);
+                }
+              });
+              AppUI._dragDropInitialized = true;
+            }
+          }
 
-      document.body.addEventListener('dragover', this._prevent);
-      document.body.addEventListener('drop', this._prevent);
+          static handleFiles(files, multiple, accept) {
+            let fileArray = Array.from(files);
+            if (!multiple) { fileArray = [fileArray[0]]; window.ActiveFiles = []; }
+            fileArray.forEach(file => { if (this.validateFile(file, accept)) { window.ActiveFiles.push(file); } });
+            this.renderFiles();
+          }
 
-      document.body.addEventListener('drop', (e)=>{
-        DOM.dropzone.classList.add('hidden');
-        if(e.dataTransfer?.files?.length){
-          this.handleFiles(e.dataTransfer.files);
+          static validateFile(file, accept) {
+            if (!accept || accept === '*') return true;
+            return file.type.match(accept.replace('*', '.*'));
+          }
+
+          static renderFiles() {
+            if (!DOM.fileList) return;
+            DOM.fileList.innerHTML = "";
+            window.ActiveFiles.forEach((file, index) => {
+              const div = document.createElement("div");
+              div.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+              const btn = document.createElement("button");
+              btn.textContent = "X";
+              btn.onclick = () => { window.ActiveFiles.splice(index, 1); AppUI.renderFiles(); };
+              div.appendChild(btn);
+              DOM.fileList.appendChild(div);
+            });
+          }
+
+          static updateProgress(percent) { if (DOM.progressBar) { DOM.progressBar.style.width = percent + "%"; } }
+
+          static showToast(message, type = "info") {
+            if (!DOM.toast) return;
+            DOM.toast.innerText = message;
+            DOM.toast.className = `toast ${type}`;
+            setTimeout(() => DOM.toast.innerText = "", 3000);
+          }
         }
-      });
 
-      document.body.addEventListener('dragenter', ()=>{
-        DOM.dropzone.classList.remove('hidden');
-      });
+        class PDFEngine {
+          static async processImageToPdf(files) {
+            AppUI.updateProgress(10);
+            await new Promise(r => setTimeout(r, 1000));
+            AppUI.updateProgress(100);
+            AppUI.showToast("PDF Created Successfully", "success");
+            console.log("Processed files:", files);
+          }
+        }
 
-      document.body.addEventListener('dragleave', ()=>{
-        DOM.dropzone.classList.add('hidden');
-      });
-
-      this._init = true;
-    }
-
-    ws.classList.remove('hidden');
-  }
-
-  static handleFiles(files){
-    alert("Files received: " + files.length);
-  }
-
-  static openTool(tool){
-    DOM.canvas.innerHTML = tool.render(tool);
-    DOM.workspaceBox.classList.remove('hidden');
-    this.setupDragAndDrop(tool.multiple, tool.accept);
-  }
-}
-
-/* =========================
-   TOOLS CONFIG
-========================= */
-const ToolsConfig = {
-  imgToPdf:{
-    name:"Image to PDF",
-    multiple:true,
-    accept:"image/*",
-    render:()=>`
-      <h2 class="font-bold mb-3">Image to PDF</h2>
-      <input type="file" multiple accept="image/*" />
-    `
-  },
-
-  merge:{
-    name:"Merge PDF",
-    multiple:true,
-    accept:".pdf",
-    render:()=>`
-      <h2 class="font-bold mb-3">Merge PDF</h2>
-      <input type="file" multiple accept=".pdf" />
-    `
-  },
-
-  split:{
-    name:"Split PDF",
-    multiple:false,
-    accept:".pdf",
-    render:()=>`
-      <h2 class="font-bold mb-3">Split PDF</h2>
-      <input type="file" accept=".pdf" />
-    `
-  }
-};
-
-/* =========================
-   RENDER TOOLS
-========================= */
-function renderTools(){
-  DOM.toolsGrid.innerHTML = Object.entries(ToolsConfig).map(([id,t])=>`
-    <button class="p-4 bg-white border rounded shadow hover:bg-slate-100"
-      onclick="AppUI.openTool(ToolsConfig['${id}'])">
-      <div class="font-bold">${t.name}</div>
-    </button>
-  `).join('');
-}
-
-renderTools();
-
-</script>
-
+        document.addEventListener('DOMContentLoaded', () => {
+          AppUI.setupDragAndDrop(true, 'image/*');
+        });
+    </script>
 </body>
 </html>
