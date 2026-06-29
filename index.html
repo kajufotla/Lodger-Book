@@ -3,155 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to PDF Converter</title>
+    <title>PDFExpert | Secure Offline Tools by Hamid Hussain & Co.</title>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        #dropzone { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; color: white; z-index: 1000; }
-        #workspace-box { border: 2px dashed #ccc; padding: 40px; text-align: center; margin-top: 20px; }
-        .hidden { display: none !important; }
-        #progress-bar { height: 10px; background: green; width: 0%; transition: width 0.3s; }
-        #toast { position: fixed; bottom: 20px; right: 20px; padding: 10px; border-radius: 5px; color: white; }
-        .success { background: #28a745; }
-        .toast { display: block; }
+        /* Premium Glass Panel Effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+            will-change: transform, box-shadow; 
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; border: 2px solid #f1f5f9; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        *:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+
+        /* Drag and drop overlay */
+        #dropzone { transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out; }
+
+        /* Tool Cards UI */
+        .tool-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f3f4f6;
+            border-bottom-width: 3px;
+            border-bottom-style: solid;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            color: #1f2937;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .tool-icon-wrapper { width: 54px; height: 54px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 24px; flex-shrink: 0; }
+        .tool-content { flex-grow: 1; }
+        .tool-title { font-weight: 600; font-size: 16px; margin: 0 0 4px 0; color: #111827; }
+        .tool-desc { font-size: 13px; color: #6b7280; margin: 0; }
+        .tool-arrow { color: #9ca3af; font-size: 18px; }
+
+        /* Card Colors */
+        .card-red { border-bottom-color: #ef4444; } .card-red .tool-icon-wrapper { background-color: #ef4444; }
+        .card-blue { border-bottom-color: #3b82f6; } .card-blue .tool-icon-wrapper { background-color: #3b82f6; }
+        .card-green { border-bottom-color: #10b981; } .card-green .tool-icon-wrapper { background-color: #10b981; }
+        .card-purple { border-bottom-color: #8b5cf6; } .card-purple .tool-icon-wrapper { background-color: #8b5cf6; }
+        .card-yellow { border-bottom-color: #f59e0b; } .card-yellow .tool-icon-wrapper { background-color: #f59e0b; }
+        .card-orange { border-bottom-color: #f97316; } .card-orange .tool-icon-wrapper { background-color: #f97316; }
+        .card-teal { border-bottom-color: #14b8a6; } .card-teal .tool-icon-wrapper { background-color: #14b8a6; }
+        .card-pink { border-bottom-color: #db2777; } .card-pink .tool-icon-wrapper { background-color: #db2777; }
+        .card-indigo { border-bottom-color: #4f46e5; } .card-indigo .tool-icon-wrapper { background-color: #4f46e5; }
+
+        /* Toast Styles */
+        #toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; display: none; z-index: 50; }
+        #toast.success { background-color: #10b981; display: block; }
+        #toast.error { background-color: #ef4444; display: block; }
+        #toast.info { background-color: #3b82f6; display: block; }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 font-sans min-h-screen flex flex-col">
 
-    <div id="dropzone" class="hidden">
-        <h1>Drop Files Here</h1>
-    </div>
-
-    <h1>Tool: Image to PDF</h1>
-
-    <div id="workspace-box">
-        <div id="file-drop-area">
-            <h3>Drag and Drop your images here</h3>
+    <header class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-file-pdf text-red-600 text-2xl"></i>
+                <h1 class="text-xl font-bold text-slate-800">PDFExpert</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                <a href="#" class="hover:text-blue-600 transition">Home</a>
+                <a href="#" class="hover:text-blue-600 transition">About Us</a>
+                <a href="#" class="hover:text-blue-600 transition">Privacy Policy</a>
+            </nav>
         </div>
-        <div id="progress-container" style="width: 100%; background: #eee; margin: 10px 0;">
-            <div id="progress-bar"></div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full relative">
+        
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold text-slate-900 sm:text-4xl">Client-Side PDF Utilities</h2>
+            <p class="mt-4 text-lg text-slate-500">Fast, secure, and offline processing directly in your browser.</p>
         </div>
-        <div id="file-list"></div>
-        <button onclick="PDFEngine.processImageToPdf(window.ActiveFiles)">Convert to PDF</button>
-    </div>
+
+        <div id="dropzone" class="hidden fixed inset-0 z-50 bg-blue-500/90 backdrop-blur-sm flex-col items-center justify-center text-white border-8 border-blue-400 border-dashed m-4 rounded-3xl">
+            <i class="fa-solid fa-cloud-arrow-up text-6xl mb-4 animate-bounce"></i>
+            <h3 class="text-3xl font-bold">Drop your files here</h3>
+        </div>
+
+        <div id="workspace-box" class="glass-panel p-6 rounded-2xl">
+            
+            <div id="file-drop-area" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center bg-slate-50 hover:bg-blue-50 hover:border-blue-400 transition cursor-pointer mb-8">
+                <i class="fa-regular fa-folder-open text-4xl text-slate-400 mb-3"></i>
+                <p class="text-slate-600 font-medium">Drag & Drop files here, or click to browse</p>
+                <div id="file-list" class="mt-4 flex flex-wrap gap-2 justify-center"></div>
+                <div class="w-full bg-slate-200 rounded-full h-2 mt-4 overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </div>
+
+    </main>
 
     <div id="toast"></div>
 
+    <footer class="bg-white border-t border-slate-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-sm text-slate-500">&copy; 2026 PDFExpert. Developed by <span class="font-bold text-slate-700">Hamid Hussain & Co.</span> All rights reserved.</p>
+        </div>
+    </footer>
+
     <script>
-        // آپ کا فراہم کردہ کوڈ یہاں موجود ہے
-        window.ActiveFiles = [];
-
-        const DOM = {
-          dropzone: document.getElementById('dropzone'),
-          workspaceBox: document.getElementById('workspace-box'),
-          fileList: document.getElementById('file-list'),
-          progressBar: document.getElementById('progress-bar'),
-          toast: document.getElementById('toast')
-        };
-
+        // 1. TOOLS CONFIGURATION (From your Config File)
         const ToolsConfig = {
-          imageToPdf: { id: 'image-to-pdf', multiple: true, maxFiles: 10, accept: 'image/*' }
+            resizer: { name: "Image Resizer", desc: "Resize image dimensions offline securely.", icon: "fa-compress", colorClass: "card-red" },
+            merge: { name: "Merge PDF", desc: "Combine multiple PDFs into a single document.", icon: "fa-object-group", colorClass: "card-blue" },
+            split: { name: "Split PDF", desc: "Extract specific pages or split into a ZIP.", icon: "fa-scissors", colorClass: "card-green" },
+            rotate: { name: "Rotate Pages", desc: "Rotate specific pages or the entire document.", icon: "fa-rotate-right", colorClass: "card-purple" },
+            del: { name: "Delete Page", desc: "Remove specific pages from a PDF.", icon: "fa-file-circle-minus", colorClass: "card-yellow" },
+            extract: { name: "Extract Page", desc: "Isolate a single page into a new PDF.", icon: "fa-file-export", colorClass: "card-orange" },
+            reorder: { name: "Reverse PDF", desc: "Flip the document's page order backwards.", icon: "fa-arrow-down-up-across-line", colorClass: "card-pink" },
+            watermark: { name: "Watermark", desc: "Stamp custom text across your document.", icon: "fa-stamp", colorClass: "card-teal" },
+            numbers: { name: "Page Numbers", desc: "Inject customizable sequence digits.", icon: "fa-list-ol", colorClass: "card-teal" },
+            imgToPdf: { name: "Image to PDF", desc: "Convert photos or scanned images to PDF.", icon: "fa-images", colorClass: "card-indigo" }
         };
 
+        // 2. GLOBAL STATE & DOM CACHE (From your Script File)
+        window.ActiveFiles = [];
+        const DOM = {
+            dropzone: document.getElementById('dropzone'),
+            workspaceBox: document.getElementById('workspace-box'),
+            fileList: document.getElementById('file-list'),
+            progressBar: document.getElementById('progress-bar'),
+            toast: document.getElementById('toast'),
+            toolsGrid: document.getElementById('tools-grid')
+        };
+
+        // 3. UI & STATE MANAGEMENT
         class AppUI {
-          static _dragDropInitialized = false;
-          static currentDragSettings = { multiple: false, accept: '*' };
+            static _dragDropInitialized = false;
+            static currentDragSettings = { multiple: false, accept: '*' };
 
-          static _preventDragDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-
-          static setupDragAndDrop(multiple, accept) {
-            const dropArea = document.getElementById('file-drop-area');
-            const globalDropzone = DOM.dropzone;
-            const workspace = DOM.workspaceBox;
-
-            if (!dropArea || !globalDropzone || !workspace) return;
-
-            AppUI.currentDragSettings = { multiple, accept };
-
-            if (!AppUI._dragDropInitialized) {
-              ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
-                document.body.addEventListener(evt, AppUI._preventDragDefaults, false);
-              });
-
-              let dragCounter = 0;
-              document.body.addEventListener('dragenter', (e) => {
-                if (!e.dataTransfer?.types?.includes('Files')) return;
-                dragCounter++;
-                DOM.dropzone?.classList.remove('hidden');
-                DOM.dropzone?.classList.add('flex');
-              });
-
-              document.body.addEventListener('dragleave', (e) => {
-                if (!e.dataTransfer?.types?.includes('Files')) return;
-                dragCounter--;
-                if (dragCounter <= 0) {
-                  dragCounter = 0;
-                  DOM.dropzone?.classList.add('hidden');
-                  DOM.dropzone?.classList.remove('flex');
+            static renderToolsGrid() {
+                DOM.toolsGrid.innerHTML = '';
+                for (const key in ToolsConfig) {
+                    const tool = ToolsConfig[key];
+                    const cardHtml = `
+                        <div class="tool-card ${tool.colorClass}" onclick="AppUI.showToast('${tool.name} tool activated!', 'info')">
+                            <div class="tool-icon-wrapper">
+                                <i class="fa-solid ${tool.icon}"></i>
+                            </div>
+                            <div class="tool-content">
+                                <h3 class="tool-title">${tool.name}</h3>
+                                <p class="tool-desc">${tool.desc}</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right tool-arrow"></i>
+                        </div>
+                    `;
+                    DOM.toolsGrid.insertAdjacentHTML('beforeend', cardHtml);
                 }
-              });
-
-              document.body.addEventListener('drop', (e) => {
-                dragCounter = 0;
-                DOM.dropzone?.classList.add('hidden');
-                DOM.dropzone?.classList.remove('flex');
-                const files = e.dataTransfer?.files;
-                if (files?.length > 0) {
-                  AppUI.handleFiles(files, AppUI.currentDragSettings.multiple, AppUI.currentDragSettings.accept);
-                }
-              });
-              AppUI._dragDropInitialized = true;
             }
-          }
 
-          static handleFiles(files, multiple, accept) {
-            let fileArray = Array.from(files);
-            if (!multiple) { fileArray = [fileArray[0]]; window.ActiveFiles = []; }
-            fileArray.forEach(file => { if (this.validateFile(file, accept)) { window.ActiveFiles.push(file); } });
-            this.renderFiles();
-          }
+            static _preventDragDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
-          static validateFile(file, accept) {
-            if (!accept || accept === '*') return true;
-            return file.type.match(accept.replace('*', '.*'));
-          }
+            static setupDragAndDrop(multiple, accept) {
+                const dropArea = document.getElementById('file-drop-area');
+                if (!dropArea || !DOM.dropzone || !DOM.workspaceBox) return;
 
-          static renderFiles() {
-            if (!DOM.fileList) return;
-            DOM.fileList.innerHTML = "";
-            window.ActiveFiles.forEach((file, index) => {
-              const div = document.createElement("div");
-              div.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
-              const btn = document.createElement("button");
-              btn.textContent = "X";
-              btn.onclick = () => { window.ActiveFiles.splice(index, 1); AppUI.renderFiles(); };
-              div.appendChild(btn);
-              DOM.fileList.appendChild(div);
-            });
-          }
+                AppUI.currentDragSettings = { multiple, accept };
 
-          static updateProgress(percent) { if (DOM.progressBar) { DOM.progressBar.style.width = percent + "%"; } }
+                if (!AppUI._dragDropInitialized) {
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+                        document.body.addEventListener(evt, AppUI._preventDragDefaults, false);
+                    });
 
-          static showToast(message, type = "info") {
-            if (!DOM.toast) return;
-            DOM.toast.innerText = message;
-            DOM.toast.className = `toast ${type}`;
-            setTimeout(() => DOM.toast.innerText = "", 3000);
-          }
+                    let dragCounter = 0;
+                    document.body.addEventListener('dragenter', (e) => {
+                        if (!e.dataTransfer?.types?.includes('Files')) return;
+                        dragCounter++;
+                        DOM.dropzone.classList.remove('hidden');
+                        DOM.dropzone.classList.add('flex');
+                    });
+
+                    document.body.addEventListener('dragleave', (e) => {
+                        if (!e.dataTransfer?.types?.includes('Files')) return;
+                        dragCounter--;
+                        if (dragCounter <= 0) {
+                            dragCounter = 0;
+                            DOM.dropzone.classList.add('hidden');
+                            DOM.dropzone.classList.remove('flex');
+                        }
+                    });
+
+                    document.body.addEventListener('drop', (e) => {
+                        dragCounter = 0;
+                        DOM.dropzone.classList.add('hidden');
+                        DOM.dropzone.classList.remove('flex');
+                        const files = e.dataTransfer?.files;
+                        if (files?.length > 0) {
+                            AppUI.handleFiles(files, AppUI.currentDragSettings.multiple, AppUI.currentDragSettings.accept);
+                        }
+                    });
+                    AppUI._dragDropInitialized = true;
+                }
+            }
+
+            static handleFiles(files, multiple, accept) {
+                let fileArray = Array.from(files);
+                if (!multiple) { fileArray = [fileArray[0]]; window.ActiveFiles = []; }
+                fileArray.forEach(file => {
+                    if (this.validateFile(file, accept)) window.ActiveFiles.push(file);
+                });
+                this.renderFiles();
+                AppUI.showToast("Files loaded successfully", "success");
+            }
+
+            static validateFile(file, accept) {
+                if (!accept || accept === '*') return true;
+                return file.type.match(accept.replace('*', '.*'));
+            }
+
+            static renderFiles() {
+                if (!DOM.fileList) return;
+                DOM.fileList.innerHTML = "";
+                window.ActiveFiles.forEach((file, index) => {
+                    const div = document.createElement("div");
+                    div.className = "bg-white border border-slate-200 shadow-sm rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 flex items-center gap-2";
+                    div.innerHTML = `<i class="fa-solid fa-file-lines text-slate-400"></i> ${file.name} <span class="text-xs text-slate-400">(${Math.round(file.size / 1024)} KB)</span>`;
+                    
+                    const btn = document.createElement("button");
+                    btn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                    btn.className = "text-red-500 hover:text-red-700 ml-2";
+                    btn.onclick = () => { window.ActiveFiles.splice(index, 1); AppUI.renderFiles(); };
+                    
+                    div.appendChild(btn);
+                    DOM.fileList.appendChild(div);
+                });
+            }
+
+            static updateProgress(percent) { if (DOM.progressBar) DOM.progressBar.style.width = percent + "%"; }
+
+            static showToast(message, type = "info") {
+                if (!DOM.toast) return;
+                DOM.toast.innerText = message;
+                DOM.toast.className = `toast ${type}`;
+                setTimeout(() => DOM.toast.className = "hidden", 3000);
+            }
         }
 
-        class PDFEngine {
-          static async processImageToPdf(files) {
-            AppUI.updateProgress(10);
-            await new Promise(r => setTimeout(r, 1000));
-            AppUI.updateProgress(100);
-            AppUI.showToast("PDF Created Successfully", "success");
-            console.log("Processed files:", files);
-          }
-        }
-
+        // 5. INITIALIZATION
         document.addEventListener('DOMContentLoaded', () => {
-          AppUI.setupDragAndDrop(true, 'image/*');
+            AppUI.renderToolsGrid();
+            AppUI.setupDragAndDrop(true, '*'); // Allow all files for now
         });
     </script>
 </body>
