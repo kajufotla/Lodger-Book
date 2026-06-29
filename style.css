@@ -1,21 +1,16 @@
 /* ==========================================================================
    PDFExpert Custom Styles
-   Tailwind CSS handles the bulk of styling; these are specific overrides
-   and enhancements for hardware-accelerated UI and accessibility.
    ========================================================================== */
 
-/* Premium Glass Panel Effect */
 .glass-panel {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    /* Smooth hardware-accelerated hover effects */
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                 box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
                 border-color 0.3s ease;
-    /* Hint to browser for rendering optimization */
     will-change: transform, box-shadow; 
 }
 
@@ -24,44 +19,16 @@
     box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Custom Scrollbar for better UI consistency */
-::-webkit-scrollbar { 
-    width: 8px; 
-    height: 8px; 
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; border: 2px solid #f1f5f9; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-::-webkit-scrollbar-track { 
-    background: #f1f5f9; 
-    border-radius: 4px; 
-}
+*:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
 
-::-webkit-scrollbar-thumb { 
-    background: #cbd5e1; 
-    border-radius: 4px; 
-    border: 2px solid #f1f5f9; 
-}
+#global-dropzone { transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out; }
+#cookie-consent.show { transform: translateY(0); }
 
-::-webkit-scrollbar-thumb:hover { 
-    background: #94a3b8; 
-}
-
-/* Global Accessibility focus states */
-*:focus-visible {
-    outline: 2px solid #3b82f6; /* Tailwind blue-500 */
-    outline-offset: 2px;
-}
-
-/* Drag and drop overlay transition */
-#global-dropzone {
-    transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
-}
-
-/* Cookie Consent Animation */
-#cookie-consent.show {
-    transform: translateY(0);
-}
-
-/* Accessibility: Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;
@@ -71,22 +38,11 @@
     }
 }
 
-/* Print Styles: Hide unnecessary UI elements when printing the page */
 @media print {
-    header, footer, #cookie-consent, #toast, .glass-panel {
-        display: none !important;
-    }
-    body {
-        background: #ffffff !important;
-        color: #000000 !important;
-    }
+    header, footer, #cookie-consent, #toast, .glass-panel { display: none !important; }
+    body { background: #ffffff !important; color: #000000 !important; }
 }
 
-/* ==========================================================================
-   NEW TOOL CARDS UI (SCREENSHOT MATCH)
-   ========================================================================== */
-
-/* Main Card Structure */
 .tool-card {
     background-color: #ffffff;
     border-radius: 12px;
@@ -109,7 +65,6 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Icon Container inside Card */
 .tool-icon-wrapper {
     width: 54px;
     height: 54px;
@@ -122,55 +77,22 @@
     flex-shrink: 0;
 }
 
-/* Text Content Container */
-.tool-content {
-    flex-grow: 1;
-}
+.tool-content { flex-grow: 1; }
+.tool-title { font-weight: 600; font-size: 16px; margin: 0 0 4px 0; color: #111827; }
+.tool-desc { font-size: 13px; color: #6b7280; margin: 0; }
+.tool-arrow { color: #9ca3af; font-size: 18px; }
 
-.tool-title {
-    font-weight: 600;
-    font-size: 16px;
-    margin: 0 0 4px 0;
-    color: #111827;
-}
-
-.tool-desc {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0;
-}
-
-/* Right Arrow */
-.tool-arrow {
-    color: #9ca3af;
-    font-size: 18px;
-}
-
-/* Specific Card Colors based on Screenshot */
-/* Red (Image Resizer, Reverse PDF) */
 .tool-card.card-red { border-bottom-color: #ef4444; }
 .tool-card.card-red .tool-icon-wrapper { background-color: #ef4444; }
-
-/* Blue (Merge PDF, Image to PDF) */
 .tool-card.card-blue { border-bottom-color: #3b82f6; }
 .tool-card.card-blue .tool-icon-wrapper { background-color: #3b82f6; }
-
-/* Green (Split to ZIP, Page Numbers) */
 .tool-card.card-green { border-bottom-color: #10b981; }
 .tool-card.card-green .tool-icon-wrapper { background-color: #10b981; }
-
-/* Purple (Rotate Pages) */
 .tool-card.card-purple { border-bottom-color: #8b5cf6; }
 .tool-card.card-purple .tool-icon-wrapper { background-color: #8b5cf6; }
-
-/* Yellow (Delete Page) */
 .tool-card.card-yellow { border-bottom-color: #f59e0b; }
 .tool-card.card-yellow .tool-icon-wrapper { background-color: #f59e0b; }
-
-/* Orange (Extract Page) */
 .tool-card.card-orange { border-bottom-color: #f97316; }
 .tool-card.card-orange .tool-icon-wrapper { background-color: #f97316; }
-
-/* Teal (Watermark) */
 .tool-card.card-teal { border-bottom-color: #14b8a6; }
 .tool-card.card-teal .tool-icon-wrapper { background-color: #14b8a6; }
