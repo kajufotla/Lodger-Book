@@ -29,7 +29,7 @@
 
       document.body.addEventListener('dragenter', (e) => {
         // FIXED: Ignore non-file drags (like highlighted text or links) to keep dragCounter accurate and prevent UI trapping
-        if (e.dataTransfer && !e.dataTransfer.types.includes('Files')) return;
+        if (e.dataTransfer && (!e.dataTransfer.types || !e.dataTransfer.types.includes('Files'))) return;
 
         dragCounter++;
         const ws = DOM.workspaceBox; // Re-query DOM to ensure fresh reference
@@ -41,7 +41,7 @@
 
       document.body.addEventListener('dragleave', (e) => {
         // FIXED: Match enter condition to keep dragCounter perfectly balanced
-        if (e.dataTransfer && !e.dataTransfer.types.includes('Files')) return;
+        if (e.dataTransfer && (!e.dataTransfer.types || !e.dataTransfer.types.includes('Files'))) return;
 
         dragCounter--;
         // FIX: Catch negative counter bug caused by rapid mouse movements/bubbling
