@@ -3,19 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Awesome Website</title>
+    
+    <title>Premium Online PDF & Image Tools | Merge, Split, Convert & Resize</title>
+    <meta name="description" content="Professional, free, and secure online PDF and image tools. Merge, split, convert, resize, watermark, and manipulate your files locally in your browser with zero server uploads.">
+    <meta name="keywords" content="PDF tools, merge PDF, split PDF, image to PDF, image resizer, rotate PDF, secure PDF tools">
+    <link rel="canonical" href="https://pdfexprt.xyz/">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
     <link rel="manifest" href="manifest.json">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://pdfexprt.xyz/#webpage",
+          "url": "https://pdfexprt.xyz/",
+          "name": "Premium Online PDF & Image Tools",
+          "description": "Professional, free, and secure online PDF and image tools."
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Are my confidential files safe?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Absolutely. Because processing happens locally in your browser, no data ever leaves your device."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Will merging or splitting PDFs reduce their quality?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No, the processing strictly combines or extracts the pages without altering the original resolution or text quality."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I need to install any software?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No installation is required. The tools run directly in your standard web browser."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "HowTo",
+          "name": "How to Merge PDF Files",
+          "step": [
+            { "@type": "HowToStep", "text": "Click the upload button or drag and drop your PDF files into the workspace." },
+            { "@type": "HowToStep", "text": "Drag the file thumbnails to arrange them in your desired order." },
+            { "@type": "HowToStep", "text": "Click the 'Merge PDF' button to combine the files." },
+            { "@type": "HowToStep", "text": "Download your newly merged, single PDF document instantly." }
+          ]
+        },
+        {
+          "@type": "HowTo",
+          "name": "How to Split PDF Files",
+          "step": [
+            { "@type": "HowToStep", "text": "Upload the PDF you wish to divide." },
+            { "@type": "HowToStep", "text": "Select your preferred splitting method." },
+            { "@type": "HowToStep", "text": "Click the 'Split PDF' button to initiate the process." },
+            { "@type": "HowToStep", "text": "Download your separated PDF files." }
+          ]
+        }
+      ]
+    }
+    </script>
 
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
             display: flex;
-            justify-content: center;
+            flex-direction: column; 
             align-items: center;
-            height: 100vh; /* بٹن کو اسکرین کے درمیان لانے کے لیے */
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
 
         /* Install App Button Design */
@@ -32,27 +102,79 @@
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px; /* آئیکن اور ٹیکسٹ کے درمیان فاصلہ */
+            gap: 10px; 
+            margin: 40px auto; 
         }
 
-        /* Hover Effect (جب ماؤس اوپر آئے گا) */
         .install-app-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
             background: linear-gradient(135deg, #5c7cfa, #9561e2);
         }
 
-        /* Click Effect (جب بٹن دبایا جائے گا) */
         .install-app-btn:active {
             transform: translateY(1px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
-        /* ڈاؤنلوڈ آئیکن کا ڈیزائن */
         .install-icon {
             width: 24px;
             height: 24px;
             fill: currentColor;
+        }
+
+        /* Minimal CSS additions for SEO Layout blending */
+        .seo-content-container {
+            max-width: 900px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .seo-tool-article {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .seo-tool-article:last-of-type {
+            border-bottom: none;
+        }
+
+        .seo-toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .seo-toc ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .seo-toc a, .related-tools a {
+            color: #5c7cfa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .seo-toc a:hover, .related-tools a:hover {
+            text-decoration: underline;
+        }
+
+        .last-updated {
+            font-size: 0.9em;
+            color: #777;
+            text-align: right;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -64,7 +186,687 @@
         </svg>
         Install App
     </button>
+    <main class="seo-content-container">
+        
+        <p class="last-updated"><em>Last Updated: July 2026</em></p>
 
+        <nav class="seo-toc" aria-label="Table of Contents">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                <li><a href="#seo-split-pdf">Split PDF</a></li>
+                <li><a href="#seo-image-to-pdf">Image to PDF</a></li>
+                <li><a href="#seo-image-resizer">Image Resizer</a></li>
+                <li><a href="#seo-rotate-pdf">Rotate PDF</a></li>
+                <li><a href="#seo-delete-pdf">Delete PDF Pages</a></li>
+                <li><a href="#seo-extract-pdf">Extract PDF Pages</a></li>
+                <li><a href="#seo-reverse-pdf">Reverse PDF</a></li>
+                <li><a href="#seo-watermark-pdf">Watermark PDF</a></li>
+                <li><a href="#seo-page-numbers-pdf">Add Page Numbers</a></li>
+            </ul>
+        </nav>
+
+        <section id="seo-merge-pdf" class="seo-tool-article">
+            <h2>Merge PDF Files Instantly and Securely</h2>
+            <p>Welcome to our professional PDF Merger tool. Document management often requires combining multiple files into a single, cohesive document. Whether you are compiling a business report, assembling a portfolio, or organizing academic research, our tool ensures a seamless merging experience directly in your browser.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Handling scattered PDF files can lead to disorganization and unprofessional presentations. Using our Merge PDF tool simplifies your digital filing cabinet. It eliminates the need for expensive desktop software while providing a fast, intuitive, and error-free way to stitch your documents together in exactly the order you need.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Drag-and-drop file reordering.</li>
+                <li>Unlimited file merging capabilities.</li>
+                <li>Preserves original formatting and resolution.</li>
+                <li>Cross-platform compatibility (Windows, Mac, Linux, Mobile).</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Click the upload button or drag and drop your PDF files into the workspace.</li>
+                <li>Drag the file thumbnails to arrange them in your desired order.</li>
+                <li>Click the "Merge PDF" button to combine the files.</li>
+                <li>Download your newly merged, single PDF document instantly.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>By streamlining your document workflow, you save valuable time and reduce administrative frustration. A single merged document is much easier to share via email, upload to portals, or print. Furthermore, you avoid compatibility issues that arise when sharing multiple files with clients or colleagues.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>Your privacy is our absolute priority. This Merge PDF tool operates entirely locally within your web browser. <strong>Your files are never uploaded, stored, or processed on our external servers.</strong> This means your sensitive personal and corporate data remains strictly on your device.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Ensure all individual files are finalized before merging to avoid re-work.</li>
+                <li>Use consistent naming conventions for your source files for easier ordering.</li>
+                <li>Check file sizes; combining dozens of large PDFs may result in a heavy final file.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>HR Professionals:</strong> Merging employee onboarding documents.</li>
+                <li><strong>Students:</strong> Combining class notes and assignments into one study guide.</li>
+                <li><strong>Freelancers:</strong> Stitching cover letters, resumes, and portfolios together.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Is there a limit to how many files I can merge?</strong> A: Our tool is designed to handle multiple files robustly; your browser's memory is the only practical limit.</li>
+                <li><strong>Q: Will merging PDFs reduce their quality?</strong> A: No, the merging process strictly combines the pages without altering the original resolution or text quality.</li>
+                <li><strong>Q: Can I merge PDFs on my mobile device?</strong> A: Yes, our platform is fully responsive and works seamlessly on smartphones and tablets.</li>
+                <li><strong>Q: Are my confidential files safe?</strong> A: Absolutely. Because processing happens locally in your browser, no data ever leaves your device.</li>
+                <li><strong>Q: Do I need to install any software?</strong> A: No installation is required. The tool runs directly in your standard web browser.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Our Merge PDF tool is the perfect blend of efficiency, security, and ease of use. By combining your documents locally, you gain a professional edge without compromising your sensitive data. Start organizing your digital documents today with our reliable merging solution.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-split-pdf">Split PDF</a></li>
+                    <li><a href="#seo-rotate-pdf">Rotate PDF</a></li>
+                    <li><a href="#seo-extract-pdf">Extract PDF Pages</a></li>
+                    <li><a href="#seo-delete-pdf">Delete PDF Pages</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-split-pdf" class="seo-tool-article">
+            <h2>Split PDF Documents with Precision</h2>
+            <p>Extracting specific pages or breaking a massive document into manageable chunks is a breeze with our Split PDF tool. We designed this utility for users who need to divide long reports, e-books, or scanned archives into separate, bite-sized files quickly and accurately.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Large PDF files can be cumbersome to navigate, slow to load, and difficult to share due to email attachment size limits. Splitting your PDFs allows you to isolate only the relevant information you need to send or review, making document handling far more efficient and targeted.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Split by individual pages or custom page ranges.</li>
+                <li>Visual page selection interface.</li>
+                <li>Lightning-fast processing speed.</li>
+                <li>Maintains high-quality text and images in output files.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload the PDF you wish to divide.</li>
+                <li>Select your preferred splitting method (e.g., extract all pages or specify a range like 1-5).</li>
+                <li>Click the "Split PDF" button to initiate the process.</li>
+                <li>Download your separated PDF files, neatly organized for your convenience.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Splitting documents enhances your productivity by allowing you to bypass unnecessary pages. It reduces file sizes dramatically, making email distribution hassle-free. It also ensures that you only share the precise information required, keeping irrelevant or sensitive pages out of the recipient's hands.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>Security is baked into our platform. When you split a PDF using this tool, the file manipulation happens securely via your browser's local processing capabilities. <strong>We do not upload your documents to any cloud server</strong>, ensuring total confidentiality for your legal, financial, or personal records.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Review your document beforehand to note the exact page numbers you need.</li>
+                <li>If splitting a scanned document, check that the page numbers match the PDF index.</li>
+                <li>Use descriptive names for your newly split files to keep track of them easily.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Lawyers:</strong> Extracting specific case files or exhibits from a massive legal brief.</li>
+                <li><strong>Accountants:</strong> Separating monthly statements from an annual financial report.</li>
+                <li><strong>Teachers:</strong> Distributing specific chapters of an e-book to students.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: How do I select a range of pages to split?</strong> A: Once uploaded, simply enter the page numbers (e.g., 2-8) in the designated input field.</li>
+                <li><strong>Q: Will splitting a PDF ruin the formatting?</strong> A: No, the output files will retain the exact layout, fonts, and images of the original.</li>
+                <li><strong>Q: Can I extract just one single page?</strong> A: Yes, you can isolate a single page and export it as its own distinct PDF document.</li>
+                <li><strong>Q: Is my data safe from hackers?</strong> A: Yes. Since the file is processed locally on your machine, it is never exposed to network vulnerabilities.</li>
+                <li><strong>Q: Is this tool free to use?</strong> A: Yes, our browser-based splitting utility is completely free and unrestricted.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Don't let massive PDF files slow down your workflow. With our secure, local-processing Split PDF tool, you can effortlessly divide and conquer your documents. Enjoy a streamlined, private, and powerful way to manage your digital paperwork.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-extract-pdf">Extract PDF Pages</a></li>
+                    <li><a href="#seo-delete-pdf">Delete PDF Pages</a></li>
+                    <li><a href="#seo-reverse-pdf">Reverse PDF</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-image-to-pdf" class="seo-tool-article">
+            <h2>Convert Images to PDF Seamlessly</h2>
+            <p>Transform your photos, screenshots, and graphics into professional PDF documents with our Image to PDF converter. Whether you are dealing with JPG, PNG, or other standard image formats, this tool compiles your visuals into a universally readable document format in mere seconds.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Images are great for viewing, but sharing multiple images can be messy. Different devices display images differently, and printing multiple photos can be a logistical headache. Converting images to a PDF standardizes the viewing experience, locking in formatting and ensuring compatibility across all hardware and operating systems.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Supports multiple image formats (JPG, PNG, GIF, BMP).</li>
+                <li>Batch conversion capabilities.</li>
+                <li>Adjustable page margins and orientations (Portrait/Landscape).</li>
+                <li>Drag-and-drop sorting for multiple images.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Select or drag-and-drop the images you want to convert.</li>
+                <li>Rearrange the image order if you are combining multiple pictures into one PDF.</li>
+                <li>Adjust settings such as page size or margins if necessary.</li>
+                <li>Click "Convert" and download your newly created PDF.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>A PDF acts as a secure digital container for your visuals. It prevents recipients from easily altering your images and provides a clean, professional presentation format. It also significantly simplifies the printing process, as the PDF defines the exact layout and dimensions.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>Protecting your personal photos and proprietary designs is vital. Our Image to PDF tool utilizes local browser processing. <strong>Your images never leave your device and are never uploaded to any external server.</strong> You can convert confidential receipts, ID cards, and private photos with total peace of mind.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Ensure your images are clear and properly cropped before conversion.</li>
+                <li>If creating a portfolio, keep the image orientation consistent for a better reading experience.</li>
+                <li>Compress very large images beforehand if you need a lightweight final PDF.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Designers:</strong> Compiling design mockups into a single presentation file for clients.</li>
+                <li><strong>Administration:</strong> Converting photographs of physical receipts into PDF expense reports.</li>
+                <li><strong>Everyday Users:</strong> Turning photos of ID cards and passports into secure PDF attachments.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: What image formats are supported?</strong> A: Our tool primarily supports popular formats like JPG, JPEG, and PNG.</li>
+                <li><strong>Q: Will my images lose quality?</strong> A: We maintain the original resolution of your images during the PDF conversion process.</li>
+                <li><strong>Q: Can I put multiple images on a single PDF page?</strong> A: Currently, the tool maps each image to its own perfectly sized PDF page for maximum clarity.</li>
+                <li><strong>Q: Are my personal photos uploaded anywhere?</strong> A: No. All conversions happen locally inside your web browser.</li>
+                <li><strong>Q: Does this work on mobile?</strong> A: Yes, you can easily convert photos straight from your mobile phone's camera roll.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Converting images to PDF has never been this fast, safe, or reliable. Standardize your visual assets into professional documents instantly. Experience the convenience of local processing and elevate how you share images today.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-image-resizer">Image Resizer</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-watermark-pdf">Watermark PDF</a></li>
+                    <li><a href="#seo-page-numbers-pdf">Add Page Numbers</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-image-resizer" class="seo-tool-article">
+            <h2>Optimize and Resize Images Instantly</h2>
+            <p>Welcome to our high-performance Image Resizer. In today’s digital landscape, having perfectly sized images is crucial for website load speeds, social media compliance, and efficient storage. Our tool empowers you to scale your photos up or down with zero hassle.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Uploading oversized images to websites can ruin load times and SEO rankings. Conversely, using improperly sized photos on social media can lead to awkward cropping. Our Image Resizer allows you to dictate exact pixel dimensions or percentage scales, giving you total control over your visual assets.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Resize by specific pixel dimensions (Width/Height).</li>
+                <li>Scale by percentage for quick adjustments.</li>
+                <li>Maintains aspect ratio automatically to prevent distortion.</li>
+                <li>Supports popular formats like JPG and PNG.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload the image you need to resize.</li>
+                <li>Enter your desired width and height, or choose a percentage scale.</li>
+                <li>Ensure the "lock aspect ratio" toggle is set according to your needs.</li>
+                <li>Click "Resize Image" and download your optimized file.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Resizing images optimizes your workflow and digital footprint. Smaller image dimensions lead to lower file sizes, which saves bandwidth and storage space. For web developers and digital marketers, perfectly sized images translate to faster websites, better user experiences, and improved search engine visibility.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>We respect your data sovereignty. Our Image Resizer performs all pixel manipulations natively within your web browser. <strong>Your files are never transmitted to our servers.</strong> Whether you are resizing personal family photos or unreleased corporate product images, your privacy is guaranteed.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Always lock the aspect ratio to prevent your images from looking stretched or squished.</li>
+                <li>For web usage, aim for a maximum width of 1920px to balance quality and file size.</li>
+                <li>Save an original backup of your image before doing drastic downscaling.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Webmasters:</strong> Resizing massive stock photos for blog post headers.</li>
+                <li><strong>Social Media Managers:</strong> Formatting images to fit specific Instagram or Twitter dimensions.</li>
+                <li><strong>E-commerce:</strong> Standardizing product catalog images to uniform sizes.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Will resizing an image reduce its file size?</strong> A: Yes, decreasing the pixel dimensions will generally reduce the overall file size.</li>
+                <li><strong>Q: Can I enlarge a very small image?</strong> A: You can, but enlarging an image too much may cause it to appear pixelated or blurry.</li>
+                <li><strong>Q: What does locking the aspect ratio mean?</strong> A: It means if you change the width, the height automatically adjusts to keep the image proportionate.</li>
+                <li><strong>Q: Is my image uploaded to the cloud?</strong> A: No, the resizing algorithm runs entirely locally on your device.</li>
+                <li><strong>Q: Do I need a professional account?</strong> A: No, this utility is completely free for all users.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Achieve pixel-perfect dimensions in seconds with our secure Image Resizer. Keep your websites fast, your social feeds beautiful, and your data private. Optimize your visual content locally and efficiently today.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-image-to-pdf">Image to PDF</a></li>
+                    <li><a href="#seo-watermark-pdf">Watermark PDF</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-split-pdf">Split PDF</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-rotate-pdf" class="seo-tool-article">
+            <h2>Rotate PDF Pages for Perfect Alignment</h2>
+            <p>Fixing upside-down or sideways pages in your documents is effortless with our Rotate PDF tool. Whether a scanner misfired or a document was exported improperly, you can quickly adjust the orientation of single pages or entire documents with just a few clicks.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Presenting a document with incorrectly oriented pages is unprofessional and frustrating for the reader. Our tool eliminates this issue, allowing you to permanently correct the viewing angle of your PDFs without needing to pay for bulky, premium PDF editing software.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Rotate pages clockwise or counterclockwise by 90 degrees.</li>
+                <li>Flip pages a full 180 degrees.</li>
+                <li>Apply rotation to all pages globally or select specific pages.</li>
+                <li>Instant preview of the rotated document.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Select and upload the PDF file that needs adjusting.</li>
+                <li>Hover over individual pages to rotate them, or use the global rotation buttons.</li>
+                <li>Verify the alignment in the visual preview.</li>
+                <li>Click "Apply Changes" and download the permanently rotated PDF.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Correcting document orientation drastically improves readability and professionalism. It saves your colleagues or clients from having to strain their necks or manually rotate files on their end. Furthermore, because the rotation is permanently saved to the file, it guarantees consistent viewing across all devices and printers.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>Document security is non-negotiable. When you rotate pages using this tool, the operation is executed entirely within your device's browser memory. <strong>No data is uploaded to remote servers</strong>, meaning your sensitive financial, legal, or medical records are kept completely private.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Review the entire document before exporting to ensure all pages match the desired orientation.</li>
+                <li>Landscape pages (like wide tables) should be rotated so the top of the table aligns with the top of the screen.</li>
+                <li>Double-check scanned documents, as they frequently contain inverted pages.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Office Workers:</strong> Correcting documents that were fed into a scanner upside down.</li>
+                <li><strong>Architects/Engineers:</strong> Rotating landscape blueprints that exported as portrait.</li>
+                <li><strong>Students:</strong> Fixing sideways photos of textbook pages converted to PDF.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Is the rotation permanent?</strong> A: Yes, once you download the file, the new orientation is permanently saved.</li>
+                <li><strong>Q: Can I rotate just one page in a 50-page document?</strong> A: Absolutely, our visual interface allows you to target and rotate individual pages.</li>
+                <li><strong>Q: Will rotating affect the text quality?</strong> A: Not at all. The tool simply changes the orientation metadata without degrading the content.</li>
+                <li><strong>Q: Are my files safe?</strong> A: Yes, your documents are processed locally, ensuring 100% privacy.</li>
+                <li><strong>Q: Can I use this on a Mac?</strong> A: Yes, it works natively in any modern web browser on Mac, PC, and mobile.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Stop struggling with sideways documents. Our Rotate PDF utility is the fastest, safest, and most intuitive way to correct page alignments. Enjoy total privacy with local processing and deliver perfectly oriented documents every time.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-reverse-pdf">Reverse PDF</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-delete-pdf">Delete PDF Pages</a></li>
+                    <li><a href="#seo-extract-pdf">Extract PDF Pages</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-delete-pdf" class="seo-tool-article">
+            <h2>Delete Unwanted PDF Pages Easily</h2>
+            <p>Clean up your documents by removing unnecessary pages with our Delete PDF Pages tool. Whether you need to strip out blank pages, remove outdated information, or cut down a lengthy report, this utility makes document trimming fast and intuitive.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Sending a PDF with irrelevant, outdated, or blank pages can cause confusion and bloat file sizes. Deleting these pages streamlines your document, ensuring the recipient only sees what matters. Our tool lets you securely prune your PDFs without needing complex editing software.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Visual page grid for easy identification.</li>
+                <li>Click-to-delete functionality.</li>
+                <li>Bulk deletion via page range input.</li>
+                <li>Instant, lossless processing.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload your PDF file into the workspace.</li>
+                <li>Browse the visual thumbnails of your document's pages.</li>
+                <li>Click the trash icon on pages you want to remove, or type in a page range to delete.</li>
+                <li>Click "Save Changes" and download the refined PDF.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Removing unwanted pages creates a tighter, more professional document. It actively reduces the file size, making the PDF easier to email and faster to download. It also acts as a safeguard, allowing you to remove confidential or sensitive pages before sharing a file publicly.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>Your document's contents remain strictly for your eyes only. The deletion process utilizes advanced client-side processing. <strong>Your PDF is modified locally on your own computer or device and is never uploaded to the cloud.</strong> You can securely redact pages from sensitive files without fear of data interception.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Double-check the page numbers before confirming deletion to avoid losing critical data.</li>
+                <li>Keep an original copy of the file backed up just in case you need those deleted pages later.</li>
+                <li>Look out for blank pages at the very end of scanned documents, which are common culprits for file bloat.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Legal Professionals:</strong> Removing privileged information before sharing discovery documents.</li>
+                <li><strong>Publishers:</strong> Stripping out draft pages or editorial notes from a final manuscript.</li>
+                <li><strong>General Users:</strong> Deleting blank scanner pages from digital archives.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Can I delete multiple pages at once?</strong> A: Yes, you can click multiple thumbnails or enter a range (e.g., 5-10) to delete them in bulk.</li>
+                <li><strong>Q: Is there a way to undo a deletion?</strong> A: Before clicking "Save Changes", you can usually revert. Once downloaded, you'd need the original file.</li>
+                <li><strong>Q: Will deleting pages reduce the file size?</strong> A: Yes, removing pages, especially those with high-res images, will noticeably decrease the file size.</li>
+                <li><strong>Q: Are my files uploaded to your servers?</strong> A: Absolutely not. All file manipulation happens offline within your browser.</li>
+                <li><strong>Q: Is this tool compatible with mobile browsers?</strong> A: Yes, it is fully optimized for touchscreens and mobile devices.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Take control of your documents by easily deleting the pages you don't need. Enjoy a faster, cleaner, and strictly private way to manage your PDFs using our local-processing deletion tool.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-extract-pdf">Extract PDF Pages</a></li>
+                    <li><a href="#seo-split-pdf">Split PDF</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-watermark-pdf">Watermark PDF</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-extract-pdf" class="seo-tool-article">
+            <h2>Extract PDF Pages to Create Custom Documents</h2>
+            <p>Pull out exactly what you need from large documents using our Extract PDF Pages tool. This feature is perfect for users who want to isolate specific chapters, charts, or articles from comprehensive PDFs and save them as brand-new, standalone files.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Sometimes you only need a single page from a 100-page manual. Instead of sending the entire bulky document and telling someone to "go to page 42," extracting that specific page creates a highly targeted, lightweight file that is much easier to communicate with.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Select single pages or specific ranges for extraction.</li>
+                <li>Visual thumbnail selection.</li>
+                <li>Maintains exact formatting and quality of the original file.</li>
+                <li>Merge extracted pages into one new PDF or save them separately.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload the source PDF document.</li>
+                <li>Click on the thumbnails of the pages you wish to extract.</li>
+                <li>Choose whether to extract them as a single combined PDF or multiple separate files.</li>
+                <li>Click "Extract" and save your new documents.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Extraction maximizes efficiency. By isolating critical data, you eliminate the noise of a massive document. It makes sharing specific insights faster and ensures your recipient focuses exactly on the data that matters. It's a vital tool for research and data management.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>We guarantee total data privacy through browser-based technology. <strong>The extraction process happens purely on your local machine.</strong> No files are transmitted, stored, or viewed by our servers, making it perfectly safe for extracting confidential corporate or personal data.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>If you are extracting pages for a presentation, extract them sequentially to maintain narrative flow.</li>
+                <li>Rename your new extracted file immediately to reflect its specific contents.</li>
+                <li>Verify that the extracted pages do not rely on context from preceding pages that you left behind.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Researchers:</strong> Pulling specific data tables or bibliographies from academic journals.</li>
+                <li><strong>Sales Teams:</strong> Extracting a personalized pricing tier page from a massive catalog for a client.</li>
+                <li><strong>Contractors:</strong> Isolating signature pages from lengthy legal agreements.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: How does extracting differ from splitting?</strong> A: Splitting usually divides a document into two parts, whereas extracting cherry-picks specific pages to create a new file while leaving the rest behind.</li>
+                <li><strong>Q: Does extracting degrade the PDF quality?</strong> A: No, the new file will retain 100% of the original vector text and image quality.</li>
+                <li><strong>Q: Can I extract non-consecutive pages?</strong> A: Yes, you can select page 2, page 7, and page 15 to extract into a single new document.</li>
+                <li><strong>Q: Is this secure for sensitive company data?</strong> A: Yes, client-side processing ensures zero data transmission to external servers.</li>
+                <li><strong>Q: Is there a file size limit?</strong> A: The limit is based purely on your own device's RAM and browser capabilities.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Isolate and utilize the most important parts of your documents with ease. Our secure, fast, and locally processed Extract PDF tool empowers you to handle your digital paperwork exactly the way you want.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-delete-pdf">Delete PDF Pages</a></li>
+                    <li><a href="#seo-split-pdf">Split PDF</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-page-numbers-pdf">Add Page Numbers</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-reverse-pdf" class="seo-tool-article">
+            <h2>Reverse PDF Page Order in Seconds</h2>
+            <p>Instantly flip the order of your document's pages from back to front with our Reverse PDF tool. This specialized utility is a lifesaver when documents are scanned in reverse or when you need to flip the chronological order of a report or portfolio.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Manual scanners often output pages in reverse order (last page first). Manually dragging and dropping 50 pages into the correct sequence is incredibly tedious. Our Reverse PDF tool automates this process, fixing backwards documents instantly with a single click.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>One-click page order reversal.</li>
+                <li>Handles small and massively large documents alike.</li>
+                <li>No loss of text or image quality.</li>
+                <li>Instant processing speed.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload the PDF file that is currently in reverse order.</li>
+                <li>Click the "Reverse PDF" button.</li>
+                <li>Wait a fraction of a second for the software to flip the sequence.</li>
+                <li>Download your newly corrected document.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>This tool saves you immense amounts of time and frustration. It guarantees absolute accuracy in document reordering, eliminating the risk of human error when manually sorting pages. A correctly ordered document is essential for logical reading flow and professional presentation.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>Your documents stay strictly yours. Reversing the PDF sequence is a structural edit that our tool performs entirely via JavaScript inside your web browser. <strong>Files are never uploaded to a cloud database</strong>, offering you 100% data security and peace of mind.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Scroll through the preview to verify the first page is indeed the cover page before downloading.</li>
+                <li>If you combined multiple files and they merged backwards, reversing the final PDF is the fastest fix.</li>
+                <li>Keep original file names but append "_reversed" to easily identify the corrected version.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Administrators:</strong> Fixing documents that came out of an automatic document feeder (ADF) backwards.</li>
+                <li><strong>Translators:</strong> Reversing document page orders for right-to-left language publications.</li>
+                <li><strong>Archivists:</strong> Ordering historical logs from newest to oldest (or vice versa).</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Will reversing the pages alter the content on the page?</strong> A: No, the content itself remains exactly the same; only the sequence of the pages is changed.</li>
+                <li><strong>Q: How fast does this process take?</strong> A: Because it processes locally, it is virtually instantaneous, even for large files.</li>
+                <li><strong>Q: Can I reverse just a section of the PDF?</strong> A: This tool is designed to reverse the entire document. To reverse a section, you would need to split, reverse, and merge.</li>
+                <li><strong>Q: Are my files private?</strong> A: Yes, client-side browser technology ensures your files never leave your device.</li>
+                <li><strong>Q: Is the tool free?</strong> A: Yes, reversing your PDFs is completely free of charge.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Don't waste time manually dragging pages into order. Our secure, local-processing Reverse PDF tool effortlessly corrects backward documents, ensuring your workflow remains fast and stress-free.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-rotate-pdf">Rotate PDF</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-split-pdf">Split PDF</a></li>
+                    <li><a href="#seo-page-numbers-pdf">Add Page Numbers</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-watermark-pdf" class="seo-tool-article">
+            <h2>Add Custom Watermarks to Protect Your PDFs</h2>
+            <p>Safeguard your intellectual property and clearly identify document status using our Watermark PDF tool. Easily stamp text or images across your document pages to deter unauthorized use, signify drafts, or brand your outgoing paperwork.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>When you share a document publicly or with clients, you lose control over where it ends up. Adding a watermark ensures your branding stays intact and discourages plagiarism. It is also an industry standard for marking documents clearly as "CONFIDENTIAL" or "DRAFT" to prevent miscommunication.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Add text or image-based watermarks.</li>
+                <li>Customizable font, size, color, and opacity.</li>
+                <li>Adjustable positioning and rotation (e.g., diagonal stamping).</li>
+                <li>Apply to all pages or specific page ranges.</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload the PDF you wish to protect.</li>
+                <li>Choose between a text watermark or an image/logo watermark.</li>
+                <li>Customize the transparency, angle, and position on the page.</li>
+                <li>Click "Add Watermark" and download your branded document.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Watermarking provides a layer of security and professional branding. It asserts ownership over creative works and guides readers on how to handle the document (e.g., "Do Not Distribute"). Adjusting the opacity ensures the watermark protects the file without making the underlying text unreadable.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>We know that documents requiring watermarks are often highly sensitive. That is why our tool works completely offline within your browser. <strong>Your files are never transmitted to our servers for processing.</strong> You can stamp confidential legal or financial documents with absolute assurance of privacy.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Use a high transparency (low opacity) setting so the watermark doesn't obscure important text.</li>
+                <li>Place watermarks diagonally across the center of the page for maximum security against cropping.</li>
+                <li>If using an image logo, ensure it is a high-quality PNG with a transparent background.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Photographers/Creators:</strong> Stamping portfolios with copyright notices.</li>
+                <li><strong>Lawyers/Accountants:</strong> Marking preliminary documents strictly as "DRAFT".</li>
+                <li><strong>Corporate Offices:</strong> Adding the company logo to internal memos and public whitepapers.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Can watermarks be easily removed by someone else?</strong> A: Our tool flattens the watermark into the PDF, making it very difficult for average users to remove without specialized software.</li>
+                <li><strong>Q: Can I use my own logo?</strong> A: Yes, you can upload your custom image file to use as the watermark.</li>
+                <li><strong>Q: Does adding a watermark affect text readability?</strong> A: Not if you utilize the transparency slider to make the watermark semi-transparent.</li>
+                <li><strong>Q: Is my confidential document uploaded to the internet?</strong> A: No, local processing guarantees your file never leaves your computer.</li>
+                <li><strong>Q: Can I put the watermark in the corner?</strong> A: Yes, our positioning controls let you place it anywhere on the page.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Protect your work and establish your brand authority instantly. Our secure, locally-processed Watermark tool provides robust customization to keep your documents safe, professional, and unequivocally yours.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-page-numbers-pdf">Add Page Numbers</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-extract-pdf">Extract PDF Pages</a></li>
+                    <li><a href="#seo-image-to-pdf">Image to PDF</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="seo-page-numbers-pdf" class="seo-tool-article">
+            <h2>Add Page Numbers to PDFs Professionally</h2>
+            <p>Enhance document navigation and structural clarity with our Add Page Numbers tool. Seamlessly insert clear, customizable pagination into any PDF document, ensuring readers can easily reference specific sections of your reports, manuscripts, or legal files.</p>
+            
+            <h3>Why Use This Tool?</h3>
+            <p>Navigating a large document without page numbers is a frustrating experience for any reader. When printing, unnumbered pages can easily get out of order. Our tool allows you to retroactively add pagination to PDFs that were created without them, instantly elevating the document's professionalism.</p>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li>Customizable placement (top, bottom, left, right, center).</li>
+                <li>Multiple formatting options (e.g., "1", "Page 1", "1 of 10").</li>
+                <li>Adjustable font styles, sizes, and margins.</li>
+                <li>Choose which page the numbering starts on (skipping cover pages).</li>
+            </ul>
+
+            <h3>Step-by-Step: How to Use</h3>
+            <ol>
+                <li>Upload the unnumbered PDF file.</li>
+                <li>Select the position where you want the numbers to appear.</li>
+                <li>Choose your preferred numbering format and starting page.</li>
+                <li>Click "Add Page Numbers" and download your updated PDF.</li>
+            </ol>
+
+            <h3>Benefits</h3>
+            <p>Adding page numbers dramatically improves the user experience for your readers. It makes referencing specific data points in meetings or academic papers much easier. It also provides peace of mind when distributing physical copies, knowing the document can be easily reassembled if dropped.</p>
+
+            <h3>Privacy & Security</h3>
+            <p>We prioritize your data integrity. The process of stamping page numbers onto your document is handled entirely by your own browser. <strong>We do not upload, scan, or store your documents on any cloud server.</strong> Your proprietary manuscripts and confidential reports remain entirely private.</p>
+
+            <h3>Tips & Best Practices</h3>
+            <ul>
+                <li>Skip the cover page and table of contents when starting your numbering sequence.</li>
+                <li>Ensure the margin you select for the page numbers doesn't overlap with existing document text.</li>
+                <li>Use standard, highly readable fonts like Arial or Helvetica for maximum clarity.</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Authors/Writers:</strong> Paginating a completed manuscript before submitting it to a publisher.</li>
+                <li><strong>Students:</strong> Adding page numbers to a thesis or lengthy dissertation.</li>
+                <li><strong>Professionals:</strong> Organizing meeting agendas and comprehensive annual reports.</li>
+            </ul>
+
+            <h3>Frequently Asked Questions</h3>
+            <ul>
+                <li><strong>Q: Can I start numbering from page 3?</strong> A: Yes, our tool allows you to define exactly which page the number "1" should begin on.</li>
+                <li><strong>Q: Will the numbers overwrite my text?</strong> A: The tool places numbers in the document margins. Adjust the positioning if your text goes to the very edge.</li>
+                <li><strong>Q: Can I format the numbers as "Page X of Y"?</strong> A: Yes, we offer dynamic numbering formats including total page counts.</li>
+                <li><strong>Q: Are my files safe during this process?</strong> A: Completely. Client-side processing ensures 100% offline data security.</li>
+                <li><strong>Q: Is this feature free?</strong> A: Yes, adding page numbers via our platform is entirely free.</li>
+            </ul>
+
+            <h3>Conclusion</h3>
+            <p>Bring order and professionalism to your documents with a single click. Our secure, locally-processed tool makes adding page numbers intuitive and fast. Enhance your document's readability and keep your data private today.</p>
+
+            <div class="related-tools">
+                <h4>Related Tools</h4>
+                <ul>
+                    <li><a href="#seo-watermark-pdf">Watermark PDF</a></li>
+                    <li><a href="#seo-merge-pdf">Merge PDF</a></li>
+                    <li><a href="#seo-split-pdf">Split PDF</a></li>
+                    <li><a href="#seo-rotate-pdf">Rotate PDF</a></li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
     <script src="app.js"></script>
     
 </body>
