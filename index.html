@@ -1,345 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMELL2FZ4F"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-LMELL2FZ4F');
-    </script>
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Awesome Website</title>
     
-    <!-- Updated Google Site Verification Tag -->
-    <meta name="google-site-verification" content="qlxW5HyhRrcsYx2S4vzYx8cSfH361HOy_T48NCndlwo" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    
-    <title>Best Free PDF Tools Online | Merge, Split & Convert PDF</title>
-    <link rel="icon" href="favicon.png" type="image/png">
-    <meta name="description" content="Manage documents effortlessly with our modern, client-side PDF tools. Instantly merge, split, and convert PDFs locally in your browser. Highly secure, offline, and free." /> 
-    <meta name="keywords" content="free online pdf tools, merge pdf offline, split pdf free, convert image to pdf, secure pdf editor, client-side document tools, compress pdf without losing quality" /> 
-    
-    <!-- Corrected Domain URLs for SEO -->
-    <link rel="canonical" href="https://pdfexprt.xyz/" /> 
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" /> 
-    
-    <meta property="og:type" content="website" /> 
-    <meta property="og:site_name" content="Pdfexpert" /> 
-    <meta property="og:url" content="https://pdfexprt.xyz/" /> 
-    <meta property="og:title" content="Free Online PDF Tools: Merge, Split, and Convert Securely" /> 
-    <meta property="og:description" content="Manage documents effortlessly with a clean, high-level interface. Highly secure, browser-based PDF tools with zero file uploads required." /> 
-    <meta property="og:image" content="https://pdfexprt.xyz/assets/og-banner-1200x630.jpg" /> 
-    <meta property="og:locale" content="en_US" /> 
-    
-    <!-- Corrected Domain URLs in JSON-LD Schema -->
-    <script type="application/ld+json"> { 
-        "@context": "https://schema.org", 
-        "@graph": [ 
-            { "@type": "Organization", "@id": "https://pdfexprt.xyz/#organization", "name": "Pdfexpert", "url": "https://pdfexprt.xyz/" }, 
-            { "@type": "WebPage", "@id": "https://pdfexprt.xyz/#webpage", "url": "https://pdfexprt.xyz/", "name": "Free Online PDF Tools", "isPartOf": { "@id": "https://pdfexprt.xyz/#organization" } }, 
-            { "@type": "WebApplication", "@id": "https://pdfexprt.xyz/#software", "name": "Pdfexpert Suite", "url": "https://pdfexprt.xyz/", "description": "A high-level, strictly client-side suite of free online PDF tools.", "applicationCategory": "BusinessApplication, BrowserApplication", "operatingSystem": "All", "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" } },
-            { "@type": "FAQPage", "@id": "https://pdfexprt.xyz/#faq", "mainEntity": [ 
-                { "@type": "Question", "name": "Are my financial or personal PDF files completely secure?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. All file processing happens entirely locally within your browser. Your files are never uploaded to any external cloud servers." } }, 
-                { "@type": "Question", "name": "Is there a limit to how many PDFs I can process?", "acceptedAnswer": { "@type": "Answer", "text": "No. Our tool is designed for unrestricted use, allowing you to manage unlimited documents instantly for free." } } 
-            ] } 
-        ] 
-    } </script>
+    <link rel="manifest" href="manifest.json">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* بٹن کو اسکرین کے درمیان لانے کے لیے */
+            margin: 0;
+        }
 
-    <link rel="stylesheet" href="style.css">
+        /* Install App Button Design */
+        .install-app-btn {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* آئیکن اور ٹیکسٹ کے درمیان فاصلہ */
+        }
+
+        /* Hover Effect (جب ماؤس اوپر آئے گا) */
+        .install-app-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #5c7cfa, #9561e2);
+        }
+
+        /* Click Effect (جب بٹن دبایا جائے گا) */
+        .install-app-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ڈاؤنلوڈ آئیکن کا ڈیزائن */
+        .install-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body>
 
-    <div class="hidden border-red-300 bg-red-50 hover:bg-red-100 text-red-500 bg-red-500 focus:ring-red-500 border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-600 bg-blue-600 focus:ring-blue-600 text-blue-700 bg-blue-700 focus:ring-blue-700 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 bg-emerald-600 focus:ring-emerald-500 border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-600 bg-purple-600 focus:ring-purple-500 border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-500 bg-amber-500 focus:ring-amber-500 border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-500 bg-orange-500 focus:ring-orange-500 border-pink-300 bg-pink-50 hover:bg-pink-100 text-pink-600 bg-pink-600 focus:ring-pink-600 border-cyan-300 bg-cyan-50 hover:bg-cyan-100 text-cyan-500 bg-cyan-500 focus:ring-cyan-500 border-teal-300 bg-teal-50 hover:bg-teal-100 text-teal-500 bg-teal-500 focus:ring-teal-500 text-red-400 hover:text-red-600"></div>
+    <button id="installAppBtn" class="install-app-btn" style="display: none;">
+        <svg class="install-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Install App
+    </button>
 
-    <nav class="pt-safe sticky top-0 z-40 w-full glass-panel shadow-sm">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-2 text-2xl font-extrabold text-blue-600 tracking-tight cursor-pointer" onclick="window.location.href='index.html'">
-                <i class="fa-solid fa-layer-group text-xl text-indigo-500"></i>
-                <span>PDF<span class="text-indigo-600">Expert</span></span>
-            </div>
-            
-            <div class="hidden md:flex items-center space-x-8 font-medium text-slate-600 text-sm">
-                <a href="index.html" class="text-blue-600 border-b-2 border-blue-600 pb-1">Home</a>
-                <a href="#about" class="hover:text-blue-600 transition">About Tools</a>
-                <a href="#faq-section" class="hover:text-blue-600 transition">FAQs</a>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-1 border border-slate-200/60 rounded-full px-3 py-1 text-xs font-medium bg-white/50 shadow-sm">
-                    <span>🇺🇸 EN</span>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="flex-grow">
-        <header id="main-header" class="max-w-7xl mx-auto px-6 pt-16 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center content-section transition-opacity duration-300">
-            <div class="lg:col-span-6 space-y-6" id="hero-workspace">
-                <div class="space-y-4">
-                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                        Free Online PDF Tools: <span class="text-blue-600">Merge, Split & Convert</span>
-                    </h1>
-                    <p class="text-lg text-slate-600 leading-relaxed max-w-lg">
-                        Manage your documents effortlessly with our suite of high-performance utilities. Your files never leave your device, ensuring complete privacy.
-                    </p>
-                </div>
-                
-                <div class="flex flex-wrap gap-4 pt-2">
-                    <div class="flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-emerald-100">
-                        <i class="fa-solid fa-shield-halved"></i> <span>Highly Secure & Offline</span>
-                    </div>
-                    <div class="flex items-center space-x-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-blue-100">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> <span>No Cloud Uploads</span>
-                    </div>
-                    <div class="flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm font-semibold border border-indigo-100">
-                        <i class="fa-solid fa-bolt"></i> <span>Lightning Fast</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-6 flex justify-center relative">
-                <div class="w-full max-w-lg glass-panel shadow-xl rounded-3xl p-8 transition duration-300 transform gpu-accelerate">
-                    <div class="flex items-center space-x-2 mb-6">
-                        <span class="w-3 h-3 rounded-full bg-red-400"></span>
-                        <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-                        <span class="w-3 h-3 rounded-full bg-green-400"></span>
-                    </div>
-                    
-                    <div class="text-center py-8 space-y-4">
-                        <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner animate-pulse will-change-opacity">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </div>
-                        <h2 class="text-xl font-bold text-slate-800">Select a Module</h2>
-                        <p class="text-sm text-slate-500 max-w-xs mx-auto">Choose a professional utility below to activate the workspace.</p>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <section id="hero-tool-panel" class="max-w-4xl mx-auto px-6 py-8 hidden flex-col items-center justify-start min-h-[60vh] opacity-0 transition-opacity duration-300">
-            <div class="w-full mb-6">
-                <button onclick="window.closeTool()" class="group inline-flex items-center space-x-3 text-slate-500 hover:text-slate-900 transition-colors font-semibold text-sm bg-white hover:bg-slate-50 px-5 py-2.5 rounded-full border border-slate-200 shadow-sm hover:shadow">
-                    <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
-                    <span>Back to Home</span>
-                </button>
-            </div>
-            
-            <div id="tool-workspace-box" class="w-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-200/80 rounded-[24px] p-6 md:p-10 transition duration-500 transform gpu-accelerate">
-                <div id="canvas-content" class="text-left"></div>
-            </div>
-        </section>
-
-        <section id="our-tools" class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50 content-section transition-opacity duration-300">
-            <div class="text-center space-y-2 mb-12">
-                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Our Premium Utility Modules</h2>
-                <p class="text-sm text-slate-500">Select a tool to start processing your files securely.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6" id="tools-grid">
-                
-                <div class="group flex items-center p-5 bg-white border border-blue-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="merge-pdf">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-blue-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-file-circle-plus"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Merge PDF</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Combine & reorder PDFs.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-blue-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="image-to-pdf">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-blue-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-file-image"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Image to PDF</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Advanced document creation.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-orange-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="extract-pages">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-orange-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-file-export"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Extract Pages</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Isolate specific ranges.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-amber-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="delete-page">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-amber-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Delete Page</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Remove page ranges.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-red-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="image-resizer">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-red-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-arrows-up-down-left-right"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Image Resizer</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Advanced resizing offline.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-purple-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="rotate-pages">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-purple-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-arrow-rotate-right"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Rotate Pages</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Rotate specific pages.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-emerald-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="split-zip">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-emerald-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-code-branch"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Split to ZIP</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Extract specific ranges to ZIP.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-cyan-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="watermark">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-cyan-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-stamp"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Watermark</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Advanced stamping.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-teal-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="page-numbers">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-teal-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-list-ol"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Page Numbers</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Custom sequence injection.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-pink-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="reverse-pdf">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-pink-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-arrows-up-down"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Reverse PDF</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Flip layout order backwards.</p>
-                    </div>
-                </div>
-                
-            </div>
-        </section>
-
-        <section id="about" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200/50 bg-white rounded-3xl my-8 shadow-sm content-section transition-opacity duration-300">
-            <div class="max-w-4xl mx-auto text-center space-y-6">
-                <h2 class="text-3xl font-extrabold text-slate-900">Why Choose Our Client-Side PDF Editor?</h2>
-                <p class="text-slate-600 leading-relaxed text-left md:text-center">
-                    In an era where digital privacy is paramount, uploading sensitive legal, financial, or personal documents to cloud servers poses a significant risk. 
-                    <strong>PDFExpert</strong> revolutionizes document management by utilizing advanced <em>client-side processing</em>. 
-                    This means when you use our tools to <strong>merge PDF files</strong>, <strong>split PDF pages</strong>, or <strong>convert images to PDF</strong>, your data never leaves your computer. 
-                </p>
-                <div class="grid md:grid-cols-3 gap-8 text-left mt-8 pt-8 border-t border-slate-100">
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-lock text-blue-500 mr-2"></i> Absolute Privacy</h3>
-                        <p class="text-sm text-slate-500">Zero data retention. Your files are processed in your browser's memory and are instantly destroyed once you close the tab.</p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-rocket text-indigo-500 mr-2"></i> Unmatched Speed</h3>
-                        <p class="text-sm text-slate-500">By eliminating upload and download wait times, our browser-based PDF editor works instantly, saving you valuable time.</p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fa-solid fa-laptop-code text-emerald-500 mr-2"></i> No Installation</h3>
-                        <p class="text-sm text-slate-500">Access enterprise-grade document tools directly from any modern web browser without downloading bulky software.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="faq-section" class="max-w-7xl mx-auto px-6 py-16 mb-8 content-section transition-opacity duration-300">
-            <div class="max-w-3xl mx-auto">
-                <h2 class="text-3xl font-extrabold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
-                <div class="space-y-4">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-slate-800 mb-2">Are my financial or personal PDF files completely secure?</h3>
-                        <p class="text-sm text-slate-600">Yes. All file processing happens entirely locally within your browser using JavaScript. We offer a high-level secure environment where your files are never uploaded to any external cloud servers.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-slate-800 mb-2">Is there a limit to how many PDFs I can process?</h3>
-                        <p class="text-sm text-slate-600">No. Our tool is designed for unrestricted use. You can merge, split, and edit unlimited documents instantly without any premium paywalls or hidden limits.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-slate-800 mb-2">Will the quality of my PDF decrease after merging or splitting?</h3>
-                        <p class="text-sm text-slate-600">Not at all. We use lossless processing algorithms. Your output files retain the exact same DPI, resolution, and text clarity as your original documents.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="glass-panel border-t border-slate-200/60 pt-16 pb-8 text-xs text-slate-500 mt-auto content-section">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div class="col-span-2 space-y-4">
-                <div class="flex items-center space-x-2 text-xl font-extrabold text-blue-600 tracking-tight">
-                    <i class="fa-solid fa-layer-group text-base text-indigo-500"></i>
-                    <span>PDF<span class="text-indigo-600">Expert</span></span>
-                </div>
-                <p class="text-slate-400 leading-relaxed max-w-sm">
-                    The ultimate suite of professional web utilities designed for speed, uncompromised privacy, and flawless offline document manipulation.
-                </p>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-800 mb-3 text-sm">Legal</h3>
-                <ul class="space-y-2">
-                    <li><a href="privacy-policy.html" class="hover:text-blue-600 transition">Privacy Policy</a></li>
-                    <li><a href="terms-of-use.html" class="hover:text-blue-600 transition">Terms of Use</a></li>
-                    <li><a href="disclaimer.html" class="hover:text-blue-600 transition">Disclaimer</a></li>
-                </ul>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-800 mb-3 text-sm">Connect</h3>
-                <ul class="space-y-2">
-                    <li><a href="contact.html" class="hover:text-blue-600 transition">Contact Support</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-6 border-t border-slate-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400">
-            <p>© 2026 Pdfexpert Suite. All rights reserved.</p>
-            <p>Engineered for High Performance & Privacy.</p>
-        </div>
-    </footer>
-
-    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl space-x-2 z-50 items-center transition duration-300 transform translate-y-20 opacity-0 flex gpu-accelerate"></div>
-
-    <script src="script.js"></script>
+    <script src="app.js"></script>
+    
 </body>
 </html>
