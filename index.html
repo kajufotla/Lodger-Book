@@ -67,7 +67,6 @@
                 <a href="index.html" class="text-blue-600 border-b-2 border-blue-600 pb-1">Home</a>
                 <a href="#about" class="hover:text-blue-600 transition">About Tools</a>
                 <a href="#faq-section" class="hover:text-blue-600 transition">FAQs</a>
-                <a href="privacy.html" class="hover:text-blue-600 transition">Privacy</a>
             </div>
             
             <div class="flex items-center space-x-4">
@@ -143,16 +142,6 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6" id="tools-grid">
                 
-                <div class="group flex items-center p-5 bg-white border border-red-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="image-resizer">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-red-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-arrows-up-down-left-right"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Image Resizer</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Advanced resizing offline.</p>
-                    </div>
-                </div>
-
                 <div class="group flex items-center p-5 bg-white border border-blue-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="merge-pdf">
                     <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-blue-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
                         <i class="fa-solid fa-file-circle-plus"></i>
@@ -163,33 +152,13 @@
                     </div>
                 </div>
 
-                <div class="group flex items-center p-5 bg-white border border-emerald-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="split-zip">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-emerald-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-code-branch"></i>
+                <div class="group flex items-center p-5 bg-white border border-blue-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="image-to-pdf">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-blue-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-file-image"></i>
                     </div>
                     <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Split to ZIP</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Extract specific ranges to ZIP.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-purple-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="rotate-pages">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-purple-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-arrow-rotate-right"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Rotate Pages</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Rotate specific pages.</p>
-                    </div>
-                </div>
-
-                <div class="group flex items-center p-5 bg-white border border-amber-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="delete-page">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-amber-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Delete Page</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Remove page ranges.</p>
+                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Image to PDF</h3>
+                        <p class="text-[13px] text-slate-500 leading-snug">Advanced document creation.</p>
                     </div>
                 </div>
 
@@ -203,13 +172,43 @@
                     </div>
                 </div>
 
-                <div class="group flex items-center p-5 bg-white border border-pink-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="reverse-pdf">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-pink-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-arrows-up-down"></i>
+                <div class="group flex items-center p-5 bg-white border border-amber-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="delete-page">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-amber-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-trash-can"></i>
                     </div>
                     <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Reverse PDF</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Flip layout order backwards.</p>
+                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Delete Page</h3>
+                        <p class="text-[13px] text-slate-500 leading-snug">Remove page ranges.</p>
+                    </div>
+                </div>
+
+                <div class="group flex items-center p-5 bg-white border border-red-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="image-resizer">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-red-500 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-arrows-up-down-left-right"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Image Resizer</h3>
+                        <p class="text-[13px] text-slate-500 leading-snug">Advanced resizing offline.</p>
+                    </div>
+                </div>
+
+                <div class="group flex items-center p-5 bg-white border border-purple-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="rotate-pages">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-purple-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-arrow-rotate-right"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Rotate Pages</h3>
+                        <p class="text-[13px] text-slate-500 leading-snug">Rotate specific pages.</p>
+                    </div>
+                </div>
+
+                <div class="group flex items-center p-5 bg-white border border-emerald-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="split-zip">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-emerald-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-code-branch"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Split to ZIP</h3>
+                        <p class="text-[13px] text-slate-500 leading-snug">Extract specific ranges to ZIP.</p>
                     </div>
                 </div>
 
@@ -233,13 +232,13 @@
                     </div>
                 </div>
 
-                <div class="group flex items-center p-5 bg-white border border-blue-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="image-to-pdf">
-                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-blue-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        <i class="fa-solid fa-file-image"></i>
+                <div class="group flex items-center p-5 bg-white border border-pink-300 rounded-2xl cursor-pointer shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all duration-300" data-tool="reverse-pdf">
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-[14px] bg-pink-600 text-white text-2xl mr-4 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-arrows-up-down"></i>
                     </div>
                     <div class="flex flex-col">
-                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Image to PDF</h3>
-                        <p class="text-[13px] text-slate-500 leading-snug">Advanced document creation.</p>
+                        <h3 class="text-[17px] font-bold text-slate-800 mb-0.5">Reverse PDF</h3>
+                        <p class="text-[13px] text-slate-500 leading-snug">Flip layout order backwards.</p>
                     </div>
                 </div>
                 
@@ -315,7 +314,6 @@
                 <h3 class="font-bold text-slate-800 mb-3 text-sm">Connect</h3>
                 <ul class="space-y-2">
                     <li><a href="contact.html" class="hover:text-blue-600 transition">Contact Support</a></li>
-                    <li><a href="contact.html" class="hover:text-blue-600 transition">Provide Feedback</a></li>
                 </ul>
             </div>
         </div>
