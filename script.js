@@ -662,39 +662,32 @@ const ToolsConfig = {
     reorder: { name: "Reverse PDF", desc: "Flip layout order backwards.", icon: "fa-arrow-down-up-across-line", color: "pink-600", render: (t) => AppUI.renderFileInput(t) + `<input type="text" id="pg-input" placeholder="Pages to reverse (e.g. 1-3) or blank for all" class="w-full mt-4 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-pink-500/50 outline-none transition-shadow">` }
 };
 
-const grid = document.getElementById('tools-grid');
-Object.keys(ToolsConfig).forEach(key => {
-    const tool = ToolsConfig[key];
-    const cBase = tool.color.split('-')[0];
-    const card = document.createElement('a');
-    card.href = `#tool-${key}`;
-    
-    // New modern SaaS style classes
-    card.className = `group relative bg-white rounded-[20px] p-6 md:p-8 border border-slate-200/70 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-slate-300 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full hover:-translate-y-1.5`;
-    
-    card.onclick = (e) => { e.preventDefault(); activateWorkspace(key); history.pushState(null, null, `#tool-${key}`); };
-    
-    card.innerHTML = `
-        <div class="absolute top-0 left-0 w-1.5 h-full bg-${tool.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div class="absolute inset-0 bg-gradient-to-br from-${cBase}-50/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-        
-        <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-start justify-between mb-6">
-                <div class="w-14 h-14 bg-${cBase}-50/80 text-${tool.color} rounded-[16px] flex items-center justify-center text-2xl shadow-sm border border-${cBase}-100 group-hover:scale-110 group-hover:shadow-md transition-all duration-300 flex-shrink-0">
-                    <i class="fa-solid ${tool.icon}"></i>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-${tool.color} group-hover:text-white transition-colors duration-300 flex-shrink-0">
-                    <i class="fa-solid fa-arrow-right -rotate-45 group-hover:rotate-0 transition-transform duration-300 text-sm"></i>
-                </div>
-            </div>
-            <div class="text-left mt-auto">
-                <h3 class="font-bold text-slate-800 text-lg tracking-tight group-hover:text-${tool.color} transition-colors duration-300 mb-1.5">${tool.name}</h3>
-                <p class="text-slate-500 text-sm leading-relaxed">${tool.desc}</p>
-            </div>
-        </div>
-    `;
-    grid.appendChild(card);
+// --- یہاں سے تبدیلیاں کی گئی ہیں ---
+const toolMapping = {
+    'image-resizer': 'resizer',
+    'merge-pdf': 'merge',
+    'split-zip': 'split',
+    'rotate-pages': 'rotate',
+    'delete-page': 'del',
+    'extract-pages': 'extract',
+    'reverse-pdf': 'reorder',
+    'watermark': 'watermark',
+    'page-numbers': 'numbers',
+    'image-to-pdf': 'imgToPdf'
+};
+
+document.querySelectorAll('#tools-grid [data-tool]').forEach(card => {
+    card.addEventListener('click', (e) => {
+        e.preventDefault();
+        const dataTool = card.getAttribute('data-tool');
+        const toolKey = toolMapping[dataTool];
+        if (toolKey) {
+            activateWorkspace(toolKey);
+            history.pushState(null, null, `#tool-${toolKey}`);
+        }
+    });
 });
+// --- تبدیلیوں کا اختتام ---
 
 window.closeTool = function() {
     const panel = document.getElementById('hero-tool-panel');
