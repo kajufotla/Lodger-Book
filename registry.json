@@ -502,3 +502,21 @@
     "status": "active",
     "icon": "fa-layer-group",
     "color": "emerald-600",
+    "moduleType": "legacy",
+    "fileReference": "fileMerger.js",
+    "isPremium": false
+  },
+  {
+    "id": "document-cleaner",
+    "name": "Document Cleaner",
+    "desc": "Remove extra spaces, line breaks, and unreadable characters from documents.",
+    "category": "utility",
+    "priority": 41,
+    "status": "active",
+    "icon": "fa-broom",
+    "color": "stone-500",
+    "moduleType": "legacy",
+    "fileReference": "documentCleaner.js",
+    "isPremium": false
+  }
+]
