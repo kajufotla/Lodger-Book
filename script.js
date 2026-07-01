@@ -112,6 +112,7 @@ class ToolManager {
 class AppUI {
     static showToast(msg, type = 'success') {
         const t = document.getElementById('toast');
+        if(!t) return;
         const isError = type === 'error';
         t.innerHTML = isError 
             ? `<i class="fa-solid fa-circle-exclamation text-sm"></i> <span>${msg}</span>` 
@@ -164,11 +165,11 @@ class AppUI {
         const preview = document.getElementById('preview-container');
         
         if (!window.activeFiles.length) { 
-            list.classList.add('hidden'); 
+            if(list) list.classList.add('hidden'); 
             if(preview) preview.classList.add('hidden');
             return; 
         }
-        list.classList.remove('hidden');
+        if(list) list.classList.remove('hidden');
         
         const fragment = document.createDocumentFragment();
         window.activeFiles.forEach((f, i) => {
@@ -191,8 +192,10 @@ class AppUI {
             fragment.appendChild(div);
         });
         
-        list.innerHTML = '';
-        list.appendChild(fragment);
+        if(list) {
+            list.innerHTML = '';
+            list.appendChild(fragment);
+        }
 
         const currentTool = window.ToolsRegistry[window.currentToolId];
         const requiresPreview = currentTool && currentTool.requiresPreview;
@@ -384,33 +387,57 @@ class PDFEngine {
 
 window.PDFEngine = PDFEngine;
 
+// --- CENTRALIZED TOOL LAUNCHER ---
+window.openTool = async function(id, element = null) {
+    if(element) element.style.opacity = '0.7';
+    try {
+        await ToolManager.loadTool(id);
+        if(element) element.style.opacity = '1';
+        window.activateWorkspace(id);
+        history.pushState(null, null, `#tool-${id}`);
+    } catch (error) {
+        console.error(error);
+        if(element) element.style.opacity = '1';
+        AppUI.showToast(error.message, 'error');
+    }
+};
+
 // --- DYNAMIC HUB INITIALIZATION ---
 class HubManager {
     static async initialize() {
         try {
-            // Fetch offline registry to discover tools
+            // 1. سب سے پہلے ایچ ٹی ایم ایل میں موجود سلاٹس کو کلک ایونٹ دیں
+            document.querySelectorAll('[data-tool]').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = card.getAttribute('data-tool');
+                    window.openTool(id, card);
+                });
+            });
+
+            // 2. اس کے بعد رجسٹری فائل سے ڈیٹا چیک کریں (اور پرانے سلاٹس ڈیلیٹ نہ کریں)
             const res = await fetch('./tools/registry.json');
-            if (!res.ok) throw new Error('Could not find tools/registry.json index.');
-            const toolIds = await res.json();
+            if (res.ok) {
+                const toolIds = await res.json();
+                const grid = document.getElementById('tools-grid');
+                if (!grid) return;
+                
+                for (const id of toolIds) {
+                    // اگر یہ ٹول پہلے سے ایچ ٹی ایم ایل میں موجود نہیں ہے، تو اسے ڈائنامک بناؤ
+                    if (!document.querySelector(`[data-tool="${id}"]`)) {
+                        try {
+                            const manifestRes = await fetch(`./tools/${id}/manifest.json`);
+                            if (!manifestRes.ok) continue; 
+                            const manifest = await manifestRes.json();
+                            
+                            window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
+                            Object.assign(window.ToolsRegistry[id], manifest);
 
-            const grid = document.getElementById('tools-grid');
-            if (!grid) return;
-            
-            grid.innerHTML = ''; // Clear hardcoded HTML
-
-            // Load tool metadata and build UI dynamically
-            for (const id of toolIds) {
-                try {
-                    const manifestRes = await fetch(`./tools/${id}/manifest.json`);
-                    if (!manifestRes.ok) continue; 
-                    const manifest = await manifestRes.json();
-                    
-                    window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
-                    Object.assign(window.ToolsRegistry[id], manifest);
-
-                    this.buildCard(grid, id, manifest);
-                } catch(e) {
-                    console.error(`Failed to load manifest for ${id}`, e);
+                            this.buildCard(grid, id, manifest);
+                        } catch(e) {
+                            console.error(`Failed to load manifest for ${id}`, e);
+                        }
+                    }
                 }
             }
         } catch (error) {
@@ -437,19 +464,9 @@ class HubManager {
             </div>
         `;
 
-        card.addEventListener('click', async (e) => {
+        card.addEventListener('click', (e) => {
             e.preventDefault();
-            try {
-                card.style.opacity = '0.7'; 
-                await ToolManager.loadTool(id);
-                card.style.opacity = '1';
-                activateWorkspace(id);
-                history.pushState(null, null, `#tool-${id}`);
-            } catch (error) {
-                console.error(error);
-                card.style.opacity = '1';
-                AppUI.showToast(error.message, 'error');
-            }
+            window.openTool(id, card);
         });
 
         grid.appendChild(card);
@@ -471,24 +488,26 @@ window.closeTool = function() {
     }
 
     const panel = document.getElementById('hero-tool-panel');
-    panel.classList.add('opacity-0');
+    if(panel) panel.classList.add('opacity-0');
     
     setTimeout(() => {
-        panel.classList.add('hidden');
-        panel.classList.remove('flex');
+        if(panel) {
+            panel.classList.add('hidden');
+            panel.classList.remove('flex');
+        }
         
-        document.getElementById('main-header').classList.remove('hidden');
-        document.getElementById('our-tools').classList.remove('hidden');
-        document.getElementById('about').classList.remove('hidden');
-        document.getElementById('faq-section').classList.remove('hidden');
+        document.getElementById('main-header')?.classList.remove('hidden');
+        document.getElementById('our-tools')?.classList.remove('hidden');
+        document.getElementById('about')?.classList.remove('hidden');
+        document.getElementById('faq-section')?.classList.remove('hidden');
         
         AppUI.cleanupWorkspace();
 
         setTimeout(() => {
-            document.getElementById('main-header').classList.remove('opacity-0');
-            document.getElementById('our-tools').classList.remove('opacity-0');
-            document.getElementById('about').classList.remove('opacity-0');
-            document.getElementById('faq-section').classList.remove('opacity-0');
+            document.getElementById('main-header')?.classList.remove('opacity-0');
+            document.getElementById('our-tools')?.classList.remove('opacity-0');
+            document.getElementById('about')?.classList.remove('opacity-0');
+            document.getElementById('faq-section')?.classList.remove('opacity-0');
         }, 10);
         
         history.pushState(null, null, 'index.html');
@@ -497,31 +516,42 @@ window.closeTool = function() {
 };
 
 window.activateWorkspace = function(id) {
-    document.getElementById('main-header').classList.add('opacity-0');
-    document.getElementById('our-tools').classList.add('opacity-0');
-    document.getElementById('about').classList.add('opacity-0');
-    document.getElementById('faq-section').classList.add('opacity-0');
+    const tool = window.ToolsRegistry[id];
+    
+    // اگر ٹول کا ڈیٹا لوڈ نہیں ہوا تو یہیں روک دو تاکہ کریش نہ ہو
+    if (!tool) {
+        AppUI.showToast(`Tool details for '${id}' could not be loaded.`, 'error');
+        return;
+    }
+
+    document.getElementById('main-header')?.classList.add('opacity-0');
+    document.getElementById('our-tools')?.classList.add('opacity-0');
+    document.getElementById('about')?.classList.add('opacity-0');
+    document.getElementById('faq-section')?.classList.add('opacity-0');
     
     setTimeout(() => {
-        document.getElementById('main-header').classList.add('hidden');
-        document.getElementById('our-tools').classList.add('hidden');
-        document.getElementById('about').classList.add('hidden');
-        document.getElementById('faq-section').classList.add('hidden');
+        document.getElementById('main-header')?.classList.add('hidden');
+        document.getElementById('our-tools')?.classList.add('hidden');
+        document.getElementById('about')?.classList.add('hidden');
+        document.getElementById('faq-section')?.classList.add('hidden');
         
         const panel = document.getElementById('hero-tool-panel');
-        panel.classList.remove('hidden');
-        panel.classList.add('flex');
-        
-        setTimeout(() => panel.classList.remove('opacity-0'), 20);
+        if(panel) {
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+            setTimeout(() => panel.classList.remove('opacity-0'), 20);
+        }
         
         const box = document.getElementById('tool-workspace-box');
         const canvas = document.getElementById('canvas-content');
-        const tool = window.ToolsRegistry[id];
         
         window.activeFiles = []; 
         window.currentToolId = id;
-        box.style.opacity = '0';
-        box.style.transform = 'translateY(15px)';
+        
+        if(box) {
+            box.style.opacity = '0';
+            box.style.transform = 'translateY(15px)';
+        }
         
         setTimeout(() => {
             const tColor = tool.color || 'blue-500';
@@ -546,29 +576,31 @@ window.activateWorkspace = function(id) {
                 toolUI = AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
             }
 
-            canvas.className = "text-left flex flex-col";
-            canvas.innerHTML = `
-                <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
-                    <div class="w-16 h-16 bg-${cBase}-50 text-${tColor} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
-                        <i class="fa-solid ${tIcon}"></i>
+            if(canvas) {
+                canvas.className = "text-left flex flex-col";
+                canvas.innerHTML = `
+                    <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
+                        <div class="w-16 h-16 bg-${cBase}-50 text-${tColor} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
+                            <i class="fa-solid ${tIcon}"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tName}</h2>
+                            <p class="text-sm md:text-base text-slate-500">${tDesc}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tName}</h2>
-                        <p class="text-sm md:text-base text-slate-500">${tDesc}</p>
+                    
+                    <div class="space-y-6 flex-grow">
+                        ${toolUI}
                     </div>
-                </div>
-                
-                <div class="space-y-6 flex-grow">
-                    ${toolUI}
-                </div>
-                
-                <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
-                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tColor} hover:bg-${tColor.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
-                        <span>Execute ${tName}</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            `;
+                    
+                    <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
+                        <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tColor} hover:bg-${tColor.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
+                            <span>Execute ${tName}</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                `;
+            }
             
             const dropZone = document.getElementById('drop-zone');
             if(dropZone) {
@@ -593,8 +625,10 @@ window.activateWorkspace = function(id) {
             }
 
             window.requestAnimationFrame(() => {
-                box.style.opacity = '1'; 
-                box.style.transform = 'translateY(0)';
+                if(box) {
+                    box.style.opacity = '1'; 
+                    box.style.transform = 'translateY(0)';
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }, 100);
