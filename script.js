@@ -9,6 +9,7 @@ const { PDFDocument, rgb, degrees } = window.PDFLibOptions;
 // --- Global Application State ---
 window.activeFiles = [];
 window.currentToolId = null;
+window.ActiveRegistry = []; // Source of truth for authorized tools
 
 // --- DYNAMIC REGISTRY & LOADER ARCHITECTURE ---
 window.ToolsRegistry = {};
@@ -16,6 +17,11 @@ window.ToolLoadPromises = {};
 
 class ToolManager {
     static async loadTool(toolId) {
+        // Security Gate: Reject requests for tools not in the active registry
+        if (window.ActiveRegistry.length > 0 && !window.ActiveRegistry.includes(toolId)) {
+            throw new Error(`Access Denied: Tool '${toolId}' is inactive or not configured.`);
+        }
+
         if (window.ToolsRegistry[toolId] && window.ToolsRegistry[toolId].isLoaded) {
             return window.ToolsRegistry[toolId];
         }
@@ -406,42 +412,57 @@ window.openTool = async function(id, element = null) {
 class HubManager {
     static async initialize() {
         try {
-            // 1. سب سے پہلے ایچ ٹی ایم ایل میں موجود سلاٹس کو کلک ایونٹ دیں
+            // 1. Fetch registry first to establish the source of truth
+            const res = await fetch('./tools/registry.json');
+            if (!res.ok) throw new Error("Registry configuration could not be loaded.");
+            const activeToolIds = await res.json();
+            
+            // Populate global registry state for security gatekeeping
+            window.ActiveRegistry = activeToolIds;
+
+            const grid = document.getElementById('tools-grid');
+            if (!grid) return;
+
+            // 2. Cache all hardcoded HTML elements and clear the grid
+            const domElementsMap = {};
             document.querySelectorAll('[data-tool]').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const id = card.getAttribute('data-tool');
-                    window.openTool(id, card);
-                });
+                domElementsMap[card.getAttribute('data-tool')] = card;
+                card.remove(); 
             });
 
-            // 2. اس کے بعد رجسٹری فائل سے ڈیٹا چیک کریں (اور پرانے سلاٹس ڈیلیٹ نہ کریں)
-            const res = await fetch('./tools/registry.json');
-            if (res.ok) {
-                const toolIds = await res.json();
-                const grid = document.getElementById('tools-grid');
-                if (!grid) return;
-                
-                for (const id of toolIds) {
-                    // اگر یہ ٹول پہلے سے ایچ ٹی ایم ایل میں موجود نہیں ہے، تو اسے ڈائنامک بناؤ
-                    if (!document.querySelector(`[data-tool="${id}"]`)) {
-                        try {
-                            const manifestRes = await fetch(`./tools/${id}/manifest.json`);
-                            if (!manifestRes.ok) continue; 
-                            const manifest = await manifestRes.json();
-                            
-                            window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
-                            Object.assign(window.ToolsRegistry[id], manifest);
+            // 3. Rebuild the DOM strictly based on the registry, preserving the registry array's exact order
+            for (const id of activeToolIds) {
+                if (domElementsMap[id]) {
+                    // Tool exists in HTML: restore it, clean hidden classes, and attach safe event listener
+                    const card = domElementsMap[id];
+                    card.classList.remove('hidden');
+                    
+                    const safeCard = card.cloneNode(true);
+                    safeCard.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.openTool(id, safeCard);
+                    });
+                    
+                    grid.appendChild(safeCard);
+                } else {
+                    // Tool active in registry but missing in HTML: Fetch manifest & build dynamically
+                    try {
+                        const manifestRes = await fetch(`./tools/${id}/manifest.json`);
+                        if (!manifestRes.ok) continue; 
+                        const manifest = await manifestRes.json();
+                        
+                        window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
+                        Object.assign(window.ToolsRegistry[id], manifest);
 
-                            this.buildCard(grid, id, manifest);
-                        } catch(e) {
-                            console.error(`Failed to load manifest for ${id}`, e);
-                        }
+                        this.buildCard(grid, id, manifest);
+                    } catch(e) {
+                        console.error(`[HubManager] Failed to construct dynamic tool ${id}`, e);
                     }
                 }
             }
         } catch (error) {
             console.error('Hub Initialization Error:', error);
+            AppUI.showToast("Failed to sync system configuration.", "error");
         }
     }
 
@@ -518,7 +539,6 @@ window.closeTool = function() {
 window.activateWorkspace = function(id) {
     const tool = window.ToolsRegistry[id];
     
-    // اگر ٹول کا ڈیٹا لوڈ نہیں ہوا تو یہیں روک دو تاکہ کریش نہ ہو
     if (!tool) {
         AppUI.showToast(`Tool details for '${id}' could not be loaded.`, 'error');
         return;
