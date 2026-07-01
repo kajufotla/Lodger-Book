@@ -388,13 +388,13 @@ window.PDFEngine = PDFEngine;
 class HubManager {
     static async initialize() {
         try {
+            const grid = document.getElementById('tools-grid');
+            if (!grid) return;
+
             // Fetch offline registry to discover tools
             const res = await fetch('./tools/registry.json');
             if (!res.ok) throw new Error('Could not find tools/registry.json index.');
             const toolIds = await res.json();
-
-            const grid = document.getElementById('tools-grid');
-            if (!grid) return;
             
             grid.innerHTML = ''; // Clear hardcoded HTML
 
@@ -414,7 +414,28 @@ class HubManager {
                 }
             }
         } catch (error) {
-            console.error('Hub Initialization Error:', error);
+            console.error('Hub Initialization Error (Using Fallback for Existing HTML Cards):', error);
+            
+            // FIX: If registry.json fails or tools are hardcoded in HTML, attach click events directly
+            const existingCards = document.querySelectorAll('#tools-grid [data-tool]');
+            existingCards.forEach(card => {
+                const id = card.getAttribute('data-tool');
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    try {
+                        card.style.opacity = '0.7'; 
+                        await ToolManager.loadTool(id);
+                        card.style.opacity = '1';
+                        activateWorkspace(id);
+                        history.pushState(null, null, `#tool-${id}`);
+                    } catch (error) {
+                        console.error(error);
+                        card.style.opacity = '1';
+                        AppUI.showToast(error.message, 'error');
+                    }
+                });
+            });
         }
     }
 
@@ -589,14 +610,4 @@ window.activateWorkspace = function(id) {
             }
 
             if (typeof tool.init === 'function') {
-                try { tool.init(); } catch (initError) { console.error(`[Init Error in ${id}]`, initError); }
-            }
-
-            window.requestAnimationFrame(() => {
-                box.style.opacity = '1'; 
-                box.style.transform = 'translateY(0)';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }, 100);
-    }, 300);
-}
+                try { tool.init(); } catch
