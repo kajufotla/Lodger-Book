@@ -1,4 +1,4 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+PdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const { PDFDocument, rgb, degrees } = PDFLib;
 
@@ -549,120 +549,6 @@ class PDFEngine {
     }
 }
 
-const ToolsConfig = {
-    merge: { name: "Merge PDF", desc: "Combine & reorder PDFs.", icon: "fa-copy", color: "blue-600", render: (t) => AppUI.renderFileInput(t, true) },
-    split: { name: "Split PDF", desc: "Extract to ZIP by ranges or intervals.", icon: "fa-scissors", color: "emerald-600", render: (t) => AppUI.renderFileInput(t) + `
-        <div class="grid grid-cols-2 gap-3 mt-4">
-            <select id="split-mode" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500/50 outline-none bg-white transition-shadow">
-                <option value="range">Specific Ranges</option>
-                <option value="every">Split Every Page</option>
-                <option value="n-pages">Split Every N Pages</option>
-            </select>
-            <input type="text" id="pg-input" placeholder="Range (e.g. 1-3) or N value" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500/50 outline-none transition-shadow">
-        </div>` },
-    imgToPdf: { name: "Image to PDF", desc: "Advanced document creation.", icon: "fa-images", color: "blue-700", render: (t) => AppUI.renderFileInput(t, true, "image/*") + `
-        <div class="grid grid-cols-2 gap-3 mt-4">
-            <select id="page-size" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-blue-500/50 transition-shadow">
-                <option value="595.28,841.89">A4</option><option value="612,792">US Letter</option>
-            </select>
-            <select id="orientation" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-blue-500/50 transition-shadow">
-                <option value="portrait">Portrait</option><option value="landscape">Landscape</option>
-            </select>
-            <select id="img-fit" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-blue-500/50 transition-shadow">
-                <option value="fit">Fit (Preserve Ratio)</option><option value="fill">Fill (Crop to Fit)</option><option value="stretch">Stretch</option>
-            </select>
-            <input type="number" id="margin" placeholder="Margin (px)" value="20" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 transition-shadow">
-        </div>` },
-    resizer: { name: "Image Resizer", desc: "Advanced resizing offline.", icon: "fa-compress", color: "red-500", render: (t) => `
-        <div class="space-y-3">
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Source Image</label>
-            <div id="drop-zone" class="relative w-full border-2 border-dashed border-red-300 rounded-2xl p-6 bg-red-50/50 transition-colors text-center hover:bg-red-100/60">
-                <input type="file" id="active-file-input" accept="image/jpeg, image/png, image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="AppUI.loadImgDims(this)">
-                <div class="pointer-events-none space-y-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-red-500 mb-1"></i>
-                    <p class="text-sm font-semibold text-slate-600">Drag & drop or click</p>
-                </div>
-            </div>
-            <div id="file-list" class="space-y-2 hidden"></div>
-            <div id="orig-dims" class="text-xs text-slate-500 mt-1 font-medium"></div>
-        </div>
-        <div class="space-y-4 mt-5">
-            <select id="resize-mode" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/50 outline-none bg-white transition-shadow" onchange="AppUI.toggleResizeMode()">
-                <option value="dim">Resize by Dimensions</option>
-                <option value="pct">Resize by Percentage</option>
-            </select>
-            
-            <div id="dim-inputs" class="space-y-3">
-                <label class="flex items-center space-x-2 text-sm text-slate-600 font-medium"><input type="checkbox" id="lock-ratio" checked class="rounded text-red-500 focus:ring-red-500"> <span>Lock Aspect Ratio</span></label>
-                <div class="flex gap-3">
-                    <input type="number" id="img-w" placeholder="Width (px)" oninput="AppUI.syncRatio(true)" class="w-1/2 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/50 outline-none transition">
-                    <input type="number" id="img-h" placeholder="Height (px)" oninput="AppUI.syncRatio(false)" class="w-1/2 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/50 outline-none transition">
-                </div>
-            </div>
-            
-            <div id="pct-inputs" class="hidden space-y-3">
-                <input type="number" id="img-pct" placeholder="Scale Percentage (e.g. 50)" value="50" min="1" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/50 outline-none transition">
-            </div>
-            
-            <div class="flex gap-3">
-                <select id="img-format" class="w-1/2 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/50 outline-none bg-white transition">
-                    <option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option>
-                </select>
-                <input type="number" id="img-quality" placeholder="Quality % (e.g. 90)" value="90" min="10" max="100" class="w-1/2 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/50 outline-none transition">
-            </div>
-        </div>` },
-    rotate: { name: "Rotate Pages", desc: "Rotate specific pages.", icon: "fa-rotate-right", color: "purple-600", render: (t) => AppUI.renderFileInput(t) + `
-        <div class="flex gap-3 mt-4">
-            <select id="rot-dir" class="w-1/2 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-purple-500/50 outline-none bg-white transition-shadow">
-                <option value="90">Right (90°)</option><option value="-90">Left (-90°)</option><option value="180">Flip (180°)</option>
-            </select>
-            <input type="text" id="pg-input" placeholder="Pages (e.g. 1-3, 5)" class="w-1/2 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-purple-500/50 outline-none transition-shadow">
-        </div>` },
-    del: { name: "Delete Page", desc: "Remove page ranges.", icon: "fa-trash", color: "amber-500", render: (t) => AppUI.renderFileInput(t) + `<input type="text" id="pg-input" placeholder="Pages to delete (e.g. 1, 3-5)" class="w-full mt-4 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-amber-500/50 outline-none transition-shadow">` },
-    watermark: { name: "Watermark", desc: "Advanced image or text stamping.", icon: "fa-stamp", color: "cyan-500", render: (t) => AppUI.renderFileInput(t) + `
-        <div class="grid grid-cols-2 gap-3 mt-4 mb-3">
-            <select id="wm-type" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-cyan-500/50 transition-shadow" onchange="AppUI.toggleWatermarkMode()">
-                <option value="text">Text Watermark</option>
-                <option value="image">Image Watermark</option>
-            </select>
-            <input type="text" id="pg-input" placeholder="Pages (e.g. 1-3) or all" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-        </div>
-        
-        <div id="wm-text-opts" class="space-y-3">
-            <input type="text" id="txt-input" placeholder="Watermark Text" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-            <div class="grid grid-cols-2 gap-3">
-                <input type="color" id="wm-color" value="#cccccc" class="w-full h-12 rounded-xl cursor-pointer">
-                <input type="number" id="wm-opacity" placeholder="Opacity (0.1 - 1)" value="0.3" step="0.1" max="1" min="0.1" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-                <input type="number" id="wm-size" placeholder="Font Size" value="48" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-                <select id="wm-pos" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-                    <option value="center">Center Diagonal</option><option value="top">Top</option><option value="bottom">Bottom</option>
-                </select>
-            </div>
-        </div>
-        
-        <div id="wm-img-opts" class="hidden space-y-3">
-            <input type="file" id="wm-img" accept="image/png, image/jpeg" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-            <div class="grid grid-cols-2 gap-3">
-                <input type="number" id="wm-img-scale" placeholder="Scale (e.g. 0.5)" value="0.5" step="0.1" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-                <input type="number" id="wm-img-opacity" placeholder="Opacity (e.g. 0.5)" value="0.5" step="0.1" max="1" min="0.1" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-cyan-500/50 transition-shadow">
-            </div>
-        </div>` },
-    numbers: { name: "Page Numbers", desc: "Custom sequence injection.", icon: "fa-list-ol", color: "teal-500", render: (t) => AppUI.renderFileInput(t) + `
-        <input type="text" id="pg-input" placeholder="Pages to number (e.g. 1-3) or blank for all" class="w-full mt-4 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-teal-500/50 outline-none transition-shadow">
-        <div class="grid grid-cols-2 gap-3 mt-3">
-            <select id="pg-pos" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none bg-white focus:ring-2 focus:ring-teal-500/50 transition-shadow">
-                <option value="bottom-right">Bottom Right</option><option value="bottom-left">Bottom Left</option><option value="bottom-center">Bottom Center</option>
-                <option value="top-right">Top Right</option><option value="top-left">Top Left</option><option value="top-center">Top Center</option>
-            </select>
-            <input type="color" id="pg-color" value="#000000" class="w-full h-[46px] rounded-xl cursor-pointer mt-1">
-            <input type="number" id="pg-start" placeholder="Start Number" value="1" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 transition-shadow">
-            <input type="number" id="pg-size" placeholder="Font Size" value="12" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 transition-shadow">
-        </div>` },
-    extract: { name: "Extract Pages", desc: "Isolate specific ranges.", icon: "fa-file-export", color: "orange-500", render: (t) => AppUI.renderFileInput(t) + `<input type="text" id="pg-input" placeholder="Pages to extract (e.g. 2-6)" class="w-full mt-4 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-orange-500/50 outline-none transition-shadow">` },
-    reorder: { name: "Reverse PDF", desc: "Flip layout order backwards.", icon: "fa-arrow-down-up-across-line", color: "pink-600", render: (t) => AppUI.renderFileInput(t) + `<input type="text" id="pg-input" placeholder="Pages to reverse (e.g. 1-3) or blank for all" class="w-full mt-4 px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-pink-500/50 outline-none transition-shadow">` }
-};
-
-// --- یہاں سے تبدیلیاں کی گئی ہیں ---
 const toolMapping = {
     'image-resizer': 'resizer',
     'merge-pdf': 'merge',
@@ -687,7 +573,6 @@ document.querySelectorAll('#tools-grid [data-tool]').forEach(card => {
         }
     });
 });
-// --- تبدیلیوں کا اختتام ---
 
 window.closeTool = function() {
     const panel = document.getElementById('hero-tool-panel');
@@ -702,7 +587,6 @@ window.closeTool = function() {
         document.getElementById('about').classList.remove('hidden');
         document.getElementById('faq-section').classList.remove('hidden');
         
-        // Small delay to allow display block to apply before fading in
         setTimeout(() => {
             document.getElementById('main-header').classList.remove('opacity-0');
             document.getElementById('our-tools').classList.remove('opacity-0');
@@ -715,88 +599,94 @@ window.closeTool = function() {
     }, 300);
 };
 
-window.activateWorkspace = function(id) {
-    // Fade out Home sections
+// --- نیا ڈائنامک آٹو پائلٹ فنکشن ---
+window.activateWorkspace = async function(id) {
     document.getElementById('main-header').classList.add('opacity-0');
     document.getElementById('our-tools').classList.add('opacity-0');
     document.getElementById('about').classList.add('opacity-0');
     document.getElementById('faq-section').classList.add('opacity-0');
     
-    setTimeout(() => {
-        // Hide Home sections
+    setTimeout(async () => {
         document.getElementById('main-header').classList.add('hidden');
         document.getElementById('our-tools').classList.add('hidden');
         document.getElementById('about').classList.add('hidden');
         document.getElementById('faq-section').classList.add('hidden');
         
-        // Show Hero Panel
         const panel = document.getElementById('hero-tool-panel');
         panel.classList.remove('hidden');
         panel.classList.add('flex');
         
-        // Fade in
         setTimeout(() => panel.classList.remove('opacity-0'), 20);
         
         const box = document.getElementById('tool-workspace-box');
         const canvas = document.getElementById('canvas-content');
-        const tool = ToolsConfig[id];
         
         activeFiles = []; 
         currentToolId = id;
         
         box.style.opacity = '0';
         box.style.transform = 'translateY(15px)';
-        
-        setTimeout(() => {
-            const cBase = tool.color.split('-')[0];
-            canvas.className = "text-left flex flex-col";
-            canvas.innerHTML = `
-                <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
-                    <div class="w-16 h-16 bg-${cBase}-50 text-${tool.color} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
-                        <i class="fa-solid ${tool.icon}"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tool.name}</h2>
-                        <p class="text-sm md:text-base text-slate-500">${tool.desc}</p>
-                    </div>
-                </div>
-                
-                <div class="space-y-6 flex-grow">
-                    ${tool.render(tool)}
-                </div>
-                
-                <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
-                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tool.color} hover:bg-${tool.color.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
-                        <span>Execute ${tool.name}</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            `;
-            
-            const dropZone = document.getElementById('drop-zone');
-            if(dropZone) {
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, preventDefaults, false);
-                });
-                function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
-                });
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
-                });
-                dropZone.addEventListener('drop', (e) => {
-                    const dt = e.dataTransfer;
-                    const isMultiple = id === 'merge' || id === 'imgToPdf';
-                    AppUI.handleFileSelect({target: {files: dt.files}}, isMultiple, tool.color);
-                }, false);
-            }
 
-            window.requestAnimationFrame(() => {
-                box.style.opacity = '1'; 
-                box.style.transform = 'translateY(0)';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }, 100);
+        try {
+            const manifestRes = await fetch('tools/manifest.json');
+            if (!manifestRes.ok) throw new Error('Failed to load manifest.json');
+            const manifest = await manifestRes.json();
+            
+            const tool = manifest[id];
+            if (!tool) throw new Error(`Tool details for '${id}' not found in manifest.`);
+
+            const htmlRes = await fetch(`tools/${id}/index.html`);
+            if (!htmlRes.ok) throw new Error(`Failed to load index.html for '${id}'`);
+            const htmlContent = await htmlRes.text();
+
+            setTimeout(() => {
+                canvas.className = "text-left flex flex-col";
+                canvas.innerHTML = htmlContent;
+                
+                const scriptId = 'dynamic-tool-script';
+                const existingScript = document.getElementById(scriptId);
+                if (existingScript) existingScript.remove(); 
+                
+                const script = document.createElement('script');
+                script.id = scriptId;
+                script.src = `tools/${id}/script.js`;
+                document.body.appendChild(script);
+                
+                const dropZone = document.getElementById('drop-zone');
+                if(dropZone) {
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, preventDefaults, false);
+                    });
+                    function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+                    
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+                    });
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+                    });
+                    
+                    dropZone.addEventListener('drop', (e) => {
+                        const dt = e.dataTransfer;
+                        const isMultiple = id === 'merge' || id === 'imgToPdf';
+                        const color = tool.color || 'blue-600'; 
+                        AppUI.handleFileSelect({target: {files: dt.files}}, isMultiple, color);
+                    }, false);
+                }
+
+                window.requestAnimationFrame(() => {
+                    box.style.opacity = '1'; 
+                    box.style.transform = 'translateY(0)';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }, 100);
+
+        } catch (error) {
+            console.error("Autopilot Loading Error:", error);
+            AppUI.showToast("Failed to load tool module.", "error");
+            
+            box.style.opacity = '1'; 
+            box.style.transform = 'translateY(0)';
+        }
     }, 300);
-}
+};
