@@ -1,10 +1,5 @@
 {
+  "id": "compress-pdf",
   "name": "Compress PDF",
-  "desc": "Reduce file size while optimizing for maximal PDF quality.",
-  "icon": "fa-compress",
-  "color": "green-500",
-  "multipleFiles": false,
-  "accept": ".pdf",
-  "requiresPreview": true,
-  "requiredFrameworkVersion": "1.0.0"
+  "version": "1.0.0"
 }
