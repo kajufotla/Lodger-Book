@@ -20,6 +20,13 @@ class ToolManager {
             return window.ToolsRegistry[toolId];
         }
 
+        // --- FUTURE PROOF BYPASS FOR LEGACY SINGLE-FILE TOOLS ---
+        if (window.ToolsRegistry[toolId] && window.ToolsRegistry[toolId].moduleType === 'legacy') {
+            console.log(`[ToolManager] Routing legacy module directly bypassing sandbox: ${toolId}`);
+            window.ToolsRegistry[toolId].isLoaded = true;
+            return window.ToolsRegistry[toolId];
+        }
+
         if (window.ToolLoadPromises[toolId]) {
             return window.ToolLoadPromises[toolId];
         }
@@ -402,18 +409,29 @@ class HubManager {
             for (const toolObj of toolsData) {
                 const id = toolObj.id;
                 try {
-                    const manifestRes = await fetch(`./tools/${id}/manifest.json`);
-                    let manifest = toolObj; // Fallback to registry info if manifest is missing
+                    window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
                     
-                    if (manifestRes.ok) {
-                        const fileManifest = await manifestRes.json();
-                        manifest = Object.assign({}, toolObj, fileManifest);
+                    // Injecting registry attributes into state memory early for legacy identification
+                    Object.assign(window.ToolsRegistry[id], toolObj);
+
+                    let manifest = toolObj; 
+                    
+                    // Only attempt sandbox manifest extraction if it is not a legacy module
+                    if (toolObj.moduleType !== 'legacy') {
+                        try {
+                            const manifestRes = await fetch(`./tools/${id}/manifest.json`);
+                            if (manifestRes.ok) {
+                                const fileManifest = await manifestRes.json();
+                                manifest = Object.assign({}, toolObj, fileManifest);
+                            }
+                        } catch(manifestErr) {
+                            console.warn(`Sandbox manifest fetch omitted or failed for: ${id}`);
+                        }
                     }
                     
-                    window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
                     Object.assign(window.ToolsRegistry[id], manifest);
-
                     this.buildCard(grid, id, manifest);
+
                 } catch(e) {
                     console.error(`Failed to load manifest for ${id}`, e);
                 }
