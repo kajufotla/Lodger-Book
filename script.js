@@ -394,16 +394,21 @@ class HubManager {
             // Fetch offline registry to discover tools
             const res = await fetch('./tools/registry.json');
             if (!res.ok) throw new Error('Could not find tools/registry.json index.');
-            const toolIds = await res.json();
+            const toolsData = await res.json();
             
             grid.innerHTML = ''; // Clear hardcoded HTML
 
             // Load tool metadata and build UI dynamically
-            for (const id of toolIds) {
+            for (const toolObj of toolsData) {
+                const id = toolObj.id;
                 try {
                     const manifestRes = await fetch(`./tools/${id}/manifest.json`);
-                    if (!manifestRes.ok) continue; 
-                    const manifest = await manifestRes.json();
+                    let manifest = toolObj; // Fallback to registry info if manifest is missing
+                    
+                    if (manifestRes.ok) {
+                        const fileManifest = await manifestRes.json();
+                        manifest = Object.assign({}, toolObj, fileManifest);
+                    }
                     
                     window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
                     Object.assign(window.ToolsRegistry[id], manifest);
@@ -452,7 +457,7 @@ class HubManager {
                 <i class="fa-solid ${manifest.icon || 'fa-wrench'}"></i>
             </div>
             <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-${tColor} transition-colors">${manifest.name || 'Utility Tool'}</h3>
-            <p class="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">${manifest.desc || ''}</p>
+            <p class="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">${manifest.desc || manifest.description || ''}</p>
             <div class="mt-auto inline-flex items-center text-sm font-semibold text-${tColor} group-hover:translate-x-1 transition-transform">
                 Open Tool <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
             </div>
@@ -549,7 +554,7 @@ window.activateWorkspace = function(id) {
             const cBase = tColor.split('-')[0];
             const tIcon = tool.icon || 'fa-wrench';
             const tName = tool.name || 'Utility Tool';
-            const tDesc = tool.desc || '';
+            const tDesc = tool.desc || tool.description || '';
             const multipleFiles = tool.multipleFiles !== undefined ? tool.multipleFiles : false;
             const acceptAttr = tool.accept || '*/*';
             
@@ -610,4 +615,14 @@ window.activateWorkspace = function(id) {
             }
 
             if (typeof tool.init === 'function') {
-                try { tool.init(); } catch
+                try { tool.init(); } catch (initError) { console.error(`[Init Error in ${id}]`, initError); }
+            }
+
+            window.requestAnimationFrame(() => {
+                box.style.opacity = '1'; 
+                box.style.transform = 'translateY(0)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }, 100);
+    }, 300);
+}
