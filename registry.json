@@ -1,4 +1,3 @@
-
 /**
  * registry.js
  * Central Tool Registry for Client-Side SaaS Platform
@@ -277,7 +276,7 @@ export const TOOL_REGISTRY = [
     "color": "green-700",
     "moduleType": "client-side",
     "fileReference": "advancedPdfCompressor.js",
-    "isPremium": true
+    "isPremium": false
   },
 
   // IMAGE TOOLS
