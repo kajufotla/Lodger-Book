@@ -1,0 +1,10 @@
+{
+  "name": "PDF Compressor",
+  "slug": "pdf-compressor",
+  "folder": "tools/pdf-compressor/",
+  "entry": "index.html",
+  "script": "script.js",
+  "icon": "fa-compress",
+  "color": "blue",
+  "status": "active"
+}
