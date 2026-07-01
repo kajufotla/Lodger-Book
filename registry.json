@@ -1,14 +1,8 @@
-/**
- * registry.js
- * Central Tool Registry for Client-Side SaaS Platform
- */
-
-export const TOOL_REGISTRY = [
-  // PDF TOOLS
+[
   {
     "id": "merge-pdf",
     "name": "Merge PDF",
-    "description": "Combine multiple PDFs into one unified document quickly and easily.",
+    "desc": "Combine multiple PDFs into one unified document quickly and easily.",
     "category": "pdf",
     "priority": 1,
     "status": "active",
@@ -21,7 +15,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "split-pdf",
     "name": "Split PDF",
-    "description": "Separate one page or a whole set for easy conversion into independent PDF files.",
+    "desc": "Separate one page or a whole set for easy conversion into independent PDF files.",
     "category": "pdf",
     "priority": 2,
     "status": "active",
@@ -34,7 +28,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "compress-pdf",
     "name": "Compress PDF",
-    "description": "Reduce file size while optimizing for maximal PDF quality.",
+    "desc": "Reduce file size while optimizing for maximal PDF quality.",
     "category": "pdf",
     "priority": 3,
     "status": "active",
@@ -47,7 +41,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "pdf-to-word",
     "name": "PDF to Word",
-    "description": "Convert your PDF files to easy to edit DOC and DOCX documents.",
+    "desc": "Convert your PDF files to easy to edit DOC and DOCX documents.",
     "category": "pdf",
     "priority": 4,
     "status": "active",
@@ -60,7 +54,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "image-to-pdf",
     "name": "Image to PDF",
-    "description": "Convert JPG, PNG, and other images to PDF in seconds.",
+    "desc": "Convert JPG, PNG, and other images to PDF in seconds.",
     "category": "pdf",
     "priority": 5,
     "status": "active",
@@ -73,7 +67,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "pdf-to-image",
     "name": "PDF to Image",
-    "description": "Convert each PDF page into a JPG or extract all images contained in a PDF.",
+    "desc": "Convert each PDF page into a JPG or extract all images contained in a PDF.",
     "category": "pdf",
     "priority": 6,
     "status": "active",
@@ -86,7 +80,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "rotate-pages",
     "name": "Rotate Pages",
-    "description": "Rotate your PDFs the way you need them.",
+    "desc": "Rotate your PDFs the way you need them.",
     "category": "pdf",
     "priority": 8,
     "status": "active",
@@ -99,7 +93,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "delete-pages",
     "name": "Delete Pages",
-    "description": "Remove unwanted pages from your PDF file.",
+    "desc": "Remove unwanted pages from your PDF file.",
     "category": "pdf",
     "priority": 9,
     "status": "active",
@@ -112,7 +106,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "extract-pages",
     "name": "Extract Pages",
-    "description": "Get a new document containing only the desired pages.",
+    "desc": "Get a new document containing only the desired pages.",
     "category": "pdf",
     "priority": 10,
     "status": "active",
@@ -125,7 +119,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "reorder-pages",
     "name": "Reorder Pages",
-    "description": "Change the order of your PDF pages by dragging and dropping.",
+    "desc": "Change the order of your PDF pages by dragging and dropping.",
     "category": "pdf",
     "priority": 11,
     "status": "active",
@@ -138,7 +132,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "add-watermark",
     "name": "Add Watermark",
-    "description": "Stamp an image or text over your PDF in seconds.",
+    "desc": "Stamp an image or text over your PDF in seconds.",
     "category": "pdf",
     "priority": 12,
     "status": "active",
@@ -151,7 +145,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "add-page-numbers",
     "name": "Add Page Numbers",
-    "description": "Insert page numbers into PDF with ease.",
+    "desc": "Insert page numbers into PDF with ease.",
     "category": "pdf",
     "priority": 13,
     "status": "active",
@@ -164,7 +158,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "protect-pdf",
     "name": "Protect PDF",
-    "description": "Encrypt your PDF with a password to keep sensitive data safe.",
+    "desc": "Encrypt your PDF with a password to keep sensitive data safe.",
     "category": "pdf",
     "priority": 14,
     "status": "active",
@@ -177,7 +171,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "unlock-pdf",
     "name": "Unlock PDF",
-    "description": "Remove PDF password security, giving you the freedom to use your PDFs.",
+    "desc": "Remove PDF password security, giving you the freedom to use your PDFs.",
     "category": "pdf",
     "priority": 15,
     "status": "active",
@@ -190,7 +184,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "pdf-to-text",
     "name": "PDF to Text",
-    "description": "Extract text from your PDF file into a plain text document.",
+    "desc": "Extract text from your PDF file into a plain text document.",
     "category": "pdf",
     "priority": 16,
     "status": "active",
@@ -203,7 +197,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "text-to-pdf",
     "name": "Text to PDF",
-    "description": "Convert plain text documents into professional PDF format.",
+    "desc": "Convert plain text documents into professional PDF format.",
     "category": "pdf",
     "priority": 17,
     "status": "active",
@@ -216,7 +210,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "split-pdf-to-zip",
     "name": "Split PDF to ZIP",
-    "description": "Split each page of a PDF into individual files and download as a ZIP.",
+    "desc": "Split each page of a PDF into individual files and download as a ZIP.",
     "category": "pdf",
     "priority": 18,
     "status": "active",
@@ -229,7 +223,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "reverse-pdf",
     "name": "Reverse PDF",
-    "description": "Invert the page order of your PDF document in one click.",
+    "desc": "Invert the page order of your PDF document in one click.",
     "category": "pdf",
     "priority": 19,
     "status": "active",
@@ -242,7 +236,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "crop-pdf",
     "name": "Crop PDF",
-    "description": "Trim PDF margins or select a specific area of a page.",
+    "desc": "Trim PDF margins or select a specific area of a page.",
     "category": "pdf",
     "priority": 20,
     "status": "active",
@@ -255,7 +249,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "split-pdf-by-size",
     "name": "Split PDF by Size",
-    "description": "Split PDF files into smaller chunks based on maximum file size.",
+    "desc": "Split PDF files into smaller chunks based on maximum file size.",
     "category": "pdf",
     "priority": 21,
     "status": "active",
@@ -268,7 +262,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "advanced-pdf-compressor",
     "name": "Advanced PDF Compressor",
-    "description": "Fine-tune compression settings for precise control over DPI and quality.",
+    "desc": "Fine-tune compression settings for precise control over DPI and quality.",
     "category": "pdf",
     "priority": 31,
     "status": "active",
@@ -278,12 +272,10 @@ export const TOOL_REGISTRY = [
     "fileReference": "advancedPdfCompressor.js",
     "isPremium": false
   },
-
-  // IMAGE TOOLS
   {
     "id": "image-compressor",
     "name": "Image Compressor",
-    "description": "Compress JPG, PNG, SVG, and GIFs while saving space.",
+    "desc": "Compress JPG, PNG, SVG, and GIFs while saving space.",
     "category": "image",
     "priority": 22,
     "status": "active",
@@ -296,7 +288,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "image-resizer",
     "name": "Image Resizer",
-    "description": "Resize your images by defining percentages or exact pixels.",
+    "desc": "Resize your images by defining percentages or exact pixels.",
     "category": "image",
     "priority": 23,
     "status": "active",
@@ -309,7 +301,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "image-crop-tool",
     "name": "Image Crop Tool",
-    "description": "Crop images with custom aspect ratios or freeform precision.",
+    "desc": "Crop images with custom aspect ratios or freeform precision.",
     "category": "image",
     "priority": 24,
     "status": "active",
@@ -322,7 +314,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "image-format-converter",
     "name": "Image Format Converter",
-    "description": "Convert images between JPG, PNG, WEBP, and other formats.",
+    "desc": "Convert images between JPG, PNG, WEBP, and other formats.",
     "category": "image",
     "priority": 25,
     "status": "active",
@@ -332,12 +324,10 @@ export const TOOL_REGISTRY = [
     "fileReference": "imageFormatConverter.js",
     "isPremium": false
   },
-
-  // UTILITY TOOLS
   {
     "id": "ai-text-summarizer",
     "name": "AI Text Summarizer",
-    "description": "Quickly summarize long documents and texts into key points client-side.",
+    "desc": "Quickly summarize long documents and texts into key points client-side.",
     "category": "utility",
     "priority": 26,
     "status": "active",
@@ -350,7 +340,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "ai-pdf-chat",
     "name": "AI PDF Chat",
-    "description": "Interact with your PDF locally. Ask questions and find answers instantly.",
+    "desc": "Interact with your PDF locally. Ask questions and find answers instantly.",
     "category": "utility",
     "priority": 27,
     "status": "active",
@@ -363,7 +353,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "ocr-text-extractor",
     "name": "OCR Text Extractor",
-    "description": "Extract text from scanned PDFs or images using local Optical Character Recognition.",
+    "desc": "Extract text from scanned PDFs or images using local Optical Character Recognition.",
     "category": "utility",
     "priority": 28,
     "status": "active",
@@ -376,7 +366,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "pdf-search-tool",
     "name": "PDF Search Tool",
-    "description": "Deep search across multiple PDF documents simultaneously.",
+    "desc": "Deep search across multiple PDF documents simultaneously.",
     "category": "utility",
     "priority": 29,
     "status": "active",
@@ -389,7 +379,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "metadata-remover",
     "name": "Metadata Remover",
-    "description": "Sanitize documents by stripping author, location, and other hidden metadata.",
+    "desc": "Sanitize documents by stripping author, location, and other hidden metadata.",
     "category": "utility",
     "priority": 30,
     "status": "active",
@@ -402,7 +392,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "file-size-analyzer",
     "name": "File Size Analyzer",
-    "description": "Analyze PDFs to see what objects (fonts, images) are taking up space.",
+    "desc": "Analyze PDFs to see what objects (fonts, images) are taking up space.",
     "category": "utility",
     "priority": 32,
     "status": "active",
@@ -415,7 +405,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "duplicate-file-finder",
     "name": "Duplicate File Finder",
-    "description": "Scan and remove identical files within your local batch uploads.",
+    "desc": "Scan and remove identical files within your local batch uploads.",
     "category": "utility",
     "priority": 33,
     "status": "active",
@@ -428,7 +418,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "image-to-text-ocr",
     "name": "Image to Text OCR",
-    "description": "Convert images containing text into editable copy.",
+    "desc": "Convert images containing text into editable copy.",
     "category": "utility",
     "priority": 34,
     "status": "active",
@@ -441,7 +431,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "url-to-qr-generator",
     "name": "URL to QR Generator",
-    "description": "Generate high-quality vector QR codes for any URL or text.",
+    "desc": "Generate high-quality vector QR codes for any URL or text.",
     "category": "utility",
     "priority": 35,
     "status": "active",
@@ -454,7 +444,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "word-counter",
     "name": "Word Counter",
-    "description": "Count words, characters, and sentences instantly.",
+    "desc": "Count words, characters, and sentences instantly.",
     "category": "utility",
     "priority": 36,
     "status": "active",
@@ -467,7 +457,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "case-converter",
     "name": "Case Converter",
-    "description": "Transform text to UPPERCASE, lowercase, Title Case, and more.",
+    "desc": "Transform text to UPPERCASE, lowercase, Title Case, and more.",
     "category": "utility",
     "priority": 37,
     "status": "active",
@@ -480,7 +470,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "qr-scanner",
     "name": "QR Scanner",
-    "description": "Scan QR codes directly from your device camera or uploaded image.",
+    "desc": "Scan QR codes directly from your device camera or uploaded image.",
     "category": "utility",
     "priority": 38,
     "status": "active",
@@ -493,7 +483,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "file-renamer",
     "name": "File Renamer",
-    "description": "Batch rename multiple files locally with custom prefixes and suffixes.",
+    "desc": "Batch rename multiple files locally with custom prefixes and suffixes.",
     "category": "utility",
     "priority": 39,
     "status": "active",
@@ -506,7 +496,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "file-merger",
     "name": "File Merger",
-    "description": "Merge text, CSV, or log files together instantly.",
+    "desc": "Merge text, CSV, or log files together instantly.",
     "category": "utility",
     "priority": 40,
     "status": "active",
@@ -519,7 +509,7 @@ export const TOOL_REGISTRY = [
   {
     "id": "document-cleaner",
     "name": "Document Cleaner",
-    "description": "Remove extra spaces, line breaks, and unreadable characters from documents.",
+    "desc": "Remove extra spaces, line breaks, and unreadable characters from documents.",
     "category": "utility",
     "priority": 41,
     "status": "active",
@@ -529,27 +519,4 @@ export const TOOL_REGISTRY = [
     "fileReference": "documentCleaner.js",
     "isPremium": false
   }
-];
-
-/**
- * Returns a specific tool configuration by its unique ID.
- * @param {string} id - The unique slug of the tool.
- * @returns {Object|undefined} The tool configuration object or undefined if not found.
- */
-export const getToolById = (id) => 
-  TOOL_REGISTRY.find(tool => tool.id === id);
-
-/**
- * Returns all tools belonging to a specific category.
- * @param {string} category - The category to filter by (e.g., 'pdf', 'image', 'utility').
- * @returns {Array<Object>} An array of tool configuration objects.
- */
-export const getToolsByCategory = (category) => 
-  TOOL_REGISTRY.filter(tool => tool.category === category);
-
-/**
- * Returns all tools that are currently active and ready for production use.
- * @returns {Array<Object>} An array of active tool configuration objects.
- */
-export const getActiveTools = () => 
-  TOOL_REGISTRY.filter(tool => tool.status === "active");
+]
