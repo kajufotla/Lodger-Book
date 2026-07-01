@@ -26,7 +26,7 @@
     "isPremium": false
   },
   {
-    "id": "compress-pdf",
+    "id": "pdf-compressor",
     "name": "Compress PDF",
     "desc": "Reduce file size while optimizing for maximal PDF quality.",
     "category": "pdf",
