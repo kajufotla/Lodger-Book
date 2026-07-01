@@ -20,13 +20,6 @@ class ToolManager {
             return window.ToolsRegistry[toolId];
         }
 
-        // --- FUTURE PROOF BYPASS FOR LEGACY SINGLE-FILE TOOLS ---
-        if (window.ToolsRegistry[toolId] && window.ToolsRegistry[toolId].moduleType === 'legacy') {
-            console.log(`[ToolManager] Routing legacy module directly bypassing sandbox: ${toolId}`);
-            window.ToolsRegistry[toolId].isLoaded = true;
-            return window.ToolsRegistry[toolId];
-        }
-
         if (window.ToolLoadPromises[toolId]) {
             return window.ToolLoadPromises[toolId];
         }
@@ -36,16 +29,12 @@ class ToolManager {
 
         window.ToolLoadPromises[toolId] = (async () => {
             try {
-                // Fetch & Parse Manifest (Made Optional - Paths fixed to Root)
-                try {
-                    const manifestRes = await fetch(`./${toolId}/manifest.json`);
-                    if (manifestRes.ok) {
-                        const manifest = await manifestRes.json();
-                        Object.assign(tool, manifest);
-                    }
-                } catch (e) {
-                    console.warn(`[ToolManager] No manifest.json found for '${toolId}', falling back to registry data.`);
-                }
+                // Fetch & Parse Manifest
+                const manifestRes = await fetch(`./tools/${toolId}/manifest.json`);
+                if (!manifestRes.ok) throw new Error(`Configuration missing for '${toolId}'.`);
+                
+                const manifest = await manifestRes.json();
+                Object.assign(tool, manifest);
 
                 // Version Compatibility Check
                 if (tool.requiredFrameworkVersion) {
@@ -56,22 +45,22 @@ class ToolManager {
                     }
                 }
 
-                // Fetch HTML Template (Path fixed to Root)
+                // Fetch HTML Template
                 try {
-                    const htmlRes = await fetch(`./${toolId}/index.html`);
+                    const htmlRes = await fetch(`./tools/${toolId}/index.html`);
                     if (htmlRes.ok) tool.template = await htmlRes.text();
                 } catch (e) {
                     console.warn(`[ToolManager] No index.html found for '${toolId}'. Using default UI.`);
                 }
 
-                // Load Optional Dependencies (Path fixed to Root)
+                // Load Optional Dependencies
                 if (tool.dependencies) {
                     if (tool.dependencies.css && Array.isArray(tool.dependencies.css)) {
                         tool.dependencies.css.forEach(cssFile => {
-                            if (!document.querySelector(`link[href="./${toolId}/${cssFile}"]`)) {
+                            if (!document.querySelector(`link[href="./tools/${toolId}/${cssFile}"]`)) {
                                 const link = document.createElement('link');
                                 link.rel = 'stylesheet';
-                                link.href = `./${toolId}/${cssFile}`;
+                                link.href = `./tools/${toolId}/${cssFile}`;
                                 link.setAttribute('data-tool-dependency', toolId);
                                 document.head.appendChild(link);
                             }
@@ -79,10 +68,10 @@ class ToolManager {
                     }
                     if (tool.dependencies.js && Array.isArray(tool.dependencies.js)) {
                         for (const jsFile of tool.dependencies.js) {
-                            if (!document.querySelector(`script[src="./${toolId}/${jsFile}"]`)) {
+                            if (!document.querySelector(`script[src="./tools/${toolId}/${jsFile}"]`)) {
                                 await new Promise((resolve, reject) => {
                                     const script = document.createElement('script');
-                                    script.src = `./${toolId}/${jsFile}`;
+                                    script.src = `./tools/${toolId}/${jsFile}`;
                                     script.setAttribute('data-tool-dependency', toolId);
                                     script.onload = resolve;
                                     script.onerror = () => reject(new Error(`Failed to load dependency: ${jsFile}`));
@@ -93,11 +82,11 @@ class ToolManager {
                     }
                 }
 
-                // Load Logic Script (Path fixed to Root)
+                // Load Logic Script
                 if (!document.querySelector(`script[data-tool-id="${toolId}"]`)) {
                     await new Promise((resolve, reject) => {
                         const script = document.createElement('script');
-                        script.src = `./${toolId}/script.js`;
+                        script.src = `./tools/${toolId}/script.js`;
                         script.setAttribute('data-tool-id', toolId);
                         script.onload = resolve;
                         script.onerror = () => reject(new Error(`Logic script missing for '${toolId}'.`));
@@ -123,7 +112,6 @@ class ToolManager {
 class AppUI {
     static showToast(msg, type = 'success') {
         const t = document.getElementById('toast');
-        if(!t) return;
         const isError = type === 'error';
         t.innerHTML = isError 
             ? `<i class="fa-solid fa-circle-exclamation text-sm"></i> <span>${msg}</span>` 
@@ -176,11 +164,11 @@ class AppUI {
         const preview = document.getElementById('preview-container');
         
         if (!window.activeFiles.length) { 
-            if(list) list.classList.add('hidden'); 
+            list.classList.add('hidden'); 
             if(preview) preview.classList.add('hidden');
             return; 
         }
-        if(list) list.classList.remove('hidden');
+        list.classList.remove('hidden');
         
         const fragment = document.createDocumentFragment();
         window.activeFiles.forEach((f, i) => {
@@ -203,10 +191,8 @@ class AppUI {
             fragment.appendChild(div);
         });
         
-        if(list) {
-            list.innerHTML = '';
-            list.appendChild(fragment);
-        }
+        list.innerHTML = '';
+        list.appendChild(fragment);
 
         const currentTool = window.ToolsRegistry[window.currentToolId];
         const requiresPreview = currentTool && currentTool.requiresPreview;
@@ -402,70 +388,39 @@ window.PDFEngine = PDFEngine;
 class HubManager {
     static async initialize() {
         try {
+            // Fetch offline registry to discover tools
+            const res = await fetch('./tools/registry.json');
+            if (!res.ok) throw new Error('Could not find tools/registry.json index.');
+            const toolIds = await res.json();
+
             const grid = document.getElementById('tools-grid');
             if (!grid) return;
-
-            const res = await fetch('./registry.json');
-            if (!res.ok) throw new Error('Could not find registry.json index.');
-            const toolsData = await res.json();
             
-            grid.innerHTML = ''; 
+            grid.innerHTML = ''; // Clear hardcoded HTML
 
-            for (const toolObj of toolsData) {
-                const id = toolObj.id;
+            // Load tool metadata and build UI dynamically
+            for (const id of toolIds) {
                 try {
+                    const manifestRes = await fetch(`./tools/${id}/manifest.json`);
+                    if (!manifestRes.ok) continue; 
+                    const manifest = await manifestRes.json();
+                    
                     window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
-                    Object.assign(window.ToolsRegistry[id], toolObj);
-
-                    let manifest = toolObj; 
-                    
-                    if (toolObj.moduleType !== 'legacy') {
-                        try {
-                            const manifestRes = await fetch(`./${id}/manifest.json`);
-                            if (manifestRes.ok) {
-                                const fileManifest = await manifestRes.json();
-                                manifest = Object.assign({}, toolObj, fileManifest);
-                            }
-                        } catch(manifestErr) {
-                            console.warn(`Sandbox manifest fetch omitted or failed for: ${id}`);
-                        }
-                    }
-                    
                     Object.assign(window.ToolsRegistry[id], manifest);
-                    this.buildCard(grid, id, manifest);
 
+                    this.buildCard(grid, id, manifest);
                 } catch(e) {
                     console.error(`Failed to load manifest for ${id}`, e);
                 }
             }
         } catch (error) {
-            console.error('Hub Initialization Error (Using Fallback for Existing HTML Cards):', error);
-            
-            const existingCards = document.querySelectorAll('#tools-grid [data-tool]');
-            existingCards.forEach(card => {
-                const id = card.getAttribute('data-tool');
-                card.style.cursor = 'pointer';
-                card.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    try {
-                        card.style.opacity = '0.7'; 
-                        await ToolManager.loadTool(id);
-                        card.style.opacity = '1';
-                        activateWorkspace(id);
-                        history.pushState(null, null, `#tool-${id}`);
-                    } catch (err) {
-                        console.error(err);
-                        card.style.opacity = '1';
-                        AppUI.showToast(err.message, 'error');
-                    }
-                });
-            });
+            console.error('Hub Initialization Error:', error);
         }
     }
 
     static buildCard(grid, id, manifest) {
         const tColor = manifest.color || 'blue-500';
-        const cBase = tColor.split('-')[0] || 'blue';
+        const cBase = tColor.split('-')[0];
         const card = document.createElement('a');
         card.href = `#tool-${id}`;
         card.className = "group bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start";
@@ -476,7 +431,7 @@ class HubManager {
                 <i class="fa-solid ${manifest.icon || 'fa-wrench'}"></i>
             </div>
             <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-${tColor} transition-colors">${manifest.name || 'Utility Tool'}</h3>
-            <p class="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">${manifest.desc || manifest.description || ''}</p>
+            <p class="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">${manifest.desc || ''}</p>
             <div class="mt-auto inline-flex items-center text-sm font-semibold text-${tColor} group-hover:translate-x-1 transition-transform">
                 Open Tool <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
             </div>
@@ -490,10 +445,10 @@ class HubManager {
                 card.style.opacity = '1';
                 activateWorkspace(id);
                 history.pushState(null, null, `#tool-${id}`);
-            } catch (err) {
-                console.error(err);
+            } catch (error) {
+                console.error(error);
                 card.style.opacity = '1';
-                AppUI.showToast(err.message, 'error');
+                AppUI.showToast(error.message, 'error');
             }
         });
 
@@ -516,26 +471,24 @@ window.closeTool = function() {
     }
 
     const panel = document.getElementById('hero-tool-panel');
-    if(panel) panel.classList.add('opacity-0');
+    panel.classList.add('opacity-0');
     
     setTimeout(() => {
-        if(panel) {
-            panel.classList.add('hidden');
-            panel.classList.remove('flex');
-        }
+        panel.classList.add('hidden');
+        panel.classList.remove('flex');
         
-        ['main-header', 'our-tools', 'about', 'faq-section'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.classList.remove('hidden');
-        });
+        document.getElementById('main-header').classList.remove('hidden');
+        document.getElementById('our-tools').classList.remove('hidden');
+        document.getElementById('about').classList.remove('hidden');
+        document.getElementById('faq-section').classList.remove('hidden');
         
         AppUI.cleanupWorkspace();
 
         setTimeout(() => {
-            ['main-header', 'our-tools', 'about', 'faq-section'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.remove('opacity-0');
-            });
+            document.getElementById('main-header').classList.remove('opacity-0');
+            document.getElementById('our-tools').classList.remove('opacity-0');
+            document.getElementById('about').classList.remove('opacity-0');
+            document.getElementById('faq-section').classList.remove('opacity-0');
         }, 10);
         
         history.pushState(null, null, 'index.html');
@@ -544,119 +497,106 @@ window.closeTool = function() {
 };
 
 window.activateWorkspace = function(id) {
-    try {
-        ['main-header', 'our-tools', 'about', 'faq-section'].forEach(elId => {
-            const el = document.getElementById(elId);
-            if(el) el.classList.add('opacity-0');
-        });
+    document.getElementById('main-header').classList.add('opacity-0');
+    document.getElementById('our-tools').classList.add('opacity-0');
+    document.getElementById('about').classList.add('opacity-0');
+    document.getElementById('faq-section').classList.add('opacity-0');
+    
+    setTimeout(() => {
+        document.getElementById('main-header').classList.add('hidden');
+        document.getElementById('our-tools').classList.add('hidden');
+        document.getElementById('about').classList.add('hidden');
+        document.getElementById('faq-section').classList.add('hidden');
+        
+        const panel = document.getElementById('hero-tool-panel');
+        panel.classList.remove('hidden');
+        panel.classList.add('flex');
+        
+        setTimeout(() => panel.classList.remove('opacity-0'), 20);
+        
+        const box = document.getElementById('tool-workspace-box');
+        const canvas = document.getElementById('canvas-content');
+        const tool = window.ToolsRegistry[id];
+        
+        window.activeFiles = []; 
+        window.currentToolId = id;
+        box.style.opacity = '0';
+        box.style.transform = 'translateY(15px)';
         
         setTimeout(() => {
-            ['main-header', 'our-tools', 'about', 'faq-section'].forEach(elId => {
-                const el = document.getElementById(elId);
-                if(el) el.classList.add('hidden');
-            });
+            const tColor = tool.color || 'blue-500';
+            const cBase = tColor.split('-')[0];
+            const tIcon = tool.icon || 'fa-wrench';
+            const tName = tool.name || 'Utility Tool';
+            const tDesc = tool.desc || '';
+            const multipleFiles = tool.multipleFiles !== undefined ? tool.multipleFiles : false;
+            const acceptAttr = tool.accept || '*/*';
             
-            const panel = document.getElementById('hero-tool-panel');
-            if(panel) {
-                panel.classList.remove('hidden');
-                panel.classList.add('flex');
-                setTimeout(() => panel.classList.remove('opacity-0'), 20);
+            let toolUI = '';
+            if (tool.template) {
+                toolUI = tool.template;
+            } else if (typeof tool.render === 'function') {
+                try {
+                    toolUI = tool.render(tool, AppUI);
+                } catch (renderError) {
+                    console.error(`[Render Error in ${id}]`, renderError);
+                    toolUI = `<div class="p-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">Failed to render custom UI. Using fallback.</div>` + AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
+                }
+            } else {
+                toolUI = AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
             }
-            
-            const box = document.getElementById('tool-workspace-box');
-            const canvas = document.getElementById('canvas-content');
-            
-            if(!box || !canvas) {
-                console.error("Workspace elements (tool-workspace-box or canvas-content) are missing in HTML.");
-                AppUI.showToast("Workspace UI not found in HTML.", "error");
-                return;
-            }
 
-            const tool = window.ToolsRegistry[id] || {};
-            
-            window.activeFiles = []; 
-            window.currentToolId = id;
-            box.style.opacity = '0';
-            box.style.transform = 'translateY(15px)';
-            
-            setTimeout(() => {
-                const tColor = tool.color || 'blue-500';
-                const cBase = tColor.split('-')[0] || 'blue';
-                const tIcon = tool.icon || 'fa-wrench';
-                const tName = tool.name || 'Utility Tool';
-                const tDesc = tool.desc || tool.description || '';
-                const multipleFiles = tool.multipleFiles !== undefined ? tool.multipleFiles : false;
-                const acceptAttr = tool.accept || '*/*';
+            canvas.className = "text-left flex flex-col";
+            canvas.innerHTML = `
+                <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
+                    <div class="w-16 h-16 bg-${cBase}-50 text-${tColor} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
+                        <i class="fa-solid ${tIcon}"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tName}</h2>
+                        <p class="text-sm md:text-base text-slate-500">${tDesc}</p>
+                    </div>
+                </div>
                 
-                let toolUI = '';
-                if (tool.template) {
-                    toolUI = tool.template;
-                } else if (typeof tool.render === 'function') {
-                    try {
-                        toolUI = tool.render(tool, AppUI);
-                    } catch (renderError) {
-                        console.error(`[Render Error in ${id}]`, renderError);
-                        toolUI = `<div class="p-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">Failed to render custom UI. Using fallback.</div>` + AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
-                    }
-                } else {
-                    toolUI = AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
-                }
-
-                canvas.className = "text-left flex flex-col";
-                canvas.innerHTML = `
-                    <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
-                        <div class="w-16 h-16 bg-${cBase}-50 text-${tColor} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
-                            <i class="fa-solid ${tIcon}"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tName}</h2>
-                            <p class="text-sm md:text-base text-slate-500">${tDesc}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-6 flex-grow">
-                        ${toolUI}
-                    </div>
-                    
-                    <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
-                        <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tColor} hover:bg-${tColor.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
-                            <span>Execute ${tName}</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                `;
+                <div class="space-y-6 flex-grow">
+                    ${toolUI}
+                </div>
                 
-                const dropZone = document.getElementById('drop-zone');
-                if(dropZone) {
-                    const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
-                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                        dropZone.addEventListener(eventName, preventDefaults, false);
-                    });
-                    ['dragenter', 'dragover'].forEach(eventName => {
-                        dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
-                    });
-                    ['dragleave', 'drop'].forEach(eventName => {
-                        dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
-                    });
-                    dropZone.addEventListener('drop', (e) => {
-                        const dt = e.dataTransfer;
-                        AppUI.handleFileSelect({target: {files: dt.files}}, multipleFiles, tColor);
-                    }, false);
-                }
-
-                if (typeof tool.init === 'function') {
-                    try { tool.init(); } catch (initError) { console.error(`[Init Error in ${id}]`, initError); }
-                }
-
-                window.requestAnimationFrame(() => {
-                    box.style.opacity = '1'; 
-                    box.style.transform = 'translateY(0)';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
+                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tColor} hover:bg-${tColor.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
+                        <span>Execute ${tName}</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+            
+            const dropZone = document.getElementById('drop-zone');
+            if(dropZone) {
+                const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
                 });
-            }, 100);
-        }, 300);
-    } catch (e) {
-        console.error("Workspace activation failed:", e);
-        AppUI.showToast("Failed to open tool workspace.", "error");
-    }
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    AppUI.handleFileSelect({target: {files: dt.files}}, multipleFiles, tColor);
+                }, false);
+            }
+
+            if (typeof tool.init === 'function') {
+                try { tool.init(); } catch (initError) { console.error(`[Init Error in ${id}]`, initError); }
+            }
+
+            window.requestAnimationFrame(() => {
+                box.style.opacity = '1'; 
+                box.style.transform = 'translateY(0)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }, 100);
+    }, 300);
 }
