@@ -1,4 +1,5 @@
-// --- Core Library Integrations ---
+// --- Core Library Integrations & Framework Setup ---
+window.CORE_FRAMEWORK_VERSION = "1.0.0"; 
 window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // Expose PDFLib globally for dynamically loaded tools
@@ -11,32 +12,99 @@ window.currentToolId = null;
 
 // --- DYNAMIC REGISTRY & LOADER ARCHITECTURE ---
 window.ToolsRegistry = {};
+window.ToolLoadPromises = {}; 
 
 class ToolManager {
-    /**
-     * Dynamically loads a tool's script based on its ID.
-     * Assumes tool files are stored in a `/tools/` directory (e.g., /tools/image-resizer.js).
-     */
     static async loadTool(toolId) {
-        if (window.ToolsRegistry[toolId]) {
-            return window.ToolsRegistry[toolId]; // Already loaded
+        if (window.ToolsRegistry[toolId] && window.ToolsRegistry[toolId].isLoaded) {
+            return window.ToolsRegistry[toolId];
+        }
+
+        if (window.ToolLoadPromises[toolId]) {
+            return window.ToolLoadPromises[toolId];
         }
         
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = `./tools/${toolId}.js`; // Ensure this matches your directory structure
-            
-            script.onload = () => {
-                if (window.ToolsRegistry[toolId]) {
-                    resolve(window.ToolsRegistry[toolId]);
-                } else {
-                    reject(new Error(`Tool script loaded but failed to register ID: '${toolId}'.`));
+        window.ToolsRegistry[toolId] = window.ToolsRegistry[toolId] || {};
+        const tool = window.ToolsRegistry[toolId];
+
+        window.ToolLoadPromises[toolId] = (async () => {
+            try {
+                // Fetch & Parse Manifest
+                const manifestRes = await fetch(`./tools/${toolId}/manifest.json`);
+                if (!manifestRes.ok) throw new Error(`Configuration missing for '${toolId}'.`);
+                
+                const manifest = await manifestRes.json();
+                Object.assign(tool, manifest);
+
+                // Version Compatibility Check
+                if (tool.requiredFrameworkVersion) {
+                    const reqMajor = tool.requiredFrameworkVersion.split('.')[0];
+                    const coreMajor = window.CORE_FRAMEWORK_VERSION.split('.')[0];
+                    if (reqMajor !== coreMajor) {
+                        throw new Error(`Incompatible tool. Requires framework v${tool.requiredFrameworkVersion}.`);
+                    }
                 }
-            };
-            
-            script.onerror = () => reject(new Error(`Failed to load tool script for: ${toolId}`));
-            document.head.appendChild(script);
-        });
+
+                // Fetch HTML Template
+                try {
+                    const htmlRes = await fetch(`./tools/${toolId}/index.html`);
+                    if (htmlRes.ok) tool.template = await htmlRes.text();
+                } catch (e) {
+                    console.warn(`[ToolManager] No index.html found for '${toolId}'. Using default UI.`);
+                }
+
+                // Load Optional Dependencies
+                if (tool.dependencies) {
+                    if (tool.dependencies.css && Array.isArray(tool.dependencies.css)) {
+                        tool.dependencies.css.forEach(cssFile => {
+                            if (!document.querySelector(`link[href="./tools/${toolId}/${cssFile}"]`)) {
+                                const link = document.createElement('link');
+                                link.rel = 'stylesheet';
+                                link.href = `./tools/${toolId}/${cssFile}`;
+                                link.setAttribute('data-tool-dependency', toolId);
+                                document.head.appendChild(link);
+                            }
+                        });
+                    }
+                    if (tool.dependencies.js && Array.isArray(tool.dependencies.js)) {
+                        for (const jsFile of tool.dependencies.js) {
+                            if (!document.querySelector(`script[src="./tools/${toolId}/${jsFile}"]`)) {
+                                await new Promise((resolve, reject) => {
+                                    const script = document.createElement('script');
+                                    script.src = `./tools/${toolId}/${jsFile}`;
+                                    script.setAttribute('data-tool-dependency', toolId);
+                                    script.onload = resolve;
+                                    script.onerror = () => reject(new Error(`Failed to load dependency: ${jsFile}`));
+                                    document.head.appendChild(script);
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Load Logic Script
+                if (!document.querySelector(`script[data-tool-id="${toolId}"]`)) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = `./tools/${toolId}/script.js`;
+                        script.setAttribute('data-tool-id', toolId);
+                        script.onload = resolve;
+                        script.onerror = () => reject(new Error(`Logic script missing for '${toolId}'.`));
+                        document.head.appendChild(script);
+                    });
+                }
+
+                tool.isLoaded = true;
+                return tool;
+                
+            } catch (error) {
+                console.error(`[ToolManager] Error loading tool '${toolId}':`, error);
+                delete window.ToolLoadPromises[toolId]; 
+                throw error;
+            }
+        })();
+
+        return window.ToolLoadPromises[toolId];
     }
 }
 
@@ -49,19 +117,25 @@ class AppUI {
             ? `<i class="fa-solid fa-circle-exclamation text-sm"></i> <span>${msg}</span>` 
             : `<i class="fa-solid fa-circle-check text-sm"></i> <span>${msg}</span>`;
         t.className = `fixed bottom-6 right-6 px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl flex items-center space-x-2 z-50 transition duration-300 transform translate-y-0 opacity-100 gpu-accelerate ${isError ? 'bg-red-500 shadow-red-200/50' : 'bg-emerald-600 shadow-emerald-200/50'}`;
-        setTimeout(() => { t.classList.remove('translate-y-0', 'opacity-100'); t.classList.add('translate-y-20', 'opacity-0'); }, 4000);
+        
+        if (this.toastTimeout) clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => { 
+            t.classList.remove('translate-y-0', 'opacity-100'); 
+            t.classList.add('translate-y-20', 'opacity-0'); 
+        }, 4000);
     }
 
     static renderFileInput(tool, multiple = false, accept = ".pdf") {
-        const cBase = tool.color.split('-')[0];
+        const tColor = tool.color || 'blue-500';
+        const cBase = tColor.split('-')[0];
         return `
             <div class="space-y-3">
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Source File(s)</label>
                 <div id="drop-zone" class="relative w-full border-2 border-dashed border-${cBase}-300 rounded-2xl p-6 bg-${cBase}-50/50 transition-colors text-center hover:bg-${cBase}-100/60">
                     <input type="file" id="active-file-input" ${multiple ? 'multiple' : ''} accept="${accept}" 
-                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="AppUI.handleFileSelect(event, ${multiple}, '${tool.color}')">
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="AppUI.handleFileSelect(event, ${multiple}, '${tColor}')">
                     <div class="pointer-events-none space-y-2">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-${tool.color} mb-1"></i>
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-${tColor} mb-1"></i>
                         <p class="text-sm font-semibold text-slate-600">Drag & drop files or click to browse</p>
                         <p class="text-xs text-slate-400">Maximum speed processing</p>
                     </div>
@@ -69,7 +143,7 @@ class AppUI {
                 <div id="file-list" class="space-y-2 max-h-40 overflow-y-auto hidden"></div>
                 <div id="preview-container" class="hidden w-full mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100 preview-scroll"></div>
                 <div id="progress-container" class="hidden w-full bg-slate-200 rounded-full h-1.5 mt-2">
-                    <div id="progress-bar" class="bg-${tool.color} h-1.5 rounded-full" style="width: 0%; transition: width 0.2s;"></div>
+                    <div id="progress-bar" class="bg-${tColor} h-1.5 rounded-full" style="width: 0%; transition: width 0.2s;"></div>
                 </div>
             </div>
         `;
@@ -120,7 +194,6 @@ class AppUI {
         list.innerHTML = '';
         list.appendChild(fragment);
 
-        // Dynamically request previews only if the active tool config requires it
         const currentTool = window.ToolsRegistry[window.currentToolId];
         const requiresPreview = currentTool && currentTool.requiresPreview;
         
@@ -138,8 +211,9 @@ class AppUI {
         container.innerHTML = '<div class="text-xs text-slate-500 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Generating previews...</div>';
         container.classList.remove('hidden');
         
+        let url = null;
         try {
-            const url = URL.createObjectURL(file);
+            url = URL.createObjectURL(file);
             const pdf = await window.pdfjsLib.getDocument(url).promise;
             const maxPages = Math.min(pdf.numPages, 12); 
             
@@ -170,17 +244,19 @@ class AppUI {
             }
             html += '</div>';
             container.innerHTML = html;
-            URL.revokeObjectURL(url);
         } catch (e) {
-            console.error("Preview rendering failed:", e);
+            console.error("[AppUI] Preview rendering failed:", e);
             container.innerHTML = '<div class="text-xs text-red-400 text-center py-2">Preview unavailable</div>';
+        } finally {
+            if (url) URL.revokeObjectURL(url);
         }
     }
 
     static removeFile(index, colorClass) {
         window.activeFiles.splice(index, 1);
         this.updateFileList(colorClass);
-        if(window.activeFiles.length === 0) document.getElementById('active-file-input').value = '';
+        const input = document.getElementById('active-file-input');
+        if(window.activeFiles.length === 0 && input) input.value = '';
     }
 
     static dragStart(e, index) { e.dataTransfer.setData("text/plain", index); }
@@ -199,9 +275,30 @@ class AppUI {
             bar.style.width = `${percent}%`;
         }
     }
+
+    static cleanupWorkspace() {
+        window.activeFiles = [];
+
+        if (window.currentToolId) {
+            document.querySelectorAll(`[data-tool-dependency="${window.currentToolId}"]`).forEach(el => el.remove());
+        }
+        
+        window.currentToolId = null;
+
+        const list = document.getElementById('file-list');
+        const preview = document.getElementById('preview-container');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const canvas = document.getElementById('canvas-content');
+
+        if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
+        if (preview) { preview.innerHTML = ''; preview.classList.add('hidden'); }
+        if (progressContainer) { progressContainer.classList.add('hidden'); }
+        if (progressBar) { progressBar.style.width = '0%'; }
+        if (canvas) canvas.innerHTML = ''; 
+    }
 }
 
-// Expose AppUI to the global scope so dynamically loaded tools can access or extend it
 window.AppUI = AppUI;
 
 // --- GLOBAL ENGINE CONTROLLER ---
@@ -251,6 +348,7 @@ class PDFEngine {
         }
 
         const btn = document.getElementById('execute-btn');
+        if (!btn) return;
         const originalBtnText = btn.innerHTML;
         btn.disabled = true; 
         btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...`; 
@@ -260,7 +358,6 @@ class PDFEngine {
         await new Promise(r => setTimeout(r, 10)); 
 
         try {
-            // Execution is strictly delegated to the dynamically loaded script
             const { blob, filename } = await tool.process(window.activeFiles, PDFEngine, AppUI, PDFDocument);
             
             AppUI.updateProgress(100);
@@ -269,12 +366,14 @@ class PDFEngine {
                 AppUI.showToast("Operation completed successfully!"); 
             }
         } catch (error) { 
-            console.error(error);
+            console.error(`[PDFEngine] Execution Error:`, error);
             AppUI.showToast(error.message, 'error'); 
         } finally { 
-            btn.disabled = false; 
-            btn.innerHTML = originalBtnText; 
-            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            if (document.body.contains(btn)) {
+                btn.disabled = false; 
+                btn.innerHTML = originalBtnText; 
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
             setTimeout(() => { 
                 const pc = document.getElementById('progress-container');
                 if (pc) pc.classList.add('hidden'); 
@@ -283,39 +382,94 @@ class PDFEngine {
     }
 }
 
-// Expose PDFEngine
 window.PDFEngine = PDFEngine;
 
-// --- DYNAMIC EVENT LISTENERS ---
-// The script dynamically captures the 'data-tool' attribute from the HTML card
-// and utilizes it as the unified identifier/filename for the registry.
-document.querySelectorAll('#tools-grid [data-tool]').forEach(card => {
-    card.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const dataTool = card.getAttribute('data-tool'); // e.g. "image-resizer", "split-pdf"
-        
+// --- DYNAMIC HUB INITIALIZATION ---
+class HubManager {
+    static async initialize() {
         try {
-            // Visual feedback while loading the dynamic asset
-            card.style.opacity = '0.7'; 
+            // Fetch offline registry to discover tools
+            const res = await fetch('./tools/registry.json');
+            if (!res.ok) throw new Error('Could not find tools/registry.json index.');
+            const toolIds = await res.json();
+
+            const grid = document.getElementById('tools-grid');
+            if (!grid) return;
             
-            // Load and parse the dedicated script dynamically
-            await ToolManager.loadTool(dataTool);
-            
-            card.style.opacity = '1';
-            
-            // Render the tool
-            activateWorkspace(dataTool);
-            history.pushState(null, null, `#tool-${dataTool}`);
-            
+            grid.innerHTML = ''; // Clear hardcoded HTML
+
+            // Load tool metadata and build UI dynamically
+            for (const id of toolIds) {
+                try {
+                    const manifestRes = await fetch(`./tools/${id}/manifest.json`);
+                    if (!manifestRes.ok) continue; 
+                    const manifest = await manifestRes.json();
+                    
+                    window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
+                    Object.assign(window.ToolsRegistry[id], manifest);
+
+                    this.buildCard(grid, id, manifest);
+                } catch(e) {
+                    console.error(`Failed to load manifest for ${id}`, e);
+                }
+            }
         } catch (error) {
-            console.error(error);
-            card.style.opacity = '1';
-            AppUI.showToast(`Error initializing tool: ${error.message}`, 'error');
+            console.error('Hub Initialization Error:', error);
         }
-    });
+    }
+
+    static buildCard(grid, id, manifest) {
+        const tColor = manifest.color || 'blue-500';
+        const cBase = tColor.split('-')[0];
+        const card = document.createElement('a');
+        card.href = `#tool-${id}`;
+        card.className = "group bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start";
+        card.setAttribute('data-tool', id);
+        
+        card.innerHTML = `
+            <div class="w-14 h-14 bg-${cBase}-50 text-${tColor} rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                <i class="fa-solid ${manifest.icon || 'fa-wrench'}"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-${tColor} transition-colors">${manifest.name || 'Utility Tool'}</h3>
+            <p class="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">${manifest.desc || ''}</p>
+            <div class="mt-auto inline-flex items-center text-sm font-semibold text-${tColor} group-hover:translate-x-1 transition-transform">
+                Open Tool <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+            </div>
+        `;
+
+        card.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                card.style.opacity = '0.7'; 
+                await ToolManager.loadTool(id);
+                card.style.opacity = '1';
+                activateWorkspace(id);
+                history.pushState(null, null, `#tool-${id}`);
+            } catch (error) {
+                console.error(error);
+                card.style.opacity = '1';
+                AppUI.showToast(error.message, 'error');
+            }
+        });
+
+        grid.appendChild(card);
+    }
+}
+
+// Boot up the hub when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    HubManager.initialize();
 });
 
+// --- WORKSPACE & ROUTING LOGIC ---
 window.closeTool = function() {
+    if (window.currentToolId) {
+        const activeTool = window.ToolsRegistry[window.currentToolId];
+        if (activeTool && typeof activeTool.cleanup === 'function') {
+            try { activeTool.cleanup(); } catch (e) { console.error(`[Cleanup Error in ${window.currentToolId}]`, e); }
+        }
+    }
+
     const panel = document.getElementById('hero-tool-panel');
     panel.classList.add('opacity-0');
     
@@ -328,7 +482,8 @@ window.closeTool = function() {
         document.getElementById('about').classList.remove('hidden');
         document.getElementById('faq-section').classList.remove('hidden');
         
-        // Small delay to allow display block to apply before fading in
+        AppUI.cleanupWorkspace();
+
         setTimeout(() => {
             document.getElementById('main-header').classList.remove('opacity-0');
             document.getElementById('our-tools').classList.remove('opacity-0');
@@ -342,60 +497,74 @@ window.closeTool = function() {
 };
 
 window.activateWorkspace = function(id) {
-    // Fade out Home sections
     document.getElementById('main-header').classList.add('opacity-0');
     document.getElementById('our-tools').classList.add('opacity-0');
     document.getElementById('about').classList.add('opacity-0');
     document.getElementById('faq-section').classList.add('opacity-0');
     
     setTimeout(() => {
-        // Hide Home sections
         document.getElementById('main-header').classList.add('hidden');
         document.getElementById('our-tools').classList.add('hidden');
         document.getElementById('about').classList.add('hidden');
         document.getElementById('faq-section').classList.add('hidden');
         
-        // Show Hero Panel
         const panel = document.getElementById('hero-tool-panel');
         panel.classList.remove('hidden');
         panel.classList.add('flex');
         
-        // Fade in
         setTimeout(() => panel.classList.remove('opacity-0'), 20);
         
         const box = document.getElementById('tool-workspace-box');
         const canvas = document.getElementById('canvas-content');
-        
-        // Fetch Tool Config from Dynamic Registry
         const tool = window.ToolsRegistry[id];
         
         window.activeFiles = []; 
         window.currentToolId = id;
-        
         box.style.opacity = '0';
         box.style.transform = 'translateY(15px)';
         
         setTimeout(() => {
-            const cBase = tool.color.split('-')[0];
+            const tColor = tool.color || 'blue-500';
+            const cBase = tColor.split('-')[0];
+            const tIcon = tool.icon || 'fa-wrench';
+            const tName = tool.name || 'Utility Tool';
+            const tDesc = tool.desc || '';
+            const multipleFiles = tool.multipleFiles !== undefined ? tool.multipleFiles : false;
+            const acceptAttr = tool.accept || '*/*';
+            
+            let toolUI = '';
+            if (tool.template) {
+                toolUI = tool.template;
+            } else if (typeof tool.render === 'function') {
+                try {
+                    toolUI = tool.render(tool, AppUI);
+                } catch (renderError) {
+                    console.error(`[Render Error in ${id}]`, renderError);
+                    toolUI = `<div class="p-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">Failed to render custom UI. Using fallback.</div>` + AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
+                }
+            } else {
+                toolUI = AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
+            }
+
             canvas.className = "text-left flex flex-col";
             canvas.innerHTML = `
                 <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
-                    <div class="w-16 h-16 bg-${cBase}-50 text-${tool.color} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
-                        <i class="fa-solid ${tool.icon}"></i>
+                    <div class="w-16 h-16 bg-${cBase}-50 text-${tColor} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
+                        <i class="fa-solid ${tIcon}"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tool.name}</h2>
-                        <p class="text-sm md:text-base text-slate-500">${tool.desc}</p>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tName}</h2>
+                        <p class="text-sm md:text-base text-slate-500">${tDesc}</p>
                     </div>
                 </div>
                 
                 <div class="space-y-6 flex-grow">
-                    ${tool.render(tool, AppUI)}
+                    ${toolUI}
                 </div>
                 
                 <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
-                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tool.color} hover:bg-${tool.color.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
-                        <span>Execute ${tool.name}</span>
+                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tColor} hover:bg-${tColor.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
+                        <span>Execute ${tName}</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
@@ -403,10 +572,10 @@ window.activateWorkspace = function(id) {
             
             const dropZone = document.getElementById('drop-zone');
             if(dropZone) {
+                const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropZone.addEventListener(eventName, preventDefaults, false);
                 });
-                function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
                 ['dragenter', 'dragover'].forEach(eventName => {
                     dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
                 });
@@ -415,15 +584,12 @@ window.activateWorkspace = function(id) {
                 });
                 dropZone.addEventListener('drop', (e) => {
                     const dt = e.dataTransfer;
-                    // Detect file constraints via the individual tool's dynamic registry
-                    const isMultiple = tool.multipleFiles || false;
-                    AppUI.handleFileSelect({target: {files: dt.files}}, isMultiple, tool.color);
+                    AppUI.handleFileSelect({target: {files: dt.files}}, multipleFiles, tColor);
                 }, false);
             }
 
-            // Execute isolated DOM/event setup logic if the separate tool file requires it
             if (typeof tool.init === 'function') {
-                tool.init();
+                try { tool.init(); } catch (initError) { console.error(`[Init Error in ${id}]`, initError); }
             }
 
             window.requestAnimationFrame(() => {
