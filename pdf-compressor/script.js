@@ -1,14 +1,14 @@
 /**
  * Main Script - PDFExpert Suite
  * Enterprise-level code architecture with modular tool loading.
- * Module: Compress PDF (compress-pdf)
+ * Module: Compress PDF (pdf-compressor)
  */
 
 'use strict';
 
 // Register the tool into the Global Core Framework immediately for dynamic rendering
 (function() {
-    const toolId = 'compress-pdf';
+    const toolId = 'pdf-compressor'; // <-- یہاں نام درست کر دیا گیا ہے
     window.ToolsRegistry[toolId] = window.ToolsRegistry[toolId] || {};
 
     // This is the core bridge function that your root script calls when the user clicks 'Execute'
