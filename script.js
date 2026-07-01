@@ -1,10 +1,46 @@
-PdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// --- Core Library Integrations ---
+window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const { PDFDocument, rgb, degrees } = PDFLib;
+// Expose PDFLib globally for dynamically loaded tools
+window.PDFLibOptions = window.PDFLib || PDFLib;
+const { PDFDocument, rgb, degrees } = window.PDFLibOptions;
 
-let activeFiles = [];
-let currentToolId = null;
+// --- Global Application State ---
+window.activeFiles = [];
+window.currentToolId = null;
 
+// --- DYNAMIC REGISTRY & LOADER ARCHITECTURE ---
+window.ToolsRegistry = {};
+
+class ToolManager {
+    /**
+     * Dynamically loads a tool's script based on its ID.
+     * Assumes tool files are stored in a `/tools/` directory (e.g., /tools/image-resizer.js).
+     */
+    static async loadTool(toolId) {
+        if (window.ToolsRegistry[toolId]) {
+            return window.ToolsRegistry[toolId]; // Already loaded
+        }
+        
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = `./tools/${toolId}.js`; // Ensure this matches your directory structure
+            
+            script.onload = () => {
+                if (window.ToolsRegistry[toolId]) {
+                    resolve(window.ToolsRegistry[toolId]);
+                } else {
+                    reject(new Error(`Tool script loaded but failed to register ID: '${toolId}'.`));
+                }
+            };
+            
+            script.onerror = () => reject(new Error(`Failed to load tool script for: ${toolId}`));
+            document.head.appendChild(script);
+        });
+    }
+}
+
+// --- GLOBAL UI MANAGER ---
 class AppUI {
     static showToast(msg, type = 'success') {
         const t = document.getElementById('toast');
@@ -42,15 +78,18 @@ class AppUI {
     static handleFileSelect(event, multiple, colorClass) {
         const files = Array.from(event.target.files);
         if (!files.length) return;
-        if(!multiple) activeFiles = files.slice(0,1);
-        else activeFiles = [...activeFiles, ...files];
+        
+        if (!multiple) window.activeFiles = files.slice(0,1);
+        else window.activeFiles = [...window.activeFiles, ...files];
+        
         this.updateFileList(colorClass);
     }
 
     static updateFileList(colorClass) {
         const list = document.getElementById('file-list');
         const preview = document.getElementById('preview-container');
-        if(!activeFiles.length) { 
+        
+        if (!window.activeFiles.length) { 
             list.classList.add('hidden'); 
             if(preview) preview.classList.add('hidden');
             return; 
@@ -58,7 +97,7 @@ class AppUI {
         list.classList.remove('hidden');
         
         const fragment = document.createDocumentFragment();
-        activeFiles.forEach((f, i) => {
+        window.activeFiles.forEach((f, i) => {
             const div = document.createElement('div');
             div.className = "flex items-center justify-between bg-white p-3 border border-slate-200 rounded-xl shadow-sm text-sm";
             div.draggable = true;
@@ -81,11 +120,13 @@ class AppUI {
         list.innerHTML = '';
         list.appendChild(fragment);
 
-        // Render previews if applicable
-        const previewTools = ['del', 'extract', 'rotate', 'reorder', 'numbers'];
-        if (activeFiles.length === 1 && activeFiles[0].type === 'application/pdf' && previewTools.includes(currentToolId)) {
-            this.renderThumbnails(activeFiles[0]);
-        } else if (previewTools.includes(currentToolId) && preview) {
+        // Dynamically request previews only if the active tool config requires it
+        const currentTool = window.ToolsRegistry[window.currentToolId];
+        const requiresPreview = currentTool && currentTool.requiresPreview;
+        
+        if (window.activeFiles.length === 1 && window.activeFiles[0].type === 'application/pdf' && requiresPreview) {
+            this.renderThumbnails(window.activeFiles[0]);
+        } else if (requiresPreview && preview) {
             preview.classList.add('hidden');
         }
     }
@@ -99,8 +140,8 @@ class AppUI {
         
         try {
             const url = URL.createObjectURL(file);
-            const pdf = await pdfjsLib.getDocument(url).promise;
-            const maxPages = Math.min(pdf.numPages, 12); // Limit for performance
+            const pdf = await window.pdfjsLib.getDocument(url).promise;
+            const maxPages = Math.min(pdf.numPages, 12); 
             
             let html = '<div class="flex gap-3 overflow-x-auto pb-2 preview-scroll">';
             for (let i = 1; i <= maxPages; i++) {
@@ -137,16 +178,16 @@ class AppUI {
     }
 
     static removeFile(index, colorClass) {
-        activeFiles.splice(index, 1);
+        window.activeFiles.splice(index, 1);
         this.updateFileList(colorClass);
-        if(activeFiles.length === 0) document.getElementById('active-file-input').value = '';
+        if(window.activeFiles.length === 0) document.getElementById('active-file-input').value = '';
     }
 
     static dragStart(e, index) { e.dataTransfer.setData("text/plain", index); }
     static drop(e, targetIndex, colorClass) {
         const sourceIndex = e.dataTransfer.getData("text/plain");
-        const item = activeFiles.splice(sourceIndex, 1)[0];
-        activeFiles.splice(targetIndex, 0, item);
+        const item = window.activeFiles.splice(sourceIndex, 1)[0];
+        window.activeFiles.splice(targetIndex, 0, item);
         this.updateFileList(colorClass);
     }
 
@@ -158,59 +199,12 @@ class AppUI {
             bar.style.width = `${percent}%`;
         }
     }
-
-    static loadImgDims(input) {
-        this.handleFileSelect({target: input}, false, 'red-500');
-        if(activeFiles.length === 0) return;
-        const file = activeFiles[0];
-        if(!file.type.startsWith('image/')) { this.showToast("Please select a valid image.", 'error'); return; }
-        const img = new Image();
-        const url = URL.createObjectURL(file); 
-        img.onload = () => { 
-            const origDims = document.getElementById('orig-dims');
-            if(origDims) origDims.innerHTML = `Original: <b>${img.width}x${img.height}</b> px`;
-            
-            document.getElementById('img-w').value = img.width; 
-            document.getElementById('img-h').value = img.height; 
-            document.getElementById('img-w').dataset.ratio = img.width / img.height;
-            URL.revokeObjectURL(url); 
-        }
-        img.src = url;
-    }
-
-    static toggleResizeMode() {
-        const mode = document.getElementById('resize-mode').value;
-        if (mode === 'pct') {
-            document.getElementById('dim-inputs').classList.add('hidden');
-            document.getElementById('pct-inputs').classList.remove('hidden');
-        } else {
-            document.getElementById('dim-inputs').classList.remove('hidden');
-            document.getElementById('pct-inputs').classList.add('hidden');
-        }
-    }
-
-    static toggleWatermarkMode() {
-        const type = document.getElementById('wm-type').value;
-        if(type === 'image') {
-            document.getElementById('wm-text-opts').classList.add('hidden');
-            document.getElementById('wm-img-opts').classList.remove('hidden');
-        } else {
-            document.getElementById('wm-text-opts').classList.remove('hidden');
-            document.getElementById('wm-img-opts').classList.add('hidden');
-        }
-    }
-
-    static syncRatio(isWidth) {
-        const lock = document.getElementById('lock-ratio').checked;
-        if(!lock) return;
-        const wInput = document.getElementById('img-w');
-        const hInput = document.getElementById('img-h');
-        const ratio = parseFloat(wInput.dataset.ratio);
-        if(isWidth && wInput.value) hInput.value = Math.round(wInput.value / ratio);
-        else if(!isWidth && hInput.value) wInput.value = Math.round(hInput.value * ratio);
-    }
 }
 
+// Expose AppUI to the global scope so dynamically loaded tools can access or extend it
+window.AppUI = AppUI;
+
+// --- GLOBAL ENGINE CONTROLLER ---
 class PDFEngine {
     static async downloadBlob(blob, filename) {
         const url = URL.createObjectURL(blob);
@@ -239,9 +233,23 @@ class PDFEngine {
         return Array.from(pages).sort((a,b) => a-b);
     }
 
-    static async execute(id, toolDef) {
-        if(!activeFiles || activeFiles.length === 0) { AppUI.showToast("Please upload required file(s).", 'error'); return; }
+    static hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? rgb(parseInt(result[1], 16)/255, parseInt(result[2], 16)/255, parseInt(result[3], 16)/255) : rgb(0,0,0);
+    }
+
+    static async execute(id) {
+        if (!window.activeFiles || window.activeFiles.length === 0) { 
+            AppUI.showToast("Please upload required file(s).", 'error'); 
+            return; 
+        }
         
+        const tool = window.ToolsRegistry[id];
+        if (!tool || typeof tool.process !== 'function') {
+            AppUI.showToast("Processor script for this tool is missing or invalid.", 'error');
+            return;
+        }
+
         const btn = document.getElementById('execute-btn');
         const originalBtnText = btn.innerHTML;
         btn.disabled = true; 
@@ -252,324 +260,57 @@ class PDFEngine {
         await new Promise(r => setTimeout(r, 10)); 
 
         try {
-            let finalBlob = null; let filename = `Output_${id}.pdf`;
-            if (id === 'resizer') { 
-                finalBlob = await this.processResizer(activeFiles[0]); 
-                filename = `Resized_Image.${document.getElementById('img-format').value.split('/')[1]}`; 
-            } 
-            else if (id === 'imgToPdf') { 
-                finalBlob = await this.processImagesToPdf(activeFiles); 
-            } 
-            else if (id === 'merge') { 
-                finalBlob = await this.processMerge(activeFiles); 
-            } 
-            else {
-                AppUI.updateProgress(30);
-                await new Promise(r => setTimeout(r, 10)); 
-                const fileBytes = await activeFiles[0].arrayBuffer();
-                const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
-                AppUI.updateProgress(50);
-                await new Promise(r => setTimeout(r, 10)); 
-                finalBlob = await this.processSinglePDF(id, pdfDoc);
-                if(id === 'split') filename = `Split_Result.zip`;
-            }
+            // Execution is strictly delegated to the dynamically loaded script
+            const { blob, filename } = await tool.process(window.activeFiles, PDFEngine, AppUI, PDFDocument);
+            
             AppUI.updateProgress(100);
-            if (finalBlob) { 
-                await this.downloadBlob(finalBlob, filename); 
+            if (blob && filename) { 
+                await this.downloadBlob(blob, filename); 
                 AppUI.showToast("Operation completed successfully!"); 
             }
         } catch (error) { 
             console.error(error);
             AppUI.showToast(error.message, 'error'); 
-        } 
-        finally { 
-            btn.disabled = false; btn.innerHTML = originalBtnText; btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        } finally { 
+            btn.disabled = false; 
+            btn.innerHTML = originalBtnText; 
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
             setTimeout(() => { 
                 const pc = document.getElementById('progress-container');
                 if (pc) pc.classList.add('hidden'); 
             }, 1500);
         }
     }
-
-    static async processResizer(file) {
-        let w, h;
-        const mode = document.getElementById('resize-mode')?.value || 'dim';
-        const format = document.getElementById('img-format').value;
-        const quality = parseFloat(document.getElementById('img-quality').value) / 100;
-        
-        const img = await new Promise((resolve, reject) => { 
-            const imgEl = new Image(); 
-            const url = URL.createObjectURL(file);
-            imgEl.onload = () => { resolve(imgEl); URL.revokeObjectURL(url); }; 
-            imgEl.onerror = () => { reject(new Error("Failed to decode image.")); URL.revokeObjectURL(url); }; 
-            imgEl.src = url; 
-        });
-
-        if (mode === 'pct') {
-            const pct = parseFloat(document.getElementById('img-pct').value) / 100;
-            if (!pct || pct <= 0) throw new Error("Invalid percentage.");
-            w = Math.max(1, Math.round(img.width * pct));
-            h = Math.max(1, Math.round(img.height * pct));
-        } else {
-            w = parseInt(document.getElementById('img-w').value);
-            h = parseInt(document.getElementById('img-h').value);
-            if (!w || !h || w <= 0 || h <= 0) throw new Error("Invalid dimensions specified.");
-        }
-        
-        const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d', { alpha: format !== 'image/jpeg' });
-        if(format === 'image/jpeg') { ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, w, h); }
-        ctx.drawImage(img, 0, 0, w, h);
-        return await new Promise(resolve => canvas.toBlob(resolve, format, quality));
-    }
-
-    static async processImagesToPdf(files) {
-        const doc = await PDFDocument.create(); 
-        const sizeSetting = document.getElementById('page-size').value.split(',');
-        const orientation = document.getElementById('orientation').value;
-        const fitMode = document.getElementById('img-fit').value;
-        const margin = parseInt(document.getElementById('margin').value) || 0;
-        
-        let PAGE_W = parseFloat(sizeSetting[0]);
-        let PAGE_H = parseFloat(sizeSetting[1]);
-        if(orientation === 'landscape') { const temp = PAGE_W; PAGE_W = PAGE_H; PAGE_H = temp; }
-
-        for (let i=0; i<files.length; i++) {
-            const f = files[i];
-            AppUI.updateProgress(10 + (i / files.length) * 80);
-            await new Promise(r => setTimeout(r, 0)); 
-            
-            const bytes = await f.arrayBuffer(); let img;
-            if (f.type === 'image/png') img = await doc.embedPng(bytes); 
-            else if (f.type === 'image/jpeg' || f.type === 'image/jpg') img = await doc.embedJpg(bytes); 
-            else continue;
-            
-            const drawAreaW = PAGE_W - (margin * 2);
-            const drawAreaH = PAGE_H - (margin * 2);
-            
-            let finalW, finalH, x, y;
-
-            if (fitMode === 'stretch') {
-                finalW = drawAreaW; finalH = drawAreaH;
-                x = margin; y = margin;
-            } else if (fitMode === 'fill') {
-                const scale = Math.max(drawAreaW / img.width, drawAreaH / img.height);
-                finalW = img.width * scale; finalH = img.height * scale;
-                x = (PAGE_W - finalW) / 2; y = (PAGE_H - finalH) / 2;
-            } else { // 'fit' (default)
-                const scale = Math.min(drawAreaW / img.width, drawAreaH / img.height);
-                finalW = img.width * scale; finalH = img.height * scale;
-                x = (PAGE_W / 2) - (finalW / 2); y = (PAGE_H / 2) - (finalH / 2);
-            }
-            
-            const page = doc.addPage([PAGE_W, PAGE_H]);
-            page.drawImage(img, { x, y, width: finalW, height: finalH });
-        }
-        const pdfBytes = await doc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
-    }
-
-    static async processMerge(files) {
-        const doc = await PDFDocument.create();
-        for (let i = 0; i < files.length; i++) {
-            AppUI.updateProgress(10 + (i / files.length) * 80);
-            await new Promise(r => setTimeout(r, 10)); 
-            
-            const f = files[i];
-            const bytes = await f.arrayBuffer(); const src = await PDFDocument.load(bytes);
-            const pages = await doc.copyPages(src, src.getPageIndices()); pages.forEach(p => doc.addPage(p));
-        }
-        const pdfBytes = await doc.save(); return new Blob([pdfBytes], { type: 'application/pdf' });
-    }
-
-    static hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? rgb(parseInt(result[1], 16)/255, parseInt(result[2], 16)/255, parseInt(result[3], 16)/255) : rgb(0,0,0);
-    }
-
-    static async processSinglePDF(id, sourceDoc) {
-        const totalPages = sourceDoc.getPageCount();
-        
-        if (id === 'split') {
-            const zip = new JSZip();
-            const mode = document.getElementById('split-mode').value;
-            const rangeStr = document.getElementById('pg-input').value;
-            
-            if (mode === 'every') {
-                for (let i = 0; i < totalPages; i++) {
-                    AppUI.updateProgress(50 + (i / totalPages) * 40);
-                    await new Promise(r => setTimeout(r, 0));
-                    const subDoc = await PDFDocument.create(); 
-                    const [p] = await subDoc.copyPages(sourceDoc, [i]); 
-                    subDoc.addPage(p);
-                    zip.file(`Page_${i + 1}.pdf`, await subDoc.save());
-                }
-            } else if (mode === 'n-pages') {
-                const n = parseInt(rangeStr) || 1;
-                if (n <= 0) throw new Error("Invalid N pages value.");
-                for (let i = 0; i < totalPages; i += n) {
-                    AppUI.updateProgress(50 + (i / totalPages) * 40);
-                    await new Promise(r => setTimeout(r, 0));
-                    const subDoc = await PDFDocument.create();
-                    const end = Math.min(i + n, totalPages);
-                    const indices = Array.from({length: end - i}, (_, idx) => i + idx);
-                    const pages = await subDoc.copyPages(sourceDoc, indices);
-                    pages.forEach(p => subDoc.addPage(p));
-                    zip.file(`Pages_${i + 1}_to_${end}.pdf`, await subDoc.save());
-                }
-            } else {
-                const indicesToSplit = this.parsePageRanges(rangeStr, totalPages);
-                for (let i = 0; i < indicesToSplit.length; i++) {
-                    const idx = indicesToSplit[i];
-                    AppUI.updateProgress(50 + (i / indicesToSplit.length) * 40);
-                    await new Promise(r => setTimeout(r, 0)); 
-                    const subDoc = await PDFDocument.create(); 
-                    const [p] = await subDoc.copyPages(sourceDoc, [idx]); 
-                    subDoc.addPage(p);
-                    zip.file(`Page_${idx + 1}.pdf`, await subDoc.save());
-                }
-            }
-            return await zip.generateAsync({type: "blob"});
-        } 
-        if (id === 'rotate') { 
-            const dir = parseInt(document.getElementById('rot-dir').value);
-            const rangeStr = document.getElementById('pg-input').value;
-            const indices = this.parsePageRanges(rangeStr, totalPages);
-            indices.forEach(idx => {
-                const p = sourceDoc.getPage(idx);
-                p.setRotation(degrees((p.getRotation().angle + dir) % 360));
-            });
-        } 
-        else if (id === 'del') { 
-            const rangeStr = document.getElementById('pg-input').value;
-            const indices = this.parsePageRanges(rangeStr, totalPages).sort((a,b) => b-a); 
-            if (indices.length >= totalPages) throw new Error("Cannot delete all pages."); 
-            if (indices.length === 0) throw new Error("No pages selected to delete.");
-            indices.forEach(idx => sourceDoc.removePage(idx));
-        } 
-        else if (id === 'extract') { 
-            const rangeStr = document.getElementById('pg-input').value;
-            const indices = this.parsePageRanges(rangeStr, totalPages);
-            if(indices.length === 0) throw new Error("No valid pages selected.");
-            const newDoc = await PDFDocument.create(); 
-            const extracted = await newDoc.copyPages(sourceDoc, indices); 
-            extracted.forEach(p => newDoc.addPage(p)); 
-            sourceDoc = newDoc; 
-        } 
-        else if (id === 'reorder') { 
-            const rangeStr = document.getElementById('pg-input')?.value;
-            const indices = rangeStr ? this.parsePageRanges(rangeStr, totalPages) : Array.from({length: totalPages}, (_, i) => i);
-            if (indices.length === 0) throw new Error("No pages selected to reverse.");
-            
-            const reversedIndices = [...indices].reverse();
-            const newDoc = await PDFDocument.create();
-            for(let i = 0; i < totalPages; i++) {
-                const srcIdx = indices.includes(i) ? reversedIndices[indices.indexOf(i)] : i;
-                const [p] = await newDoc.copyPages(sourceDoc, [srcIdx]);
-                newDoc.addPage(p);
-            }
-            sourceDoc = newDoc; 
-        } 
-        else if (id === 'watermark') { 
-            const type = document.getElementById('wm-type').value;
-            const rangeStr = document.getElementById('pg-input').value;
-            const indices = this.parsePageRanges(rangeStr, totalPages);
-            
-            if (type === 'image') {
-                const imgFile = document.getElementById('wm-img').files[0];
-                if (!imgFile) throw new Error("Please select an image file.");
-                const bytes = await imgFile.arrayBuffer();
-                let wmImg;
-                if (imgFile.type === 'image/png') wmImg = await sourceDoc.embedPng(bytes);
-                else if (imgFile.type === 'image/jpeg' || imgFile.type === 'image/jpg') wmImg = await sourceDoc.embedJpg(bytes);
-                else throw new Error("Unsupported image type.");
-
-                const wmScale = parseFloat(document.getElementById('wm-img-scale').value) || 0.5;
-                const wmOpacity = parseFloat(document.getElementById('wm-img-opacity').value) || 0.5;
-
-                sourceDoc.getPages().forEach((p, i) => {
-                    if (!indices.includes(i)) return;
-                    const { width, height } = p.getSize();
-                    const scaledW = wmImg.width * wmScale;
-                    const scaledH = wmImg.height * wmScale;
-                    p.drawImage(wmImg, {
-                        x: (width / 2) - (scaledW / 2),
-                        y: (height / 2) - (scaledH / 2),
-                        width: scaledW,
-                        height: scaledH,
-                        opacity: wmOpacity
-                    });
-                });
-            } else {
-                const text = document.getElementById('txt-input').value || "CONFIDENTIAL"; 
-                const color = this.hexToRgb(document.getElementById('wm-color').value);
-                const opacity = parseFloat(document.getElementById('wm-opacity').value);
-                const size = parseInt(document.getElementById('wm-size').value);
-                const pos = document.getElementById('wm-pos').value;
-
-                sourceDoc.getPages().forEach((p, i) => { 
-                    if (!indices.includes(i)) return;
-                    const { width, height } = p.getSize(); 
-                    let x = width / 4, y = height / 2, rot = 45;
-                    if(pos === 'top') { x = 50; y = height - 100; rot = 0; }
-                    else if(pos === 'bottom') { x = 50; y = 50; rot = 0; }
-                    p.drawText(text, { x, y, size, color, opacity, rotate: degrees(rot) }); 
-                }); 
-            }
-        } 
-        else if (id === 'numbers') { 
-            const pos = document.getElementById('pg-pos').value;
-            const startNum = parseInt(document.getElementById('pg-start').value);
-            const size = parseInt(document.getElementById('pg-size').value);
-            const color = this.hexToRgb(document.getElementById('pg-color').value);
-            const rangeStr = document.getElementById('pg-input').value;
-            const indices = this.parsePageRanges(rangeStr, totalPages);
-            
-            let count = startNum;
-            sourceDoc.getPages().forEach((p, i) => { 
-                if (!indices.includes(i)) return;
-                
-                const { width, height } = p.getSize(); 
-                let x = width - 70, y = 30; 
-                
-                if(pos === 'bottom-left') { x = 30; y = 30; }
-                else if(pos === 'bottom-center') { x = width/2 - 20; y = 30; }
-                else if(pos === 'bottom-right') { x = width - 70; y = 30; }
-                else if(pos === 'top-left') { x = 30; y = height - 30; }
-                else if(pos === 'top-center') { x = width/2 - 20; y = height - 30; }
-                else if(pos === 'top-right') { x = width - 70; y = height - 30; }
-                
-                p.drawText(`${count}`, { x, y, size, color }); 
-                count++;
-            }); 
-        }
-        AppUI.updateProgress(90);
-        await new Promise(r => setTimeout(r, 10));
-        const pdfBytes = await sourceDoc.save(); 
-        return new Blob([pdfBytes], { type: 'application/pdf' });
-    }
 }
 
-const toolMapping = {
-    'image-resizer': 'resizer',
-    'merge-pdf': 'merge',
-    'split-zip': 'split',
-    'rotate-pages': 'rotate',
-    'delete-page': 'del',
-    'extract-pages': 'extract',
-    'reverse-pdf': 'reorder',
-    'watermark': 'watermark',
-    'page-numbers': 'numbers',
-    'image-to-pdf': 'imgToPdf'
-};
+// Expose PDFEngine
+window.PDFEngine = PDFEngine;
 
+// --- DYNAMIC EVENT LISTENERS ---
+// The script dynamically captures the 'data-tool' attribute from the HTML card
+// and utilizes it as the unified identifier/filename for the registry.
 document.querySelectorAll('#tools-grid [data-tool]').forEach(card => {
-    card.addEventListener('click', (e) => {
+    card.addEventListener('click', async (e) => {
         e.preventDefault();
-        const dataTool = card.getAttribute('data-tool');
-        const toolKey = toolMapping[dataTool];
-        if (toolKey) {
-            activateWorkspace(toolKey);
-            history.pushState(null, null, `#tool-${toolKey}`);
+        const dataTool = card.getAttribute('data-tool'); // e.g. "image-resizer", "split-pdf"
+        
+        try {
+            // Visual feedback while loading the dynamic asset
+            card.style.opacity = '0.7'; 
+            
+            // Load and parse the dedicated script dynamically
+            await ToolManager.loadTool(dataTool);
+            
+            card.style.opacity = '1';
+            
+            // Render the tool
+            activateWorkspace(dataTool);
+            history.pushState(null, null, `#tool-${dataTool}`);
+            
+        } catch (error) {
+            console.error(error);
+            card.style.opacity = '1';
+            AppUI.showToast(`Error initializing tool: ${error.message}`, 'error');
         }
     });
 });
@@ -587,6 +328,7 @@ window.closeTool = function() {
         document.getElementById('about').classList.remove('hidden');
         document.getElementById('faq-section').classList.remove('hidden');
         
+        // Small delay to allow display block to apply before fading in
         setTimeout(() => {
             document.getElementById('main-header').classList.remove('opacity-0');
             document.getElementById('our-tools').classList.remove('opacity-0');
@@ -599,94 +341,96 @@ window.closeTool = function() {
     }, 300);
 };
 
-// --- نیا ڈائنامک آٹو پائلٹ فنکشن ---
-window.activateWorkspace = async function(id) {
+window.activateWorkspace = function(id) {
+    // Fade out Home sections
     document.getElementById('main-header').classList.add('opacity-0');
     document.getElementById('our-tools').classList.add('opacity-0');
     document.getElementById('about').classList.add('opacity-0');
     document.getElementById('faq-section').classList.add('opacity-0');
     
-    setTimeout(async () => {
+    setTimeout(() => {
+        // Hide Home sections
         document.getElementById('main-header').classList.add('hidden');
         document.getElementById('our-tools').classList.add('hidden');
         document.getElementById('about').classList.add('hidden');
         document.getElementById('faq-section').classList.add('hidden');
         
+        // Show Hero Panel
         const panel = document.getElementById('hero-tool-panel');
         panel.classList.remove('hidden');
         panel.classList.add('flex');
         
+        // Fade in
         setTimeout(() => panel.classList.remove('opacity-0'), 20);
         
         const box = document.getElementById('tool-workspace-box');
         const canvas = document.getElementById('canvas-content');
         
-        activeFiles = []; 
-        currentToolId = id;
+        // Fetch Tool Config from Dynamic Registry
+        const tool = window.ToolsRegistry[id];
+        
+        window.activeFiles = []; 
+        window.currentToolId = id;
         
         box.style.opacity = '0';
         box.style.transform = 'translateY(15px)';
-
-        try {
-            const manifestRes = await fetch('tools/manifest.json');
-            if (!manifestRes.ok) throw new Error('Failed to load manifest.json');
-            const manifest = await manifestRes.json();
+        
+        setTimeout(() => {
+            const cBase = tool.color.split('-')[0];
+            canvas.className = "text-left flex flex-col";
+            canvas.innerHTML = `
+                <div class="flex items-center space-x-5 mb-8 pb-8 border-b border-slate-100">
+                    <div class="w-16 h-16 bg-${cBase}-50 text-${tool.color} rounded-[18px] flex items-center justify-center text-3xl shadow-sm border border-${cBase}-100/50 flex-shrink-0">
+                        <i class="fa-solid ${tool.icon}"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1.5">${tool.name}</h2>
+                        <p class="text-sm md:text-base text-slate-500">${tool.desc}</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-6 flex-grow">
+                    ${tool.render(tool, AppUI)}
+                </div>
+                
+                <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
+                    <button id="execute-btn" onclick="PDFEngine.execute('${id}')" class="w-full sm:w-auto px-8 py-4 bg-${tool.color} hover:bg-${tool.color.replace('500', '600').replace('600', '700')} text-white text-sm font-bold rounded-xl shadow-lg shadow-${cBase}-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3">
+                        <span>Execute ${tool.name}</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
             
-            const tool = manifest[id];
-            if (!tool) throw new Error(`Tool details for '${id}' not found in manifest.`);
-
-            const htmlRes = await fetch(`tools/${id}/index.html`);
-            if (!htmlRes.ok) throw new Error(`Failed to load index.html for '${id}'`);
-            const htmlContent = await htmlRes.text();
-
-            setTimeout(() => {
-                canvas.className = "text-left flex flex-col";
-                canvas.innerHTML = htmlContent;
-                
-                const scriptId = 'dynamic-tool-script';
-                const existingScript = document.getElementById(scriptId);
-                if (existingScript) existingScript.remove(); 
-                
-                const script = document.createElement('script');
-                script.id = scriptId;
-                script.src = `tools/${id}/script.js`;
-                document.body.appendChild(script);
-                
-                const dropZone = document.getElementById('drop-zone');
-                if(dropZone) {
-                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                        dropZone.addEventListener(eventName, preventDefaults, false);
-                    });
-                    function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-                    
-                    ['dragenter', 'dragover'].forEach(eventName => {
-                        dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
-                    });
-                    ['dragleave', 'drop'].forEach(eventName => {
-                        dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
-                    });
-                    
-                    dropZone.addEventListener('drop', (e) => {
-                        const dt = e.dataTransfer;
-                        const isMultiple = id === 'merge' || id === 'imgToPdf';
-                        const color = tool.color || 'blue-600'; 
-                        AppUI.handleFileSelect({target: {files: dt.files}}, isMultiple, color);
-                    }, false);
-                }
-
-                window.requestAnimationFrame(() => {
-                    box.style.opacity = '1'; 
-                    box.style.transform = 'translateY(0)';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+            const dropZone = document.getElementById('drop-zone');
+            if(dropZone) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
                 });
-            }, 100);
+                function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    // Detect file constraints via the individual tool's dynamic registry
+                    const isMultiple = tool.multipleFiles || false;
+                    AppUI.handleFileSelect({target: {files: dt.files}}, isMultiple, tool.color);
+                }, false);
+            }
 
-        } catch (error) {
-            console.error("Autopilot Loading Error:", error);
-            AppUI.showToast("Failed to load tool module.", "error");
-            
-            box.style.opacity = '1'; 
-            box.style.transform = 'translateY(0)';
-        }
+            // Execute isolated DOM/event setup logic if the separate tool file requires it
+            if (typeof tool.init === 'function') {
+                tool.init();
+            }
+
+            window.requestAnimationFrame(() => {
+                box.style.opacity = '1'; 
+                box.style.transform = 'translateY(0)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }, 100);
     }, 300);
-};
+}
