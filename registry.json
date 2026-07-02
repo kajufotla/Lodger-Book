@@ -8,7 +8,5 @@
   "delete-pages",
   "extract-pages",
   "reorder-pages",
-  "add-watermark",
-  "pdf-compressor",
-  "add-pdf-password" 
+  "add-watermark"
 ]
