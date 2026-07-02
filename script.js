@@ -17,11 +17,6 @@ window.ToolLoadPromises = {};
 
 class ToolManager {
     static async loadTool(toolId) {
-        // Security Gate: Reject requests for tools not in the active registry
-        if (window.ActiveRegistry.length > 0 && !window.ActiveRegistry.includes(toolId)) {
-            throw new Error(`Access Denied: Tool '${toolId}' is inactive or not configured.`);
-        }
-
         if (window.ToolsRegistry[toolId] && window.ToolsRegistry[toolId].isLoaded) {
             return window.ToolsRegistry[toolId];
         }
@@ -396,6 +391,14 @@ window.PDFEngine = PDFEngine;
 // --- CENTRALIZED TOOL LAUNCHER ---
 window.openTool = async function(id, element = null) {
     if(element) element.style.opacity = '0.7';
+    
+    // Security Gate check
+    if (window.ActiveRegistry && window.ActiveRegistry.length > 0 && !window.ActiveRegistry.includes(id)) {
+        AppUI.showToast(`Tool '${id}' is currently inactive.`, 'error');
+        if(element) element.style.opacity = '1';
+        return;
+    }
+
     try {
         await ToolManager.loadTool(id);
         if(element) element.style.opacity = '1';
@@ -411,86 +414,43 @@ window.openTool = async function(id, element = null) {
 // --- DYNAMIC HUB INITIALIZATION ---
 class HubManager {
     static async initialize() {
-        try {
-            // 1. Fetch registry first to establish the source of truth
-            const res = await fetch('./tools/registry.json');
-            if (!res.ok) throw new Error("Registry configuration could not be loaded.");
-            const activeToolIds = await res.json();
-            
-            // Populate global registry state for security gatekeeping
-            window.ActiveRegistry = activeToolIds;
-
-            const grid = document.getElementById('tools-grid');
-            if (!grid) return;
-
-            // 2. Cache all hardcoded HTML elements and clear the grid
-            const domElementsMap = {};
-            document.querySelectorAll('[data-tool]').forEach(card => {
-                domElementsMap[card.getAttribute('data-tool')] = card;
-                card.remove(); 
+        // 1. سب سے پہلے تمام ٹولز کو کلک ایونٹ دے دیں تاکہ کلک کبھی فیل نہ ہو
+        document.querySelectorAll('[data-tool]').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = card.getAttribute('data-tool');
+                window.openTool(id, card);
             });
+        });
 
-            // 3. Rebuild the DOM strictly based on the registry, preserving the registry array's exact order
-            for (const id of activeToolIds) {
-                if (domElementsMap[id]) {
-                    // Tool exists in HTML: restore it, clean hidden classes, and attach safe event listener
-                    const card = domElementsMap[id];
-                    card.classList.remove('hidden');
-                    
-                    const safeCard = card.cloneNode(true);
-                    safeCard.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        window.openTool(id, safeCard);
-                    });
-                    
-                    grid.appendChild(safeCard);
-                } else {
-                    // Tool active in registry but missing in HTML: Fetch manifest & build dynamically
-                    try {
-                        const manifestRes = await fetch(`./tools/${id}/manifest.json`);
-                        if (!manifestRes.ok) continue; 
-                        const manifest = await manifestRes.json();
-                        
-                        window.ToolsRegistry[id] = window.ToolsRegistry[id] || {};
-                        Object.assign(window.ToolsRegistry[id], manifest);
+        try {
+            // 2. اب registry.json کو لوڈ کریں (ہم دو مختلف پاتھ چیک کر رہے ہیں)
+            let res;
+            try {
+                res = await fetch('./registry.json');
+            } catch(e) {}
+            
+            if (!res || !res.ok) {
+                res = await fetch('./tools/registry.json');
+            }
+            
+            if (res && res.ok) {
+                const activeToolIds = await res.json();
+                window.ActiveRegistry = activeToolIds; // اسے گلوبل ویریایبل میں محفوظ کر لیا
 
-                        this.buildCard(grid, id, manifest);
-                    } catch(e) {
-                        console.error(`[HubManager] Failed to construct dynamic tool ${id}`, e);
+                // 3. جو ٹولز registry.json میں نہیں ہیں، ان کو ہائیڈ کر دیں
+                document.querySelectorAll('[data-tool]').forEach(card => {
+                    const id = card.getAttribute('data-tool');
+                    if (!activeToolIds.includes(id)) {
+                        card.style.display = 'none'; // UI سے غائب کر دیا
                     }
-                }
+                });
+            } else {
+                console.warn("[HubManager] Registry file couldn't be loaded. All tools are temporarily active.");
             }
         } catch (error) {
             console.error('Hub Initialization Error:', error);
-            AppUI.showToast("Failed to sync system configuration.", "error");
         }
-    }
-
-    static buildCard(grid, id, manifest) {
-        const tColor = manifest.color || 'blue-500';
-        const cBase = tColor.split('-')[0];
-        const card = document.createElement('a');
-        card.href = `#tool-${id}`;
-        card.className = "group bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start";
-        card.setAttribute('data-tool', id);
-        
-        card.innerHTML = `
-            <div class="w-14 h-14 bg-${cBase}-50 text-${tColor} rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                <i class="fa-solid ${manifest.icon || 'fa-wrench'}"></i>
-            </div>
-            <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-${tColor} transition-colors">${manifest.name || 'Utility Tool'}</h3>
-            <p class="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">${manifest.desc || ''}</p>
-            <div class="mt-auto inline-flex items-center text-sm font-semibold text-${tColor} group-hover:translate-x-1 transition-transform">
-                Open Tool <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
-            </div>
-        `;
-
-        card.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.openTool(id, card);
-        });
-
-        grid.appendChild(card);
     }
 }
 
