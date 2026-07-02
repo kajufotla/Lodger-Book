@@ -10,5 +10,5 @@
   "reorder-pages",
   "add-watermark",
   "pdf-compressor",
-  "add-pdf-password" // یہاں اسے شامل کر دیا ہے
+  "add-pdf-password" 
 ]
