@@ -17,14 +17,29 @@
     <div id="file-name-display" class="hidden mt-4 text-sm font-semibold text-red-600 bg-red-100 px-4 py-1.5 rounded-full z-20"></div>
   </div>
 
-  <div class="flex flex-col gap-2">
-    <label for="pdf-password" class="text-sm font-semibold text-gray-700">Document Password</label>
-    <div class="relative group">
-      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <i class="fa-solid fa-key text-gray-400 group-focus-within:text-red-500 transition-colors"></i>
+  <div class="flex flex-col gap-4">
+    
+    <div class="flex flex-col gap-2">
+      <label for="pdf-password" class="text-sm font-semibold text-gray-700">Document Password</label>
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fa-solid fa-key text-gray-400 group-focus-within:text-red-500 transition-colors"></i>
+        </div>
+        <input type="password" id="pdf-password" placeholder="Enter a secure password" class="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm" />
       </div>
-      <input type="password" id="pdf-password" placeholder="Enter a secure password" class="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm" />
     </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="pdf-confirm-password" class="text-sm font-semibold text-gray-700">Confirm Password</label>
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fa-solid fa-check-double text-gray-400 group-focus-within:text-red-500 transition-colors"></i>
+        </div>
+        <input type="password" id="pdf-confirm-password" placeholder="Re-enter your password" class="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm" />
+      </div>
+      <p id="password-error" class="hidden text-sm text-red-500 mt-1 font-medium"><i class="fa-solid fa-circle-exclamation mr-1"></i> Passwords do not match!</p>
+    </div>
+
   </div>
 
   <button id="protect-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2">
