@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to JPG/PNG Converter - High Quality</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- JSZip Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Links to your main style if needed, or inline glass styles -->
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-slate-50 to-blue-50 min-h-screen text-slate-800 font-sans antialiased">
+
+    <!-- Header / Navbar Section -->
+    <header class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="../index.html" class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent hover:opacity-80 transition">
+            PDF Expert
+        </a>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3">
+                Convert PDF to JPG / PNG
+            </h1>
+            <p class="text-slate-600 max-w-lg mx-auto">
+                Extract high-quality images from your PDF pages locally in your browser. Fast, secure, and 100% free.
+            </p>
+        </div>
+
+        <!-- Tool Container -->
+        <div class="glass-card rounded-2xl p-8 shadow-xl transition-all duration-300">
+            
+            <!-- Drag and Drop Zone -->
+            <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-10 text-center cursor-pointer transition-colors bg-white/50 group">
+                <input type="file" id="fileInput" accept=".pdf" class="hidden">
+                <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                    </svg>
+                </div>
+                <p class="text-base font-semibold text-slate-700">Drag & drop your PDF file here</p>
+                <p class="text-xs text-slate-500 mt-1">or click to browse from device</p>
+            </div>
+
+            <!-- File Info & Options (Hidden initially) -->
+            <div id="optionsSection" class="hidden mt-8 space-y-6 border-t border-slate-200/50 pt-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 bg-white/80 p-4 rounded-xl border border-slate-100">
+                    <div>
+                        <p id="fileName" class="font-medium text-slate-800 truncate max-w-xs md:max-w-md"></p>
+                        <p id="fileSize" class="text-xs text-slate-500"></p>
+                    </div>
+                    <!-- Output Format Selector -->
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm font-medium text-slate-600">Format:</label>
+                        <select id="imageFormat" class="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="jpeg">JPG (Standard)</option>
+                            <option value="png">PNG (Lossless)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Convert Button -->
+                <button id="convertBtn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2">
+                    <span>Convert to Images</span>
+                </button>
+            </div>
+
+            <!-- Progress & Status Section -->
+            <div id="progressSection" class="hidden mt-6 space-y-3">
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div id="progressBar" class="bg-indigo-600 h-2 w-0 transition-all duration-200 rounded-full"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 font-medium">
+                    <span id="statusText">Processing pages...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+
+            <!-- Success / Download Action -->
+            <div id="downloadSection" class="hidden mt-6 text-center">
+                <button id="downloadBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-6 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    <span>Download Images (ZIP)</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="text-center py-8 text-xs text-slate-400 mt-auto">
+        <p>&copy; 2026 PDF Expert. All processing happens safely in your browser.</p>
+    </footer>
+
+    <!-- Script File -->
+    <script src="script.js"></script>
+</body>
+</html>
