@@ -1,15 +1,5 @@
-<div class="workspace w-full max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-8">
+<div class="flex flex-col gap-8 w-full">
   
-  <div class="flex items-center gap-4">
-    <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shadow-sm">
-      <i class="fa-solid fa-wrench text-2xl"></i>
-    </div>
-    <div>
-      <h2 class="text-2xl font-bold text-gray-800 tracking-tight uppercase">Add PDF Password</h2>
-      <p class="text-gray-500 text-sm mt-1">Upload your file below to start processing.</p>
-    </div>
-  </div>
-
   <div>
     <p class="text-xs font-bold text-gray-500 uppercase mb-2">Source File(s)</p>
     <div id="pdf-dropzone" class="relative group border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-50/30 rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer bg-blue-50/10 transition-all duration-300">
@@ -21,7 +11,7 @@
     </div>
     <div id="file-name-display" class="hidden mt-3 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg z-20 flex justify-between items-center">
       <span id="file-name-text"></span>
-      <i class="fa-solid fa-xmark text-red-400 cursor-pointer hover:text-red-600"></i>
+      <i class="fa-solid fa-xmark text-red-400 cursor-pointer hover:text-red-600" onclick="document.getElementById('pdf-file-input').value=''; document.getElementById('file-name-display').classList.add('hidden'); window.activeFiles=[];"></i>
     </div>
   </div>
 
@@ -38,7 +28,4 @@
     </div>
   </div>
 
-  <button id="protect-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2">
-    Execute ADD PDF PASSWORD <i class="fa-solid fa-arrow-right"></i>
-  </button>
 </div>
