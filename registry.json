@@ -9,5 +9,6 @@
   "extract-pages",
   "reorder-pages",
   "add-watermark",
-  "pdf-compressor"
+  "pdf-compressor",
+  "add-pdf-password" // یہاں اسے شامل کر دیا ہے
 ]
