@@ -406,7 +406,7 @@ class PDFEngine {
         try {
             const tool = window.ToolsRegistry[id];
             
-            // اگر ٹول کے پاس اپنا پروسیس فنکشن ہے (جیسے 11واں ٹول)، تو وہ چلے گا
+            // ڈائنیمک ٹول پروسیسنگ (جیسے 11واں یا نیا ٹول)
             if (tool && typeof tool.process === 'function') {
                 const { blob, filename } = await tool.process(window.activeFiles, PDFEngine, AppUI, PDFDocument);
                 AppUI.updateProgress(100);
@@ -415,7 +415,7 @@ class PDFEngine {
                     AppUI.showToast("Operation completed successfully!"); 
                 }
             } 
-            // اگر نہیں، تو پہلے 10 ٹولز کا پرانا لاجک چلے گا
+            // پرانے 10 ٹولز کی پروسیسنگ
             else {
                 let finalBlob = null; let filename = `Output_${id}.pdf`;
                 if (id === 'resizer') { 
@@ -850,16 +850,6 @@ for (const [key, config] of Object.entries(ToolsConfig)) {
     };
 }
 
-// یہ وہ لسٹ ہے جس میں جو ٹول ہوگا صرف وہی ہوم پیج پر نظر آئے گا
-// "جو جو ہم رجسٹری ایڈ کرتے جائیں گے تو وہ شو ہوں گے"
-window.EnabledHubTools = [
-    'image-resizer', 'merge-pdf', 'split-zip', 'rotate-pages',
-    'delete-page', 'extract-pages', 'reverse-pdf', 'watermark',
-    'page-numbers', 'image-to-pdf',
-    // 11th ٹول (PDF Compressor) کو یہاں شامل کیا گیا ہے تاکہ وہ نظر آئے
-    'pdf-compressor' 
-];
-
 // --- CENTRALIZED TOOL LAUNCHER ---
 window.openTool = async function(id, element = null) {
     if(element) element.style.opacity = '0.7';
@@ -875,19 +865,18 @@ window.openTool = async function(id, element = null) {
     }
 };
 
-// --- DYNAMIC HUB INITIALIZATION ---
+// --- DYNAMIC HUB INITIALIZATION (UPDATED) ---
 class HubManager {
     static async initialize() {
+        // اب یہ فنکشن صرف HTML میں موجود کارڈز کو دیکھے گا
+        // رجسٹری لسٹ کی ضرورت ختم کر دی گئی ہے۔
         document.querySelectorAll('[data-tool]').forEach(card => {
             const dataTool = card.getAttribute('data-tool');
             
-            // صرف وہی ٹولز دکھائیں جو EnabledHubTools کی لسٹ میں ہیں
-            if (window.EnabledHubTools.includes(dataTool)) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
+            // کارڈ کو وزیبل کر دیں
+            card.classList.remove('hidden');
             
+            // کلک ایونٹ لگا دیں
             card.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = toolMapping[dataTool] || dataTool;
