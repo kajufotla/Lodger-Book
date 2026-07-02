@@ -1,0 +1,7 @@
+{
+  "name": "Protect PDF",
+  "registryKey": "add-pdf-password",
+  "icon": "fa-solid fa-lock",
+  "color": "red-500",
+  "description": "Securely encrypt your PDF with a password using AES-256."
+}
