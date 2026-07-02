@@ -2,7 +2,7 @@ export const tool = {
     /**
      * Core processing logic for Protect PDF.
      * Integrates with the dynamic tool loader to securely encrypt the file client-side.
-     * * @param {File[]} files - Array of files retrieved from the UI dropzone/input
+     * @param {File[]} files - Array of files retrieved from the UI dropzone/input
      * @param {Object} engine - The core processing engine context
      * @param {Object} ui - UI helper methods exposed by the dynamic architecture
      * @param {Object} PDFLib - The injected pdf-lib library
@@ -11,11 +11,30 @@ export const tool = {
     process: async (files, engine, ui, PDFLib) => {
         // 1. Input Validation
         const passwordField = document.getElementById('pdf-password');
+        const confirmPasswordField = document.getElementById('pdf-confirm-password');
+        const passwordError = document.getElementById('password-error');
+        
         const password = passwordField ? passwordField.value : '';
+        const confirmPassword = confirmPasswordField ? confirmPasswordField.value : '';
+
+        // پرانا ایرر چھپانے کے لیے (اگر پہلے سے نظر آ رہا ہو)
+        if (passwordError) {
+            passwordError.classList.add('hidden');
+        }
 
         if (!password || password.trim() === '') {
             throw new Error("Password is required. Please enter a valid password to secure your PDF.");
         }
+
+        // --- NEW: Password Match Logic ---
+        if (password !== confirmPassword) {
+            // اگر پاسورڈ میچ نہیں ہوتے تو HTML والا ایرر میسج شو کروا دو
+            if (passwordError) {
+                passwordError.classList.remove('hidden'); 
+            }
+            throw new Error("Passwords do not match. Please ensure both passwords are identical.");
+        }
+        // ---------------------------------
 
         if (!files || files.length === 0) {
             throw new Error("No PDF file provided. Please select a document first.");
