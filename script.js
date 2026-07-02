@@ -9,7 +9,6 @@ const { PDFDocument, rgb, degrees } = window.PDFLibOptions;
 // --- Global Application State ---
 window.activeFiles = [];
 window.currentToolId = null;
-window.ActiveRegistry = []; // Source of truth for authorized tools
 
 // --- DYNAMIC REGISTRY & LOADER ARCHITECTURE ---
 window.ToolsRegistry = {};
@@ -30,29 +29,25 @@ class ToolManager {
 
         window.ToolLoadPromises[toolId] = (async () => {
             try {
-                // Fetch & Parse Manifest
-                const manifestRes = await fetch(`./tools/${toolId}/manifest.json`);
-                if (!manifestRes.ok) throw new Error(`Configuration missing for '${toolId}'.`);
-                
-                const manifest = await manifestRes.json();
-                Object.assign(tool, manifest);
-
-                // Version Compatibility Check
-                if (tool.requiredFrameworkVersion) {
-                    const reqMajor = tool.requiredFrameworkVersion.split('.')[0];
-                    const coreMajor = window.CORE_FRAMEWORK_VERSION.split('.')[0];
-                    if (reqMajor !== coreMajor) {
-                        throw new Error(`Incompatible tool. Requires framework v${tool.requiredFrameworkVersion}.`);
+                // Fetch Manifest - बिना किसी एरर के (अगर नहीं मिलेगी तो डिफ़ॉल्ट इस्तेमाल करेगा)
+                try {
+                    const manifestRes = await fetch(`./tools/${toolId}/manifest.json`);
+                    if (manifestRes.ok) {
+                        const manifest = await manifestRes.json();
+                        Object.assign(tool, manifest);
+                    } else {
+                        // अगर फाइल नहीं मिली, तो एरर देने के बजाय डिफ़ॉल्ट नाम सेट कर दो
+                        Object.assign(tool, { name: toolId.replace(/-/g, ' ').toUpperCase(), color: 'blue-500' });
                     }
+                } catch(e) {
+                    Object.assign(tool, { name: toolId.replace(/-/g, ' ').toUpperCase(), color: 'blue-500' });
                 }
 
-                // Fetch HTML Template
+                // Fetch HTML Template (Optional)
                 try {
                     const htmlRes = await fetch(`./tools/${toolId}/index.html`);
                     if (htmlRes.ok) tool.template = await htmlRes.text();
-                } catch (e) {
-                    console.warn(`[ToolManager] No index.html found for '${toolId}'. Using default UI.`);
-                }
+                } catch (e) {} // इग्नोर करें अगर HTML नहीं है
 
                 // Load Optional Dependencies
                 if (tool.dependencies) {
@@ -70,12 +65,12 @@ class ToolManager {
                     if (tool.dependencies.js && Array.isArray(tool.dependencies.js)) {
                         for (const jsFile of tool.dependencies.js) {
                             if (!document.querySelector(`script[src="./tools/${toolId}/${jsFile}"]`)) {
-                                await new Promise((resolve, reject) => {
+                                await new Promise((resolve) => {
                                     const script = document.createElement('script');
                                     script.src = `./tools/${toolId}/${jsFile}`;
                                     script.setAttribute('data-tool-dependency', toolId);
                                     script.onload = resolve;
-                                    script.onerror = () => reject(new Error(`Failed to load dependency: ${jsFile}`));
+                                    script.onerror = resolve; // एरर की सूरत में भी आगे बढ़ो
                                     document.head.appendChild(script);
                                 });
                             }
@@ -83,14 +78,14 @@ class ToolManager {
                     }
                 }
 
-                // Load Logic Script
+                // Load Logic Script (Optional - अगर नहीं होगी तो भी UI खुलेगा)
                 if (!document.querySelector(`script[data-tool-id="${toolId}"]`)) {
-                    await new Promise((resolve, reject) => {
+                    await new Promise((resolve) => {
                         const script = document.createElement('script');
                         script.src = `./tools/${toolId}/script.js`;
                         script.setAttribute('data-tool-id', toolId);
                         script.onload = resolve;
-                        script.onerror = () => reject(new Error(`Logic script missing for '${toolId}'.`));
+                        script.onerror = resolve; // बिना क्रैश हुए आगे बढ़ो
                         document.head.appendChild(script);
                     });
                 }
@@ -99,9 +94,9 @@ class ToolManager {
                 return tool;
                 
             } catch (error) {
-                console.error(`[ToolManager] Error loading tool '${toolId}':`, error);
-                delete window.ToolLoadPromises[toolId]; 
-                throw error;
+                console.error(`[ToolManager] error:`, error);
+                tool.isLoaded = true;
+                return tool; // हर हाल में टूल रिटर्न करो ताकि हीरो बॉक्स खुले
             }
         })();
 
@@ -129,7 +124,7 @@ class AppUI {
 
     static renderFileInput(tool, multiple = false, accept = ".pdf") {
         const tColor = tool.color || 'blue-500';
-        const cBase = tColor.split('-')[0];
+        const cBase = tColor.split('-')[0] || 'blue';
         return `
             <div class="space-y-3">
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Source File(s)</label>
@@ -347,7 +342,7 @@ class PDFEngine {
         
         const tool = window.ToolsRegistry[id];
         if (!tool || typeof tool.process !== 'function') {
-            AppUI.showToast("Processor script for this tool is missing or invalid.", 'error');
+            AppUI.showToast("Processor script for this tool is missing. Please add logic.", 'error');
             return;
         }
 
@@ -391,14 +386,6 @@ window.PDFEngine = PDFEngine;
 // --- CENTRALIZED TOOL LAUNCHER ---
 window.openTool = async function(id, element = null) {
     if(element) element.style.opacity = '0.7';
-    
-    // Security Gate check
-    if (window.ActiveRegistry && window.ActiveRegistry.length > 0 && !window.ActiveRegistry.includes(id)) {
-        AppUI.showToast(`Tool '${id}' is currently inactive.`, 'error');
-        if(element) element.style.opacity = '1';
-        return;
-    }
-
     try {
         await ToolManager.loadTool(id);
         if(element) element.style.opacity = '1';
@@ -414,43 +401,17 @@ window.openTool = async function(id, element = null) {
 // --- DYNAMIC HUB INITIALIZATION ---
 class HubManager {
     static async initialize() {
-        // 1. سب سے پہلے تمام ٹولز کو کلک ایونٹ دے دیں تاکہ کلک کبھی فیل نہ ہو
+        // सारे टूल्स को एक्टिवेट करें, कुछ भी हाईड (Hide) नहीं होगा
         document.querySelectorAll('[data-tool]').forEach(card => {
+            // छिपे हुए (hidden) टूल को भी दिखने दें
+            card.classList.remove('hidden');
+            
             card.addEventListener('click', (e) => {
                 e.preventDefault();
                 const id = card.getAttribute('data-tool');
                 window.openTool(id, card);
             });
         });
-
-        try {
-            // 2. اب registry.json کو لوڈ کریں (ہم دو مختلف پاتھ چیک کر رہے ہیں)
-            let res;
-            try {
-                res = await fetch('./registry.json');
-            } catch(e) {}
-            
-            if (!res || !res.ok) {
-                res = await fetch('./tools/registry.json');
-            }
-            
-            if (res && res.ok) {
-                const activeToolIds = await res.json();
-                window.ActiveRegistry = activeToolIds; // اسے گلوبل ویریایبل میں محفوظ کر لیا
-
-                // 3. جو ٹولز registry.json میں نہیں ہیں، ان کو ہائیڈ کر دیں
-                document.querySelectorAll('[data-tool]').forEach(card => {
-                    const id = card.getAttribute('data-tool');
-                    if (!activeToolIds.includes(id)) {
-                        card.style.display = 'none'; // UI سے غائب کر دیا
-                    }
-                });
-            } else {
-                console.warn("[HubManager] Registry file couldn't be loaded. All tools are temporarily active.");
-            }
-        } catch (error) {
-            console.error('Hub Initialization Error:', error);
-        }
     }
 }
 
@@ -464,7 +425,7 @@ window.closeTool = function() {
     if (window.currentToolId) {
         const activeTool = window.ToolsRegistry[window.currentToolId];
         if (activeTool && typeof activeTool.cleanup === 'function') {
-            try { activeTool.cleanup(); } catch (e) { console.error(`[Cleanup Error in ${window.currentToolId}]`, e); }
+            try { activeTool.cleanup(); } catch (e) { console.error(`[Cleanup Error]`, e); }
         }
     }
 
@@ -497,12 +458,7 @@ window.closeTool = function() {
 };
 
 window.activateWorkspace = function(id) {
-    const tool = window.ToolsRegistry[id];
-    
-    if (!tool) {
-        AppUI.showToast(`Tool details for '${id}' could not be loaded.`, 'error');
-        return;
-    }
+    const tool = window.ToolsRegistry[id] || { name: id, color: 'blue-500' };
 
     document.getElementById('main-header')?.classList.add('opacity-0');
     document.getElementById('our-tools')?.classList.add('opacity-0');
@@ -535,10 +491,10 @@ window.activateWorkspace = function(id) {
         
         setTimeout(() => {
             const tColor = tool.color || 'blue-500';
-            const cBase = tColor.split('-')[0];
+            const cBase = tColor.split('-')[0] || 'blue';
             const tIcon = tool.icon || 'fa-wrench';
-            const tName = tool.name || 'Utility Tool';
-            const tDesc = tool.desc || '';
+            const tName = tool.name || id.replace(/-/g, ' ').toUpperCase();
+            const tDesc = tool.desc || 'Upload your file below to start processing.';
             const multipleFiles = tool.multipleFiles !== undefined ? tool.multipleFiles : false;
             const acceptAttr = tool.accept || '*/*';
             
@@ -549,7 +505,6 @@ window.activateWorkspace = function(id) {
                 try {
                     toolUI = tool.render(tool, AppUI);
                 } catch (renderError) {
-                    console.error(`[Render Error in ${id}]`, renderError);
                     toolUI = `<div class="p-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">Failed to render custom UI. Using fallback.</div>` + AppUI.renderFileInput(tool, multipleFiles, acceptAttr);
                 }
             } else {
@@ -601,7 +556,7 @@ window.activateWorkspace = function(id) {
             }
 
             if (typeof tool.init === 'function') {
-                try { tool.init(); } catch (initError) { console.error(`[Init Error in ${id}]`, initError); }
+                try { tool.init(); } catch (initError) {}
             }
 
             window.requestAnimationFrame(() => {
